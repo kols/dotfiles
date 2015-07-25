@@ -1,9 +1,11 @@
 /*
 !.gitignore
+!.gitattributes
 !.gitconfig
 
 # utils
 !.tmux.conf
+!.ssh/
 
 # vim
 !.vim/
