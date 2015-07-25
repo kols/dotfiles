@@ -1,0 +1,7 @@
+flake8
+httpie
+ipython
+pip-autoremove
+tmuxp
+virtualenv
+virtualenvwrapper

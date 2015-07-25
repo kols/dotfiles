@@ -14,3 +14,7 @@
 # ruby
 !Gemfile
 !.gemrc
+
+# python
+!requirements.txt
+!.pypirc
