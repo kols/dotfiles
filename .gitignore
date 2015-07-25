@@ -1,4 +1,10 @@
 /*
 !.gitignore
+
+# vim
 !.vim/
 !.vimrc
+
+# ruby
+!Gemfile
+!.gemrc
