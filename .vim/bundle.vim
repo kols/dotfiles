@@ -67,7 +67,6 @@ Plugin 'Valloric/YouCompleteMe'
 "Plugin 'tpope/vim-rails'
 
     " Python {{{2
-Plugin 'janko-m/vim-test'
 Plugin 'klen/python-mode'
 
     " JavaScript {{{2
@@ -81,6 +80,7 @@ Plugin 'klen/python-mode'
 
     " Go {{{2
 "Plugin 'jnwhiteh/vim-golang'
+Plugin 'fatih/vim-go'
 
 call vundle#end()
 
