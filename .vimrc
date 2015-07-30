@@ -102,8 +102,6 @@ set statusline+=\ %{fugitive#statusline()} " add git branch after existing statu
 set guioptions=e " Set gui interface like cli
 set showtabline=1 " show tab line when more than one tab exist
 set nu " Show line number
-set list " show list chars set below
-set listchars=tab:▸\ ,eol:¬
 set showbreak=↳ " show linebreak char
 set showcmd " Show (partial) command in status line.
 set mouse=a " Enable mouse usage (all modes)
@@ -116,7 +114,7 @@ au GUIEnter * set vb t_vb=
 
   " font {{{2
 if has("macunix")
-  set guifont=Fantasque\ Sans\ Mono:h16pt
+  set guifont=Luculent\ 16:h16pt
 else
   set guifont=Fantasque\ Sans\ Mono\ 10
   set guifontwide=STHeiti\ 9,WenQuanYi\ Zenhei\ 9,微软雅黑\ 9,宋体\ 9
@@ -124,6 +122,7 @@ endif
 
   " colorscheme {{{2
 let g:zenburn_high_Contrast=1
+"let g:zenburn_transparent = 1
 colorscheme zenburn
 set background=dark
 
@@ -156,7 +155,7 @@ autocmd FileType python set isk+=.,(
 autocmd FileType python set iskeyword-=(
 autocmd FileType python set iskeyword-=.
 " Wrap at 72 chars for comments.
-set formatoptions=cq textwidth=72 foldignore= wildignore+=*.py[co]
+set formatoptions=cq textwidth=72 foldignore= wildignore+=*.py[co] foldmethod=indent
 
   " Ruby {{{2
 autocmd BufRead,BufNewFile *.rb set ts=2 et sw=2 sts=2 ft=ruby
@@ -201,13 +200,13 @@ map <leader>8 <ESC><ESC>:NERDTreeFind<CR>
 map <leader>td <Plug>TaskList
 
   " Gundo {{{2
-map <leader>g :GundoToggle<CR>
+map <leader>u :GundoToggle<CR>
 
   " Syntastic {{{2
 let g:syntastic_enable_balloons = 0
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_jump = 2
-let g:syntastic_python_checkers = ['flake8', 'pylint']
+let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_javascript_checkers = ['jshint']
 let g:syntastic_mode_map = {
     \ "mode": "active",
@@ -216,6 +215,7 @@ let g:syntastic_mode_map = {
 \ }
 nnoremap <silent> <leader>el :Errors<cr>
 nnoremap <silent> <leader>es :SyntasticCheck<cr>
+nnoremap <silent> <leader>er :SyntasticReset<cr>
 
   " tagbar {{{2
 map <leader>tg :TagbarToggle<cr>
@@ -250,6 +250,7 @@ nnoremap <leader>gt :Gcommit -v -q %:p<CR>
 nnoremap <leader>gl :silent! Glog<CR>:bo copen<CR>
 nnoremap <leader>gb :Gbrowse<CR>
 nnoremap <leader>grv :Gtabedit<space>
+nnoremap <leader>G :Git<space>
 
   " python-mode {{{2
 let g:pymode_rope = 1
@@ -258,9 +259,9 @@ let g:pymode_virtualenv = 1
 let g:pymode_motion = 1
 let g:pymode_indent = 1
 let g:pymode_breakpoint = 0
+let g:pymode_folding = 0
 " use syntastic instead
 let g:pymode_lint = 0
-let g:pymode_rope_goto_definition_bind = '<leader>gg'
 
   " UltiSnips {{{2
 let g:UltiSnipsExpandTrigger="<C-d>"
@@ -285,6 +286,8 @@ nmap <silent> <leader>tg :TestVisit<CR>
   " Dispatch {{{2
 autocmd FileType python let b:dispatch = 'py.test %'
 nnoremap <leader>i :Dispatch<CR>
+nnoremap <leader>k :Make<space>
+nnoremap <leader>s :Dispatch<space>
 
   " vimux {{{2
 map <Leader>vp :VimuxPromptCommand<CR>
@@ -292,6 +295,9 @@ map <Leader>vl :VimuxRunLastCommand<CR>
 map <Leader>vi :VimuxInspectRunner<CR>
 map <Leader>vq :VimuxCloseRunner<CR>
 map <Leader>vx :VimuxInterruptRunner<CR>
+
+  " ycm {{{2
+nnoremap <silent> <leader>gg :YcmCompleter GoTo<CR>
 
 " Modeline {{{1
 " vim:fdm=marker:ts=2:sts=2:sw=2
