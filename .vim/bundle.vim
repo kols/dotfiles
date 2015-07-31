@@ -61,6 +61,7 @@ Plugin 'scrooloose/syntastic'
 Plugin 'majutsushi/tagbar'
 "Plugin 'mattn/emmet-vim'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'janko-m/vim-test'
 
     " Ruby {{{2
 "Plugin 'vim-ruby/vim-ruby'
