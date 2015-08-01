@@ -3,6 +3,11 @@
 !.gitattributes
 !.gitconfig
 
+# shell
+!.zshrc
+!.zshenv
+!.zlogin
+
 # utils
 !.tmux.conf
 !.ssh/
