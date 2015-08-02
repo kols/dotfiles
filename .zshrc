@@ -4,10 +4,9 @@ HISTSIZE=30000
 SAVEHIST=30000
 WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
-setopt appendhistory extendedglob notify \
-    alwaystoend completeinword automenu autolist autoparamslash listpacked \
+setopt extendedglob notify \
     extendedhistory incappendhistory sharehistory histfindnodups histverify histignorespace
-unsetopt autocd nomatch beep menucomplete flowcontrol
+unsetopt autocd nomatch beep
 bindkey -e
 
 ##
@@ -47,6 +46,8 @@ export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg
 ##
 # completion
 ##
+setopt alwaystoend completeinword automenu autolist autoparamslash listpacked
+unsetopt menucomplete flowcontrol
 zstyle ':completion:*:*:*:*:*' menu select
 # fuzzy match mistyped completions
 zstyle ':completion:*' completer _complete _match _approximate
