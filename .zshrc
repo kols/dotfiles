@@ -49,6 +49,8 @@ export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg
 setopt alwaystoend completeinword automenu autolist autoparamslash listpacked
 unsetopt menucomplete flowcontrol
 zstyle ':completion:*:*:*:*:*' menu select
+# use cache
+zstyle ':completion::complete:*' use-cache on
 # fuzzy match mistyped completions
 zstyle ':completion:*' completer _complete _match _approximate
 zstyle ':completion:*:match:*' original only
