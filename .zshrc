@@ -4,7 +4,7 @@ HISTSIZE=30000
 SAVEHIST=30000
 WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 
-setopt extendedglob notify \
+setopt extendedglob notify interactivecomments \
     extendedhistory incappendhistory sharehistory histfindnodups histverify histignorespace
 unsetopt autocd nomatch beep
 bindkey -e
@@ -35,6 +35,7 @@ zmodload zsh/terminfo
 bindkey -M emacs '^P' history-substring-search-up
 bindkey -M emacs '^N' history-substring-search-down
 bindkey -M emacs "$terminfo[kcbt]" reverse-menu-complete
+bindkey -M emacs "\e#" pound-insert
 
 ##
 # color
