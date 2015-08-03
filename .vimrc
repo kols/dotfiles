@@ -122,7 +122,7 @@ endif
 
   " colorscheme {{{2
 let g:zenburn_high_Contrast=1
-"let g:zenburn_transparent = 1
+let g:zenburn_transparent = 1
 colorscheme zenburn
 set background=dark
 
