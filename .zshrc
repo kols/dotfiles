@@ -92,6 +92,9 @@ function docker-runbg {
     docker run -d -P -v ${HOME}:/home/kane "$@"
 }
 
+# find process
+function fps { ps aux | grep "$1" }
+
 ##
 # alias
 ##
