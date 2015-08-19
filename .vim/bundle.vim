@@ -91,8 +91,9 @@ Plugin 'VundleVim/Vundle.vim'
 
   " javascript {{{
     " Plugin 'jelera/vim-javascript-syntax'
-    " Plugin 'pangloss/vim-javascript'
-    " Plugin 'marijnh/tern_for_vim'
+    Plugin 'pangloss/vim-javascript'
+    Plugin 'marijnh/tern_for_vim'
+    Plugin 'moll/vim-node'
     " Plugin 'nono/vim-handlebars'
   "}}}
 

@@ -99,6 +99,7 @@ filetype plugin indent on
     " stop flashing
     set noeb vb t_vb=
     au GUIEnter * set vb t_vb=
+    set noshowmode
   "}}}
 
   " font {{{
@@ -163,8 +164,7 @@ filetype plugin indent on
 
   " javascript {{{
     autocmd BufRead,BufNewFile *.js set ts=2 et sw=2 sts=2
-    autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
-    autocmd FileType javascript set foldmethod=indent
+    autocmd FileType javascript setlocal omnifunc=tern#Complete
   "}}}
 
   " coffeescript {{{
