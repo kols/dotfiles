@@ -306,16 +306,23 @@ filetype plugin indent on
     call unite#filters#sorter_default#use(['sorter_rank'])
     call unite#custom#profile('default', 'context', {
     \   'start_insert': 1,
-    \   'winheight': 10,
+    \   'winheight': 12,
     \ })
 
     let g:unite_source_history_yank_enable=1
+		let g:unite_source_rec_async_command =
+          \ ['ag', '--follow', '--nocolor', '--nogroup',
+          \  '--hidden', '-g', '']
 
     function! s:unite_settings()
-      nmap <buffer> Q <plug>(unite_exit)
-      nmap <buffer> <esc> <plug>(unite_exit)
       nmap <buffer> <F5> <plug>(unite_exit)
       imap <buffer> <F5> <plug>(unite_exit)
+      imap <silent><buffer> <esc> <plug>(unite_exit)
+      nmap <silent><buffer> <esc> <plug>(unite_exit)
+      imap <silent><buffer> <C-c> <plug>(unite_exit)
+      nmap <silent><buffer> <C-c> <plug>(unite_exit)
+      inoremap <silent><buffer><expr> <C-s> unite#do_action('split')
+      inoremap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
     endfunction
     autocmd FileType unite call s:unite_settings()
 
@@ -330,7 +337,6 @@ filetype plugin indent on
     nmap <space> [unite]
     nnoremap [unite] <nop>
 
-    nnoremap <silent> [unite]<space> :<C-u>Unite -toggle -auto-resize -buffer-name=mixed file_rec/async:! buffer file_mru bookmark<cr><c-u>
     nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
     nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=recent file_mru<cr>
     nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<cr>
@@ -339,6 +345,12 @@ filetype plugin indent on
     nnoremap <silent> [unite]/ :<C-u>Unite -no-quit -buffer-name=search grep:.<cr>
     nnoremap <silent> [unite]m :<C-u>Unite -auto-resize -buffer-name=mappings mapping<cr>
     nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<cr>
+  "}}}
+
+  " easygrep {{{
+    let g:EasyGrepRoot = 'repo'
+    let g:EasyGrepCommand = 1
+    set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
   "}}}
 "}}}
 
