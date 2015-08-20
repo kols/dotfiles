@@ -29,6 +29,7 @@
     ds = diff --cached
     dt = difftool
     f = fetch
+    fa = fetch --all
     lm = log --stat --summary --graph --decorate
     l1 = log --oneline --decorate --graph
     lp = log --oneline --decorate
@@ -37,6 +38,7 @@
     ps = push
     plr = pull --rebase
     rmfs = rm --cache
+    rmo = !git ls-files --exclude-standard --others | xargs rm -rf
     rb = rebase
     rba = rebase --abort
     rbc = rebase --continue
