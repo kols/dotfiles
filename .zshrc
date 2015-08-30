@@ -129,19 +129,19 @@ function prompt_precmd {
 
         # Format Git info
         if [ -n "$dirty" ]; then
-            git_prompt=" %F{red}g:$branch%f"
+            git_prompt=" %F{red}g:($branch)%f"
         else
-            git_prompt=" %F{green}g:$branch%f"
+            git_prompt=" %F{green}g:($branch)%f"
         fi
     fi
 
     # Virtualenv
     local venv_prompt=
     if [ -n "$VIRTUAL_ENV" ]; then
-        venv_prompt=" %F{blue}v:$(basename $VIRTUAL_ENV)%f"
+        venv_prompt=" %F{blue}v:($(basename $VIRTUAL_ENV))%f"
     fi
 
-    PROMPT="%F{cyan}%2~%f${git_prompt}${venv_prompt} > "
+    PROMPT="%F{cyan}%1~%f${git_prompt}${venv_prompt} > "
 }
 
 function prompt_setup {
