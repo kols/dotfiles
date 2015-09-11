@@ -108,6 +108,7 @@ alias tmux="tmux -2 -u"
 alias csk="brew cask"
 alias ec="emacsclient -nw"
 alias g="git"
+alias ncpu="getconf _NPROCESSORS_ONLN"
 alias dr=docker-run
 alias dr1=docker-run1
 alias drb=docker-runbg
@@ -141,7 +142,7 @@ function prompt_precmd {
         venv_prompt=" %F{blue}v:($(basename $VIRTUAL_ENV))%f"
     fi
 
-    PROMPT="%F{cyan}%1~%f${git_prompt}${venv_prompt} > "
+    PROMPT="%F{cyan}%1~%f${git_prompt}${venv_prompt} %F{cyan}>%f "
 }
 
 function prompt_setup {
