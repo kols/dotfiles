@@ -36,6 +36,7 @@
                     fiplr
                     flx-ido
                     flycheck
+                    ggtags
                     ido-vertical-mode
                     magit
                     multi-term
@@ -84,14 +85,19 @@
             (setq ido-use-faces nil)
 
             (ido-vertical-mode 1)
-            (setq ido-vertical-define-keys 'C-n-and-C-p-only)))
+            (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+            (global-company-mode 1)))
 
 (add-hook 'python-mode-hook
           (lambda ()
             (company-mode 1)
             (flycheck-mode 1)
-            (eldoc-mode 1)
+            (ggtags-mode 1)
             (anaconda-mode 1)
+            (eval-after-load "company"
+              '(progn
+                 (add-to-list 'company-backends 'company-anaconda)))
+            (eldoc-mode 1)
             (pyvenv-mode 1)
             (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
               (if (member projname (pyvenv-virtualenv-list))
