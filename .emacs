@@ -50,7 +50,7 @@
                     yasnippet)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
-	      (package-install pkg)))))
+        (package-install pkg)))))
 
 (condition-case nil
     (init--package-install)
