@@ -40,6 +40,7 @@
                     ggtags
                     ido-vertical-mode
                     magit
+                    magit-gh-pulls
                     multi-term
                     paredit
                     pyvenv
@@ -89,6 +90,7 @@
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (global-company-mode 1)))
 
+(add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)
 (add-hook 'python-mode-hook
           (lambda ()
             (set-fill-column 79)
