@@ -34,6 +34,7 @@
                     company-anaconda
                     expand-region
                     fiplr
+                    fill-column-indicator
                     flx-ido
                     flycheck
                     ggtags
@@ -90,6 +91,8 @@
 
 (add-hook 'python-mode-hook
           (lambda ()
+            (set-fill-column 79)
+            (fci-mode 1)
             (company-mode 1)
             (flycheck-mode 1)
             (ggtags-mode 1)
