@@ -26,9 +26,9 @@
 (require 'package)
 (package-initialize)
 (defun init--package-install ()
-  (let ((packages '(ace-jump-mode
-                    ag
+  (let ((packages '(ag
                     anaconda-mode
+                    avy
                     better-defaults
                     company
                     company-anaconda
@@ -62,8 +62,8 @@
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "C-c o") 'fiplr-find-file)
-(global-set-key (kbd "C-c SPC") 'ace-jump-mode)
-(global-set-key (kbd "C-c l") 'ace-jump-line-mode)
+(global-set-key (kbd "C-c SPC") 'avy-goto-char)
+(global-set-key (kbd "C-c l") 'avy-goto-line)
 (global-set-key (kbd "C-c a") 'ag-project-regexp)
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "C-s") 'swiper)
