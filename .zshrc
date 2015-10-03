@@ -115,6 +115,10 @@ alias ncpu="getconf _NPROCESSORS_ONLN"
 alias dr=docker-run
 alias dr1=docker-run1
 alias drb=docker-runbg
+alias rcopy="rsync -avz --progress -h"
+alias rmove="rsync -avz --progress -h --remove-source-files"
+alias rupdate="rsync -avzu --progress -h"
+alias rsync-synchronize="rsync -avzu --delete --progress -h"
 
 ##
 # prompt
