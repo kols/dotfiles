@@ -32,15 +32,17 @@
                     better-defaults
                     company
                     company-anaconda
+                    company-go
                     expand-region
                     fiplr
                     fill-column-indicator
                     flx-ido
                     flycheck
                     ggtags
+                    go-eldoc
+                    go-mode
                     ido-vertical-mode
                     magit
-                    magit-gh-pulls
                     multi-term
                     paredit
                     pyvenv
@@ -107,3 +109,9 @@
             (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
               (if (member projname (pyvenv-virtualenv-list))
                   (pyvenv-workon projname)))))
+(add-hook 'go-mode-hook
+          (lambda ()
+            (go-eldoc-setup)
+            (company-mode)
+            (set (make-local-variable 'company-backends) '(company-go))
+            (local-set-key (kbd "M-.") 'godef-jump)))
