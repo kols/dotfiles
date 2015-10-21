@@ -69,8 +69,6 @@
 (global-set-key (kbd "C-c a") 'ag-project-regexp)
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-r") 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
 (global-set-key (kbd "C-c g s") 'magit-status)
 (global-set-key (kbd "C-c g l") 'magit-log-current)
 
@@ -91,12 +89,9 @@
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (global-company-mode 1)))
-
-(add-hook 'magit-mode-hook 'turn-on-magit-gh-pulls)
 (add-hook 'python-mode-hook
           (lambda ()
             (set-fill-column 79)
-            (fci-mode 1)
             (company-mode 1)
             (flycheck-mode 1)
             (ggtags-mode 1)
@@ -113,5 +108,7 @@
           (lambda ()
             (go-eldoc-setup)
             (company-mode)
-            (set (make-local-variable 'company-backends) '(company-go))
+            (eval-after-load "company"
+              '(progn
+                 (add-to-list 'company-backends 'company-go)))
             (local-set-key (kbd "M-.") 'godef-jump)))
