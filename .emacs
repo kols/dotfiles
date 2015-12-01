@@ -98,6 +98,16 @@
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (global-company-mode 1)))
+
+(defun kane-add-fiplr-ignore-globs (dirs files)
+  (let ((orig-ignored-globs-dirs (car (cdr (assoc 'directories fiplr-ignored-globs))))
+        (orig-ignored-globs-files (car (cdr (assoc 'files fiplr-ignored-globs)))))
+    (make-local-variable 'fiplr-ignored-globs)
+    (if dirs
+        (add-to-list 'fiplr-ignored-globs `(directories ,(append dirs orig-ignored-globs-dirs))))
+    (if files
+        (add-to-list 'fiplr-ignored-globs `(files ,(append files orig-ignored-globs-files))))))
+
 (add-hook 'python-mode-hook
           (lambda ()
             (set-fill-column 79)
@@ -110,7 +120,10 @@
             (pyvenv-mode 1)
             (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
               (if (member projname (pyvenv-virtualenv-list))
-                  (pyvenv-workon projname)))))
+                  (pyvenv-workon projname)))
+            (eval-after-load "fiplr"
+              '(progn
+                 (kane-add-fiplr-ignore-globs '("build" "*.egg-info") '("*.pyc"))))))
 (add-hook 'go-mode-hook
           (lambda ()
             (go-eldoc-setup)
