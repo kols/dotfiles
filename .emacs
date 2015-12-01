@@ -47,6 +47,7 @@
                     paredit
                     pyvenv
                     smex
+                    sr-speedbar
                     swiper
                     undo-tree
                     yasnippet
@@ -75,11 +76,13 @@
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-c g s") 'magit-status)
 (global-set-key (kbd "C-c g l") 'magit-log-current)
+(global-set-key (kbd "C-c b") 'sr-speedbar-toggle)
 
 (set-variable 'ycmd-server-command `("/usr/bin/python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
           (lambda ()
+            (setq speedbar-tag-hierarchy-method nil)
             (progn
               (ivy-mode 1)
               (setq ivy-use-virtual-buffers t))
