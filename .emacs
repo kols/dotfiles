@@ -56,15 +56,14 @@
       (unless (package-installed-p pkg)
         (package-install pkg)))))
 
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
-
 (condition-case nil
     (init--package-install)
   (error
    (package-refresh-contents)
    (init--package-install)))
 
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "C-c o") 'fiplr-find-file)
