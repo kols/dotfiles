@@ -18,7 +18,7 @@
  )
 
 (load-theme 'default-black)
-(set-face-attribute 'default nil :font "-apple-Hack-medium-normal-normal-*-16-*-*-*-m-0-iso10646-1")
+(set-face-attribute 'default nil :font "-apple-Iosevka Slab-regular-normal-normal-*-17-*-*-*-m-0-iso10646-1")
 (setq mac-option-modifier 'meta)
 
 (column-number-mode 1)
