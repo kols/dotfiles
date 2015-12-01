@@ -2,6 +2,7 @@ flake8
 httpie
 ipython
 pip-autoremove
+pylint
 tmuxp
 virtualenv
 virtualenvwrapper
