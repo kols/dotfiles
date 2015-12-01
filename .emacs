@@ -65,7 +65,6 @@
    (package-refresh-contents)
    (init--package-install)))
 
-(setq flycheck-check-syntax-automatically nil)
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "C-c o") 'fiplr-find-file)
@@ -78,6 +77,8 @@
 (global-set-key (kbd "C-c g l") 'magit-log-current)
 (global-set-key (kbd "C-c b") 'sr-speedbar-toggle)
 
+(setq flycheck-check-syntax-automatically nil)
+(setq magit-git-executable "/opt/pkg/bin/git")
 (set-variable 'ycmd-server-command `("/usr/bin/python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
@@ -111,6 +112,7 @@
 (add-hook 'python-mode-hook
           (lambda ()
             (set-fill-column 79)
+            (which-function-mode 1)
             (company-mode 1)
             (ycmd-mode 1)
             (flycheck-mode 1)
@@ -127,7 +129,8 @@
 (add-hook 'go-mode-hook
           (lambda ()
             (go-eldoc-setup)
-            (company-mode)
+            (which-function-mode 1)
+            (company-mode 1)
             (eval-after-load "company"
               '(progn
                  (add-to-list 'company-backends 'company-go)))
