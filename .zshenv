@@ -1,17 +1,20 @@
-#!/usr/bin/env zsh
-# PATH
-export PATH=/usr/local/sbin:/usr/local/bin:$PATH:$HOME/bin
+#!/bin/sh
+
 export LANG='en_US.UTF-8'
-export EDITOR='/usr/local/bin/vim'
+export LC_CTYPE=$LANG
+export PATH=$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
+export EDITOR=/opt/pkg/bin/vim
 export VISUAL=$EDITOR
+alias vim=$EDITOR
+alias vi=vim
+alias git=/opt/pkg/bin/git
 
-# app
-export NODE_PATH=/usr/local/lib/node_modules
-export NVM_DIR=~/.nvm
-
-export GOROOT=/usr/local/opt/go/libexec
+export GOROOT=/opt/pkg/go/
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
-export PLAN9=/usr/local/plan9
-export PATH=$PATH:$PLAN9/bin
+# virtualenv
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+# virtualenvwrapper¬
+export WORKON_HOME=~/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh

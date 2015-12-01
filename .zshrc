@@ -1,7 +1,4 @@
 #!/bin/zsh
-export EDITOR=/usr/local/bin/vim
-export VISUAL=$EDITOR
-
 HISTFILE=~/.histfile
 HISTSIZE=30000
 SAVEHIST=30000
