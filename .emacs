@@ -32,6 +32,7 @@
                     company
                     company-go
                     company-ycmd
+                    exec-path-from-shell
                     expand-region
                     fiplr
                     fill-column-indicator
@@ -53,6 +54,9 @@
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
+
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 (condition-case nil
     (init--package-install)
