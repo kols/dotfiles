@@ -46,6 +46,7 @@
                     multi-term
                     paredit
                     pyvenv
+                    realgud
                     smex
                     sr-speedbar
                     swiper
