@@ -64,5 +64,5 @@
 [github]
     user = kols
 [filter "gpg"]
-    clean = "gpg2 --encrypt --recipient 'Dou Qilong'"
+    clean = "gpg2 --no-armor --encrypt --default-recipient-self"
     smudge = "gpg2 --decrypt"
