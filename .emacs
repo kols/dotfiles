@@ -104,6 +104,10 @@
           (lambda ()
             (abbrev-mode 1)))
 
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (paredit-mode 1)))
+
 (defun kane-add-fiplr-ignore-globs (dirs files)
   (let ((orig-ignored-globs-dirs (car (cdr (assoc 'directories fiplr-ignored-globs))))
         (orig-ignored-globs-files (car (cdr (assoc 'files fiplr-ignored-globs)))))
