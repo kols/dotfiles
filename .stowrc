@@ -1,3 +1,3 @@
---dir=/Users/kane/devel
---stow h
+--dir=/Users/kane/.dotfiles
+--stow .
 --target=/Users/kane
