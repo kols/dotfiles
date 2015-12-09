@@ -10,5 +10,5 @@
 
 use either one of these:
 
-- https://github.com/kols/pkgsrc/tree/trunk/sysutils/stow
+- https://github.com/kols/pkgsrc/tree/develop/sysutils/stow
 - https://github.com/Homebrew/homebrew/blob/master/Library/Formula/stow.rb (not tested, yet. not gonna test)
