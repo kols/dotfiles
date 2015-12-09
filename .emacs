@@ -100,6 +100,10 @@
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (global-company-mode 1)))
 
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (abbrev-mode 1)))
+
 (defun kane-add-fiplr-ignore-globs (dirs files)
   (let ((orig-ignored-globs-dirs (car (cdr (assoc 'directories fiplr-ignored-globs))))
         (orig-ignored-globs-files (car (cdr (assoc 'files fiplr-ignored-globs)))))
