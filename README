@@ -1,1 +1,14 @@
-to replace https://github.com/kols/dotfiles
+# .dotfiles
+
+## kick-it-start
+
+- clone into *~/.dotfiles* and cd into it
+- `stow -nv -R .` to see what's gonna happen
+- remove `-n` to let it happen if it satisfies you
+
+## how to stow
+
+use either one of these:
+
+- https://github.com/kols/pkgsrc/tree/trunk/sysutils/stow
+- https://github.com/Homebrew/homebrew/blob/master/Library/Formula/stow.rb (not tested, yet. not gonna test)
