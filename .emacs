@@ -43,10 +43,12 @@
                     go-mode
                     ido-vertical-mode
                     magit
+                    markdown-mode
                     multi-term
                     paredit
                     pyvenv
                     realgud
+                    salt-mode
                     smex
                     sr-speedbar
                     swiper
