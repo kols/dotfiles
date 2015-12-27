@@ -23,6 +23,10 @@
 (setq scroll-conservatively 1)
 (column-number-mode 1)
 
+(when window-system
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (tooltip-mode -1))
+
 (require 'package)
 (package-initialize)
 (defun init--package-install ()
