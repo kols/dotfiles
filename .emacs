@@ -51,6 +51,7 @@
                     magit
                     markdown-mode
                     multi-term
+                    multiple-cursors
                     paredit
                     pyvenv
                     realgud
