@@ -46,6 +46,7 @@
                     ggtags
                     go-eldoc
                     go-mode
+                    ido-at-point
                     ido-vertical-mode
                     magit
                     markdown-mode
@@ -136,6 +137,7 @@ already narrowed."
 
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+            (ido-at-point-mode 1)
             (setq ffip-prefer-ido-mode t)
             (global-company-mode 1)))
 
