@@ -39,7 +39,6 @@
                     company-go
                     exec-path-from-shell
                     expand-region
-                    fill-column-indicator
                     find-file-in-project
                     flx-ido
                     flycheck
@@ -100,10 +99,10 @@ already narrowed."
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
 
-(define-prefix-command 'kdql/toggle-map)
-(define-key ctl-x-map "t" 'kdql/toggle-map)
-(define-key kdql/toggle-map "n" #'narrow-or-widen-dwim)
-(define-key kdql/toggle-map "s" #'sr-speedbar-toggle)
+(define-prefix-command 'my/toggle-map)
+(define-key ctl-x-map "t" 'my/toggle-map)
+(define-key my/toggle-map "n" #'narrow-or-widen-dwim)
+(define-key my/toggle-map "s" #'sr-speedbar-toggle)
 
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "C-c o") 'find-file-in-project)
