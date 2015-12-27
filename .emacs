@@ -109,6 +109,9 @@ already narrowed."
 (global-set-key (kbd "C-c g s") 'magit-status)
 (global-set-key (kbd "C-c g l") 'magit-log-current)
 
+(setq-default save-place t)
+(require 'saveplace)
+
 (setq flycheck-check-syntax-automatically nil)
 (setq magit-git-executable "/opt/pkg/bin/git")
 
