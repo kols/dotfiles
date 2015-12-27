@@ -27,11 +27,12 @@
 (package-initialize)
 (defun init--package-install ()
   (let ((packages '(ag
+                    anaconda-mode
                     avy
                     better-defaults
                     company
+                    company-anaconda
                     company-go
-                    company-ycmd
                     exec-path-from-shell
                     expand-region
                     fiplr
@@ -53,8 +54,7 @@
                     sr-speedbar
                     swiper
                     undo-tree
-                    yasnippet
-                    ycmd)))
+                    yasnippet)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
@@ -111,7 +111,6 @@ already narrowed."
 
 (setq flycheck-check-syntax-automatically nil)
 (setq magit-git-executable "/opt/pkg/bin/git")
-(set-variable 'ycmd-server-command `("/usr/bin/python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -154,11 +153,13 @@ already narrowed."
             (set-fill-column 79)
             (which-function-mode 1)
             (company-mode 1)
-            (ycmd-mode 1)
             (flycheck-mode 1)
             (ggtags-mode 1)
-            (company-ycmd-setup)
-            ;; (eldoc-mode 1)
+            (anaconda-mode 1)
+            (eval-after-load "company"
+              '(progn
+                 (add-to-list 'company-backends 'company-anaconda)))
+            (eldoc-mode 1)
             (pyvenv-mode 1)
             (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
               (if (member projname (pyvenv-virtualenv-list))
