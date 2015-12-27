@@ -39,8 +39,8 @@
                     company-go
                     exec-path-from-shell
                     expand-region
-                    fiplr
                     fill-column-indicator
+                    find-file-in-project
                     flx-ido
                     flycheck
                     ggtags
@@ -104,7 +104,7 @@ already narrowed."
 (define-key kdql/toggle-map "s" #'sr-speedbar-toggle)
 
 (global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "C-c o") 'fiplr-find-file)
+(global-set-key (kbd "C-c o") 'find-file-in-project)
 (global-set-key (kbd "C-c SPC") 'avy-goto-char)
 (global-set-key (kbd "C-c l") 'avy-goto-line)
 (global-set-key (kbd "C-c a") 'ag-project-regexp)
@@ -136,6 +136,7 @@ already narrowed."
 
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+            (setq ffip-prefer-ido-mode t)
             (global-company-mode 1)))
 
 (add-hook 'prog-mode-hook
@@ -145,15 +146,6 @@ already narrowed."
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
             (paredit-mode 1)))
-
-(defun kane-add-fiplr-ignore-globs (dirs files)
-  (let ((orig-ignored-globs-dirs (car (cdr (assoc 'directories fiplr-ignored-globs))))
-        (orig-ignored-globs-files (car (cdr (assoc 'files fiplr-ignored-globs)))))
-    (make-local-variable 'fiplr-ignored-globs)
-    (if dirs
-        (add-to-list 'fiplr-ignored-globs `(directories ,(append dirs orig-ignored-globs-dirs))))
-    (if files
-        (add-to-list 'fiplr-ignored-globs `(files ,(append files orig-ignored-globs-files))))))
 
 (add-hook 'python-mode-hook
           (lambda ()
@@ -170,10 +162,7 @@ already narrowed."
             (pyvenv-mode 1)
             (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
               (if (member projname (pyvenv-virtualenv-list))
-                  (pyvenv-workon projname)))
-            (eval-after-load "fiplr"
-              '(progn
-                 (kane-add-fiplr-ignore-globs '("build" "*.egg-info") '("*.pyc"))))))
+                  (pyvenv-workon projname)))))
 (add-hook 'go-mode-hook
           (lambda ()
             (go-eldoc-setup)
