@@ -42,7 +42,6 @@
                     find-file-in-project
                     flx-ido
                     flycheck
-                    ggtags
                     go-eldoc
                     go-mode
                     ido-at-point
