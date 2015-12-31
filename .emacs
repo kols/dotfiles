@@ -160,10 +160,7 @@ already narrowed."
               '(progn
                  (add-to-list 'company-backends 'company-anaconda)))
             (eldoc-mode 1)
-            (pyvenv-mode 1)
-            (let ((projname (file-name-nondirectory (directory-file-name (fiplr-root)))))
-              (if (member projname (pyvenv-virtualenv-list))
-                  (pyvenv-workon projname)))))
+            (pyvenv-mode 1)))
 (add-hook 'go-mode-hook
           (lambda ()
             (go-eldoc-setup)
