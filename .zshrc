@@ -1,4 +1,12 @@
 #!/bin/zsh
+# virtualenv
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+export WORKON_HOME=~/.virtualenvs
+. ~/Library/Python/2.7/bin/virtualenvwrapper.sh
+
+# icloud drive
+export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
+
 HISTFILE=~/.histfile
 HISTSIZE=30000
 SAVEHIST=30000

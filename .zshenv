@@ -9,12 +9,3 @@ export VISUAL=$EDITOR
 export GOROOT=/opt/pkg/go
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
-
-# virtualenv
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-# virtualenvwrapper¬
-export WORKON_HOME=~/.virtualenvs
-. ~/Library/Python/2.7/bin/virtualenvwrapper.sh
-
-# icloud drive
-export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
