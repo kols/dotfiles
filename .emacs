@@ -57,6 +57,7 @@
                     smex
                     sr-speedbar
                     swiper
+                    tldr
                     undo-tree
                     yasnippet)))
     (dolist (pkg packages)
