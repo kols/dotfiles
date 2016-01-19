@@ -106,9 +106,7 @@ function fps { ps aux | grep "$1" }
 ##
 # alias
 ##
-alias vim=$EDITOR
 alias vi=vim
-alias git=/opt/pkg/bin/git
 
 alias j="z"
 alias tl="tail"
