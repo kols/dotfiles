@@ -1,8 +1,10 @@
 flake8
+html2text
 httpie
 ipython
 pip-autoremove
 pylint
+pudb
 tmuxp
 virtualenv
 virtualenvwrapper
