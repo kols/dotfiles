@@ -310,9 +310,6 @@ filetype plugin indent on
     \ })
 
     let g:unite_source_history_yank_enable=1
-		let g:unite_source_rec_async_command =
-          \ ['ag', '--follow', '--nocolor', '--nogroup',
-          \  '--hidden', '-g', '']
 
     function! s:unite_settings()
       nmap <buffer> <F5> <plug>(unite_exit)
@@ -321,29 +318,24 @@ filetype plugin indent on
       nmap <silent><buffer> <esc> <plug>(unite_exit)
       imap <silent><buffer> <C-c> <plug>(unite_exit)
       nmap <silent><buffer> <C-c> <plug>(unite_exit)
-      inoremap <silent><buffer><expr> <C-s> unite#do_action('split')
-      inoremap <silent><buffer><expr> <C-v> unite#do_action('vsplit')
     endfunction
     autocmd FileType unite call s:unite_settings()
 
-    let g:unite_source_rec_async_command =
-          \ ['ag', '--follow', '--nocolor', '--nogroup',
-          \  '--hidden', '-g', '']
-
-    let g:unite_source_grep_command='ag'
-    let g:unite_source_grep_default_opts='--nocolor --line-numbers --nogroup -S'
-    let g:unite_source_grep_recursive_opt=''
+    if executable('ag')
+      let g:unite_source_rec_async_command = 'ag --nocolor --nogroup --hidden -g ""'
+      let g:unite_source_grep_command = 'ag'
+      let g:unite_source_grep_default_opts = '--nocolor --nogroup --hidden'
+      let g:unite_source_grep_recursive_opt=''
+    endif
 
     nmap <space> [unite]
     nnoremap [unite] <nop>
 
     nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
     nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=recent file_mru<cr>
-    nnoremap <silent> [unite]y :<C-u>Unite -buffer-name=yanks history/yank<cr>
     nnoremap <silent> [unite]l :<C-u>Unite -auto-resize -buffer-name=line line<cr>
     nnoremap <silent> [unite]b :<C-u>Unite -auto-resize -buffer-name=buffers buffer<cr>
     nnoremap <silent> [unite]/ :<C-u>Unite -no-quit -buffer-name=search grep:.<cr>
-    nnoremap <silent> [unite]m :<C-u>Unite -auto-resize -buffer-name=mappings mapping<cr>
     nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<cr>
   "}}}
 
