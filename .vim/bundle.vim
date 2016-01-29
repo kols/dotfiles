@@ -104,7 +104,7 @@ Plugin 'VundleVim/Vundle.vim'
 
   " go {{{
     " Plugin 'jnwhiteh/vim-golang'
-    " Plugin 'fatih/vim-go'
+    Plugin 'fatih/vim-go'
   "}}}
 "}}}
 

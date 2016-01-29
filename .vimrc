@@ -298,7 +298,7 @@ filetype plugin indent on
   "}}}
 
   " ycm {{{
-    nnoremap <silent> <leader>gg :YcmCompleter GoTo<CR>
+    nnoremap <silent><leader>gg :YcmCompleter GoTo<cr>
   "}}}
 
   " unite {{{
@@ -343,6 +343,10 @@ filetype plugin indent on
     let g:EasyGrepRoot = 'repo'
     let g:EasyGrepCommand = 1
     set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
+  "}}}
+
+  " vim-go {{{
+    nnoremap <silent><leader>gg :GoDef<cr>
   "}}}
 "}}}
 
