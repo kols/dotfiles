@@ -118,7 +118,7 @@ already narrowed."
 (require 'saveplace)
 
 (setq flycheck-check-syntax-automatically nil)
-(setq magit-git-executable "/opt/pkg/bin/git")
+(setq magit-git-executable "/usr/local/bin/git")
 
 (add-hook 'after-init-hook
           (lambda ()
