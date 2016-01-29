@@ -9,7 +9,6 @@ filetype plugin indent on
   let mapleader = ","
 
   " buffer {{{
-    nnoremap <leader>q :bd<CR>
     nnoremap <leader>h :hid<CR>
   "}}}
 
@@ -104,7 +103,7 @@ filetype plugin indent on
 
   " font {{{
     if has("macunix")
-      set guifont=Luculent\ 16:h16pt
+      set guifont=Hack:h15pt
     else
       set guifont=Fantasque\ Sans\ Mono\ 10
       set guifontwide=STHeiti\ 9,WenQuanYi\ Zenhei\ 9,微软雅黑\ 9,宋体\ 9
@@ -312,12 +311,12 @@ filetype plugin indent on
     let g:unite_source_history_yank_enable=1
 
     function! s:unite_settings()
-      nmap <buffer> <F5> <plug>(unite_exit)
-      imap <buffer> <F5> <plug>(unite_exit)
       imap <silent><buffer> <esc> <plug>(unite_exit)
       nmap <silent><buffer> <esc> <plug>(unite_exit)
       imap <silent><buffer> <C-c> <plug>(unite_exit)
       nmap <silent><buffer> <C-c> <plug>(unite_exit)
+      imap <silent><buffer> <C-r> <plug>(unite_redraw)
+      nmap <silent><buffer> <C-r> <plug>(unite_redraw)
     endfunction
     autocmd FileType unite call s:unite_settings()
 
@@ -343,6 +342,10 @@ filetype plugin indent on
     let g:EasyGrepRoot = 'repo'
     let g:EasyGrepCommand = 1
     set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
+  "}}}
+
+  " airline {{{
+    let g:airline#extensions#tabline#enabled = 1
   "}}}
 
   " vim-go {{{
