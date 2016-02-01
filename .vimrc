@@ -297,7 +297,7 @@ filetype plugin indent on
   "}}}
 
   " ycm {{{
-    nnoremap <silent><leader>gg :YcmCompleter GoTo<cr>
+    nnoremap <silent> <leader>gg :YcmCompleter GoTo<cr>
   "}}}
 
   " unite {{{
@@ -349,7 +349,7 @@ filetype plugin indent on
   "}}}
 
   " vim-go {{{
-    nnoremap <silent><leader>gg :GoDef<cr>
+    autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
   "}}}
 "}}}
 
