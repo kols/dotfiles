@@ -4,3 +4,4 @@ GTAGS
 gtags.files
 \#*#
 .dir-locals.el
+.venv

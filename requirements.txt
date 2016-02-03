@@ -8,3 +8,4 @@ pudb
 tmuxp
 virtualenv
 virtualenvwrapper
+virtualfish
