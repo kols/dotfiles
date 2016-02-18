@@ -32,12 +32,11 @@
 (package-initialize)
 (defun init--package-install ()
   (let ((packages '(ag
-                    anaconda-mode
                     avy
                     better-defaults
                     company
-                    company-anaconda
                     company-go
+                    company-ycmd
                     exec-path-from-shell
                     expand-region
                     find-file-in-project
@@ -61,7 +60,8 @@
                     swiper
                     tldr
                     undo-tree
-                    yasnippet)))
+                    yasnippet
+                    ycmd)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
@@ -121,6 +121,7 @@ already narrowed."
 
 (setq flycheck-check-syntax-automatically nil)
 (setq magit-git-executable "/usr/local/bin/git")
+(set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -156,13 +157,13 @@ already narrowed."
             (set-fill-column 79)
             (which-function-mode 1)
             (company-mode 1)
-            (flycheck-mode 1)
-            (ggtags-mode 1)
-            (anaconda-mode 1)
-            (eval-after-load "company"
+            (ycmd-mode 1)
+            (eval-after-load "ycmd"
               '(progn
-                 (add-to-list 'company-backends 'company-anaconda)))
-            (eldoc-mode 1)
+                 (local-set-key (kbd "M-.") 'ycmd-goto)
+                 (local-set-key (kbd "M-,") 'ycmd-goto-declaration)))
+            (flycheck-mode 1)
+            (company-ycmd-setup)
             (pyvenv-mode 1)))
 (add-hook 'go-mode-hook
           (lambda ()
