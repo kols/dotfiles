@@ -40,6 +40,7 @@
                     exec-path-from-shell
                     expand-region
                     find-file-in-project
+                    fish-mode
                     flx-ido
                     flycheck
                     go-eldoc

@@ -68,6 +68,7 @@ Plugin 'VundleVim/Vundle.vim'
   Plugin 'chase/vim-ansible-yaml'
   Plugin 'solarnz/thrift.vim'
   Plugin 'saltstack/salt-vim'
+  Plugin 'dag/vim-fish'
 "}}}
 
 " programming {{{
