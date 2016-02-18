@@ -36,3 +36,7 @@ alias rcopy="rsync -avz --progress -h"
 alias rmove="rsync -avz --progress -h --remove-source-files"
 alias rupdate="rsync -avzu --progress -h"
 alias rsync-synchronize="rsync -avzu --delete --progress -h"
+
+# git prompt
+set __fish_git_prompt_showdirtystate 'yes'
+set __fish_git_prompt_color_branch red
