@@ -1,3 +1,6 @@
+if &shell =~# 'fish$'
+  set shell=sh
+endif
 set nocompatible
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
