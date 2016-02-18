@@ -17,10 +17,10 @@ eval (python -m virtualfish compat_aliases auto_activation)
 # icloud drive
 set -x icloud ~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
-# autojump
-[ -f /usr/local/share/autojump/autojump.fish ]
-and source /usr/local/share/autojump/autojump.fish
+# z.fish
+source ~/devel/z.fish/z.fish
 
+alias j=z
 alias vi=vim
 alias tl="tail"
 alias hd="head"
