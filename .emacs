@@ -22,6 +22,7 @@
 (setq mac-option-modifier 'meta)
 (setq scroll-conservatively 1)
 (column-number-mode 1)
+(setq default-tab-width 4)
 
 (when window-system
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
