@@ -11,6 +11,9 @@ set -x GOROOT /usr/local/opt/go/libexec
 set -x GOPATH $HOME/go
 set -x PATH $PATH $GOPATH/bin $GOROOT/bin
 
+# rbenv
+status --is-interactive; and . (rbenv init -|psub)
+
 # virtualenv
 eval (python -m virtualfish compat_aliases auto_activation)
 
