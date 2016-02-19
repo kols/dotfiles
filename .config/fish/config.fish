@@ -2,7 +2,7 @@ set fish_greeting
 
 set -x LANG 'en_US.UTF-8'
 set -x LC_CTYPE $LANG
-set -x PATH $HOME/Library/Python/2.7/bin $PATH $HOME/bin
+set -x PATH $HOME/Library/Python/2.7/bin /usr/local/sbin $PATH $HOME/bin
 set -x EDITOR /usr/local/bin/vim
 set -x VISUAL $EDITOR
 
