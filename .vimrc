@@ -15,6 +15,11 @@ filetype plugin indent on
     nnoremap <leader>h :hid<CR>
   "}}}
 
+  " tab {{{
+    nnoremap J :tabp<cr>
+    nnoremap K :tabn<cr>
+  " }}}
+
   " window {{{
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j
@@ -86,7 +91,10 @@ filetype plugin indent on
   "}}}
 
   " interface {{{
-    " set t_Co=256 " 256 color support
+    if !has('gui_running')
+      set t_Co=256 " 256 color support
+    endif
+    set ruler
     set laststatus=2 " show status line
     set statusline=%F%m%r%h%w\ [F=%{&ff}]\ [T=%Y]\ [Asc=\%03.3b]\ [Hex=\%02.2B]\ [Pos=%04l,%04v][%p%%]\ [Len=%L] " content of statusline
     set statusline+=\ %{fugitive#statusline()} " add git branch after existing statusline
@@ -110,7 +118,7 @@ filetype plugin indent on
       set guifont=Hack:h15pt
     else
       set guifont=Fantasque\ Sans\ Mono\ 10
-      set guifontwide=STHeiti\ 9,WenQuanYi\ Zenhei\ 9,微软雅黑\ 9,宋体\ 9
+      set guifontwide=STHeiti\ 9
     endif
   "}}}
 
