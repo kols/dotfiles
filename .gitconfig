@@ -19,6 +19,7 @@
     br = branch
     bra = branch --all --verbose
     co = checkout
+    cob = checkout -b
     c = commit
     cm = commit --message
     ca = commit --amend
@@ -36,6 +37,9 @@
     m = merge
     pl = pull
     ps = push
+    psf = push --force-with-lease
+    psm = push me
+    psfm = push --force-with-lease me
     plr = pull --rebase
     rmfs = rm --cache
     rmo = !git ls-files --exclude-standard --others | xargs rm -rf
