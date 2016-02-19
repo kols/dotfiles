@@ -347,9 +347,30 @@ filetype plugin indent on
     set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
   "}}}
 
-  " airline {{{
-    let g:airline#extensions#tabline#enabled = 1
-  "}}}
+  " lightline {{{
+    let g:lightline = {
+          \ 'active': {
+          \   'left': [ [ 'mode', 'paste' ],
+          \             [ 'fugitive', 'readonly', 'filename', 'modified' ] ],
+          \   'right': [ [ 'syntastic', 'lineinfo' ],
+          \              [ 'percent' ],
+          \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
+          \ },
+          \ 'tab': {
+          \   'active': [ 'tabnum', 'filename', 'modified' ],
+          \   'inactive': [ 'tabnum', 'filename', 'modified' ],
+          \ },
+          \ 'component': {
+          \   'readonly': '%{&filetype=="help"?"":&readonly?"%%":""}',
+          \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
+          \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
+          \ },
+          \ 'component_visible_condition': {
+          \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
+          \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
+          \ }
+          \ }
+  " }}}
 
   " vim-go {{{
     autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
