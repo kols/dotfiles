@@ -229,13 +229,14 @@ filetype plugin indent on
   "}}}
 
   " ctrl-p {{{
+    let g:ctrlp_match_window = 'top,order:ttb,min:1,max:15,results:12'
     let g:ctrlp_working_path_mode = 'ra'
     set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
     let g:ctrlp_custom_ignore = {
       \ 'dir':  '\v[\/](node_modules|bower_components)$',
       \ }
     let g:ctrlp_persistent_input = 0
-    "let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+    let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
     let g:ctrlp_extensions = ['funky']
     let g:ctrlp_funky_syntax_highlight = 1
 
