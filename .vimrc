@@ -313,44 +313,6 @@ filetype plugin indent on
     nnoremap <silent> <leader>gg :YcmCompleter GoTo<cr>
   "}}}
 
-  " unite {{{
-    call unite#filters#matcher_default#use(['matcher_fuzzy'])
-    call unite#filters#sorter_default#use(['sorter_rank'])
-    call unite#custom#profile('default', 'context', {
-    \   'start_insert': 1,
-    \   'winheight': 12,
-    \ })
-
-    let g:unite_source_history_yank_enable=1
-
-    function! s:unite_settings()
-      imap <silent><buffer> <esc> <plug>(unite_exit)
-      nmap <silent><buffer> <esc> <plug>(unite_exit)
-      imap <silent><buffer> <C-c> <plug>(unite_exit)
-      nmap <silent><buffer> <C-c> <plug>(unite_exit)
-      imap <silent><buffer> <C-r> <plug>(unite_redraw)
-      nmap <silent><buffer> <C-r> <plug>(unite_redraw)
-    endfunction
-    autocmd FileType unite call s:unite_settings()
-
-    if executable('ag')
-      let g:unite_source_rec_async_command = 'ag --nocolor --nogroup --hidden -g ""'
-      let g:unite_source_grep_command = 'ag'
-      let g:unite_source_grep_default_opts = '--nocolor --nogroup --hidden'
-      let g:unite_source_grep_recursive_opt=''
-    endif
-
-    nmap <space> [unite]
-    nnoremap [unite] <nop>
-
-    nnoremap <silent> [unite]f :<C-u>Unite -toggle -auto-resize -buffer-name=files file_rec/async:!<cr><c-u>
-    nnoremap <silent> [unite]r :<C-u>Unite -buffer-name=recent file_mru<cr>
-    nnoremap <silent> [unite]l :<C-u>Unite -auto-resize -buffer-name=line line<cr>
-    nnoremap <silent> [unite]b :<C-u>Unite -auto-resize -buffer-name=buffers buffer<cr>
-    nnoremap <silent> [unite]/ :<C-u>Unite -no-quit -buffer-name=search grep:.<cr>
-    nnoremap <silent> [unite]s :<C-u>Unite -quick-match buffer<cr>
-  "}}}
-
   " easygrep {{{
     let g:EasyGrepRoot = 'repo'
     let g:EasyGrepCommand = 1
