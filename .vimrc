@@ -13,6 +13,7 @@ filetype plugin indent on
 
   " buffer {{{
     nnoremap <leader>h :hid<CR>
+    nnoremap <leader>b :ls<cr>:b<space>
   "}}}
 
   " tab {{{
