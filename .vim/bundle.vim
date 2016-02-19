@@ -28,6 +28,7 @@ Plugin 'VundleVim/Vundle.vim'
   Plugin 'chrisbra/NrrwRgn'
   Plugin 'mbbill/undotree'
   Plugin 'mhinz/vim-startify'
+  Plugin 'tweekmonster/braceless.vim'
 "}}}
 
 " integration {{{

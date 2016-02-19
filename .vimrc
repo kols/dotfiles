@@ -74,9 +74,10 @@ filetype plugin indent on
   "}}}
 
   " folding {{{
-    set foldenable
+    set nofoldenable
     set foldmethod=syntax
-    set ruler
+    set foldlevelstart=10
+    set foldnestmax=10
   "}}}
 
   " backup {{{
@@ -250,13 +251,13 @@ filetype plugin indent on
   "}}}
 
   " python-mode {{{
-    let g:pymode_rope = 1
+    " let g:pymode_rope = 1
     let g:pymode_rope_completion = 0
     let g:pymode_virtualenv = 1
-    let g:pymode_motion = 1
-    let g:pymode_indent = 1
+    " let g:pymode_motion = 1
+    " let g:pymode_indent = 1
     let g:pymode_breakpoint = 0
-    let g:pymode_folding = 0
+    " let g:pymode_folding = 0
     " use syntastic instead
     let g:pymode_lint = 0
   "}}}
@@ -375,6 +376,11 @@ filetype plugin indent on
   " vim-go {{{
     autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
   "}}}
+
+  " braceless {{{
+    autocmd FileType python,yaml BracelessEnable +indent +fold +highlight
+    highlight BracelessIndent term=reverse ctermbg=235 guibg=#33332f
+  " }}}
 "}}}
 
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
