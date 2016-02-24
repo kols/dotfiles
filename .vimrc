@@ -17,8 +17,8 @@ filetype plugin indent on
   "}}}
 
   " tab {{{
-    nnoremap J :tabp<cr>
-    nnoremap K :tabn<cr>
+    nnoremap <silent>J :tabp<cr>
+    nnoremap <silent>K :tabn<cr>
   " }}}
 
   " window {{{
@@ -270,6 +270,8 @@ filetype plugin indent on
     " let g:pymode_folding = 0
     " use syntastic instead
     let g:pymode_lint = 0
+    let g:pymode_doc = 1
+    let g:pymode_doc_bind = ''
   "}}}
 
   " ultisnips {{{
