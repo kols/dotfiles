@@ -350,8 +350,8 @@ filetype plugin indent on
   "}}}
 
   " braceless {{{
-    autocmd FileType python,yaml BracelessEnable +indent +fold +highlight
-    highlight BracelessIndent term=reverse ctermbg=235 guibg=#33332f
+    " autocmd FileType python,yaml BracelessEnable +indent +fold +highlight
+    " highlight BracelessIndent term=reverse ctermbg=235 guibg=#33332f
   " }}}
 "}}}
 
