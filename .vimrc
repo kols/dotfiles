@@ -1,6 +1,3 @@
-if &shell =~# 'fish$'
-  set shell=sh
-endif
 set nocompatible
 filetype off
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -13,7 +10,6 @@ filetype plugin indent on
 
   " buffer {{{
     nnoremap <leader>h :hid<CR>
-    nnoremap <leader>b :ls<cr>:b<space>
   "}}}
 
   " tab {{{
@@ -35,33 +31,48 @@ filetype plugin indent on
   " editing {{{
     inoremap jj <ESC>
   "}}}
+
+  " The <Space> {{{
+    map <Space> [Space]
+
+    noremap [Space] <Nop>
+
+    nmap <silent> [Space]/ :nohlsearch<Return>
+    nmap <silent> [Space]bl :ls<Return>:b<Space>
+    nmap <silent> [Space]bs :buffer #<Return>
+    nmap <silent> [Space]j :join<Return>
+  "}}}
 "}}}
 
 " general {{{
   filetype plugin indent on
   syntax on
 
+  if &shell =~# 'fish$'
+    set shell=sh
+  endif
+
+  " encoding {{{
+    set encoding=utf-8
+    set fileencodings=utf-8,chinese,latin-1
+  "}}}
+
   " editing {{{
     " jump to the last position when reopening a file
     au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-    set wrap " Warp the over-length lines
-    set textwidth=79 " auto newline at specified column
-    set colorcolumn=72,80 " a vertical bar indicates line length
-    set backspace=indent,eol,start " <backspace> acts normally
-    set autoindent " Turn on autoindent
-    set tabstop=4 " number of spaces a <tab> in file counts for
-    set expandtab " use space to insert a <tab> and >, <
-    set shiftwidth=4 " number of spaces for each step of (auto)indent,
-                    " for cindent, >>, <<, etc.
+    set wrap
+    set textwidth=79
+    set colorcolumn=72,80
+    set backspace=indent,eol,start
+    set autoindent
+    set tabstop=4
+    set expandtab
+    set shiftwidth=4
     set softtabstop=4
     set shiftround
-    set modeline " Make enable per file vim options
-    set hidden " Hide buffers when they are abandoned
-    autocmd BufWritePre [^(mutt)]* :%s/\s\+$//e " auto remove trailing space
-
-    " Highlight end of line whitespace.
-    highlight WhitespaceEOL ctermbg=red guibg=red
-    match WhitespaceEOL /\s\+$/
+    set modeline
+    set hidden
+    autocmd BufWritePre [^(mutt)]* :%s/\s\+$//e
   "}}}
 
   " searching {{{
@@ -87,19 +98,21 @@ filetype plugin indent on
   "}}}
 
   " backup {{{
-    set nobackup " no backup file
-    " set noswapfile " no more .swp file because autosave next line
+    set backup
+    set backupcopy&
   "}}}
 
   " interface {{{
     if !has('gui_running')
-      set t_Co=256 " 256 color support
+      set t_Co=256
     endif
+    if exists('+guioptions')
+      set guioptions=cgM
+    endif
+    set ambiwidth=double
+    set noequalalways
     set ruler
-    set laststatus=2 " show status line
-    set statusline=%F%m%r%h%w\ [F=%{&ff}]\ [T=%Y]\ [Asc=\%03.3b]\ [Hex=\%02.2B]\ [Pos=%04l,%04v][%p%%]\ [Len=%L] " content of statusline
-    set statusline+=\ %{fugitive#statusline()} " add git branch after existing statusline
-    set guioptions=e " Set gui interface like cli
+    set laststatus=2
     set showtabline=1 " show tab line when more than one tab exist
     set nu " Show line number
     set showbreak=↳ " show linebreak char
@@ -112,27 +125,23 @@ filetype plugin indent on
     set noeb vb t_vb=
     au GUIEnter * set vb t_vb=
     set noshowmode
+
+    " Highlight end of line whitespace.
+    highlight WhitespaceEOL ctermbg=red guibg=red
+    match WhitespaceEOL /\s\+$/
   "}}}
 
   " font {{{
-    if has("macunix")
-      set guifont=Hack:h15pt
-    else
-      set guifont=Fantasque\ Sans\ Mono\ 10
-      set guifontwide=STHeiti\ 9
+    if exists('+guifont')
+      set guifont=Hack:h15pt antialias
     endif
   "}}}
 
   " colorscheme {{{
     let g:zenburn_high_Contrast=1
-    let g:zenburn_transparent = 1
+    let g:zenburn_transparent=1
     colorscheme zenburn
     set background=dark
-  "}}}
-
-  " encoding {{{
-    set encoding=utf-8
-    set fileencodings=utf-8,chinese,latin-1
   "}}}
 
   " filetype {{{
