@@ -357,4 +357,8 @@ filetype plugin indent on
   " }}}
 "}}}
 
+" neovim {{{
+  let g:python_host_prog = '/usr/bin/python'
+" }}}
+
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
