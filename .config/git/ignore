@@ -5,3 +5,4 @@ gtags.files
 \#*#
 .dir-locals.el
 .venv
+Session.vim
