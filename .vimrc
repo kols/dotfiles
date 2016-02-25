@@ -53,19 +53,19 @@ inoremap aa <Esc>A
 "}}}
 "}}}
 
-" general {{{
+" general {{{1
 syntax on
 
 if &shell =~# 'fish$'
 set shell=sh
 endif
 
-" encoding {{{
+" encoding {{{2
 set encoding=utf-8
 set fileencodings=utf-8,chinese,latin-1
 "}}}
 
-" editing {{{
+" editing {{{2
 " jump to the last position when reopening a file
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
       \ exe "normal! g'\"" |
@@ -84,14 +84,14 @@ set modeline
 set hidden
 "}}}
 
-" searching {{{
+" searching {{{2
 set ignorecase
 set smartcase
 set incsearch
 set hlsearch
 "}}}
 
-" convenience {{{
+" convenience {{{2
 set autochdir
 set showmatch
 set autoread
@@ -102,21 +102,21 @@ set completeopt=menu,menuone
 set pumheight=15
 "}}}
 
-" folding {{{
+" folding {{{2
 set nofoldenable
 set foldmethod=syntax
 set foldlevelstart=10
 set foldnestmax=10
 "}}}
 
-" backup {{{
+" backup {{{2
 set backup
 set backupcopy&
 set backupdir=~/.cache/vim
 set directory=~/.cache/vim
 "}}}
 
-" interface {{{
+" interface {{{2
 if !has('gui_running')
   set t_Co=256
 endif
@@ -144,21 +144,21 @@ highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
 "}}}
 
-" font {{{
+" font {{{2
 if exists('+guifont')
   set guifont=Hack:h15pt antialias
 endif
 "}}}
 
-" colorscheme {{{
+" colorscheme {{{2
 let g:zenburn_transparent = 1
 colorscheme zenburn
 set background=dark
 "}}}
 "}}}
 
-" languages {{{
-" python {{{
+" languages {{{1
+" python {{{2
 autocmd FileType python
       \ setlocal colorcolumn=73,80 |
       \ setlocal iskeyword& |
@@ -169,41 +169,41 @@ autocmd FileType python
       \ setlocal formatoptions=cq textwidth=72 foldignore=
 "}}}
 
-" ruby {{{
+" ruby {{{2
 autocmd FileType ruby setlocal tabstop=2 expandtab softtabstop=2 shiftround
 "}}}
 
-" c {{{
+" c {{{2
 autocmd BufRead,BufNewFile *.c,*.h set ts=4 et sw=4 sts=4
 "}}}
 
-" htmL {{{
+" html {{{2
 autocmd BufRead,BufNewFile *.html set ts=2 et sw=2 sts=2
 "}}}
 
-" php {{{
+" php {{{2
 autocmd BufRead,BufNewFile *.php set ts=4 et sw=4 sts=4
 "}}}
 
-" javascript {{{
+" javascript {{{2
 autocmd BufRead,BufNewFile *.js set ts=4 et sw=4 sts=4
 autocmd FileType javascript setlocal omnifunc=tern#Complete
 autocmd BufRead,BufNewFile *.coffee set ts=2 et sw=2 sts=2
 "}}}
 
-" markdown {{{
+" markdown {{{2
 autocmd BufRead,BufNewFile *.md,*.mdwn setlocal filetype=markdown
 autocmd FileType markdown set formatoptions=tcqnmM textwidth=79
 "}}}
 
-" yaml {{{
+" yaml {{{2
 autocmd BufRead,BufNewFile *.yaml,*.yml setlocal filetype=yaml
 autocmd FileType yaml setlocal tabstop=2 expandtab softtabstop=2 shiftround
 "}}}
 "}}}
 
-" plugin/script {{{
-" nerdtree {{{
+" plugin/script {{{1
+" nerdtree {{{2
 let NERDTreeQuitOnOpen=1
 let NERDTreeShowBookmarks=1
 
@@ -211,11 +211,11 @@ map <leader>7 <ESC><ESC>:NERDTreeToggle<CR>
 map <leader>8 <ESC><ESC>:NERDTreeFind<CR>
 "}}}
 
-" undotree {{{
+" undotree {{{2
 map <leader>u :UndotreeToggle<CR>
 "}}}
 
-" syntastic {{{
+" syntastic {{{2
 let g:syntastic_enable_balloons = 0
 let g:syntastic_auto_jump = 1
 let g:syntastic_python_checkers = ['flake8']
@@ -229,15 +229,16 @@ nnoremap <silent> [Space]ec :SyntasticCheck<Return> :Errors<Return>
 nnoremap <silent> [Space]er :SyntasticReset<Return>
 "}}}
 
-" tagbar {{{
+" tagbar {{{2
 map <leader>tg :TagbarToggle<cr>
 "}}}
 
-" ag {{{
+" ag {{{2
 nnoremap <silent> <leader>a :Ag!<Return>
+nnoremap <silent> <leader>A :Ag!<Return>
 "}}}
 
-" ctrl-p {{{
+" ctrl-p {{{2
 let g:ctrlp_match_window = 'top,order:ttb,min:1,max:15,results:12'
 let g:ctrlp_working_path_mode = 'ra'
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
@@ -254,7 +255,7 @@ nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
 nnoremap <silent> <leader>f :CtrlPFunky<Return>
 "}}}
 
-" fugitive {{{
+" fugitive {{{2
 autocmd BufReadPost fugitive://* setlocal bufhidden=delete
 nnoremap [Space]gs :Gstatus<CR>
 nnoremap [Space]gd :Gdiff<CR>
@@ -267,7 +268,7 @@ nnoremap [Space]gv :Gitv<CR>
 nnoremap [Space]G :Git<space>
 "}}}
 
-" python-mode {{{
+" python-mode {{{2
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_virtualenv = 1
@@ -278,20 +279,20 @@ let g:pymode_doc = 1
 let g:pymode_doc_bind = ''
 "}}}
 
-" ultisnips {{{
+" ultisnips {{{2
 let g:UltiSnipsExpandTrigger="<C-d>"
 let g:UltiSnipsJumpForwardTrigger="<C-j>"
 let g:UltiSnipsJumpBackwardTrigger="<C-k>"
 let g:UltiSnipsSnippetDirectories=["bundle/ultisnips/UltiSnips", "mysnippets"]
 "}}}
 
-" indent-guides {{{
+" indent-guides {{{2
 let g:indent_guides_enable_on_vim_startup = 0
 let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
 let g:indent_guides_color_change_percent = 5
 "}}}
 
-" vim-test {{{
+" vim-test {{{2
 let test#strategy = "vimux"
 let test#python#runner = 'pytest'
 nmap <silent> <leader>tn :TestNearest<CR>
@@ -301,14 +302,14 @@ nmap <silent> <leader>tl :TestLast<CR>
 nmap <silent> <leader>tg :TestVisit<CR>
 "}}}
 
-" Dispatch {{{
+" Dispatch {{{2
 autocmd FileType python let b:dispatch = 'py.test %'
 nnoremap <leader>i :Dispatch<CR>
 nnoremap <leader>k :Make<space>
 nnoremap <leader>s :Dispatch<space>
 "}}}
 
-" vimux {{{
+" vimux {{{2
 map <Leader>vp :VimuxPromptCommand<CR>
 map <Leader>vl :VimuxRunLastCommand<CR>
 map <Leader>vi :VimuxInspectRunner<CR>
@@ -316,17 +317,17 @@ map <Leader>vq :VimuxCloseRunner<CR>
 map <Leader>vx :VimuxInterruptRunner<CR>
 "}}}
 
-" ycm {{{
+" ycm {{{2
 nnoremap <silent> <leader>gg :YcmCompleter GoTo<cr>
 "}}}
 
-" easygrep {{{
+" easygrep {{{2
 let g:EasyGrepRoot = 'repo'
 let g:EasyGrepCommand = 1
 set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
 "}}}
 
-" lightline {{{
+" lightline {{{2
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
@@ -351,18 +352,18 @@ let g:lightline = {
       \ }
 " }}}
 
-" vim-go {{{
+" vim-go {{{2
 autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
 "}}}
 
-" vim-rooter {{{
+" vim-rooter {{{2
 let g:rooter_change_directory_for_non_project_files = 1
 let g:rooter_silent_chdir = 1
 let g:rooter_resolve_links = 1
 "}}}
 "}}}
 
-" neovim {{{
+" neovim {{{1
 let g:python_host_prog = '/usr/bin/python'
 " }}}
 
