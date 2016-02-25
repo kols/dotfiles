@@ -8,13 +8,28 @@ filetype plugin indent on
 " keymapping {{{
   let mapleader = ","
 
+  " The <Space> {{{
+    map <Space> [Space]
+
+    noremap [Space] <Nop>
+
+    nnoremap <silent> [Space]/ :nohlsearch<Return>
+    nnoremap <silent> [Space]j :join<Return>
+  "}}}
+
   " buffer {{{
-    nnoremap <leader>h :hid<CR>
+    nnoremap <silent> [Space]bs :buffer #<Return>
+    nnoremap <silent> [Space]bd :let w:oldbufnr=bufnr('%')<Return>
+          \ :bnext<Return>
+          \ :execute 'bdelete' w:oldbufnr<Return>
+          \ :unlet w:oldbufnr<Return>
+    nnoremap <silent> [Space]bq :bdelete<Return>
+    nnoremap <silent> [Space]bh :hide<CR>
   "}}}
 
   " tab {{{
-    nnoremap <silent>J :tabp<cr>
-    nnoremap <silent>K :tabn<cr>
+    nnoremap <silent>J :tabprevious<cr>
+    nnoremap <silent>K :tabnext<cr>
   " }}}
 
   " window {{{
@@ -24,28 +39,17 @@ filetype plugin indent on
     nnoremap <C-l> <C-w>l
   "}}}
 
-  " new-line {{{
-    inoremap <C-CR> <ESC>o
-  "}}}
+  " list {{{
+    nnoremap [Space]ln :lnext<Return>
+    nnoremap [Space]lp :lprevious<Return>
+    nnoremap [Space]ld :lclose<Return>
 
   " editing {{{
     inoremap jj <ESC>
   "}}}
-
-  " The <Space> {{{
-    map <Space> [Space]
-
-    noremap [Space] <Nop>
-
-    nmap <silent> [Space]/ :nohlsearch<Return>
-    nmap <silent> [Space]bl :ls<Return>:b<Space>
-    nmap <silent> [Space]bs :buffer #<Return>
-    nmap <silent> [Space]j :join<Return>
-  "}}}
 "}}}
 
 " general {{{
-  filetype plugin indent on
   syntax on
 
   if &shell =~# 'fish$'
@@ -59,10 +63,12 @@ filetype plugin indent on
 
   " editing {{{
     " jump to the last position when reopening a file
-    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
+          \ exe "normal! g'\"" |
+          \ endif
     set wrap
     set textwidth=79
-    set colorcolumn=72,80
+    set colorcolumn=80
     set backspace=indent,eol,start
     set autoindent
     set tabstop=4
@@ -72,22 +78,23 @@ filetype plugin indent on
     set shiftround
     set modeline
     set hidden
-    autocmd BufWritePre [^(mutt)]* :%s/\s\+$//e
   "}}}
 
   " searching {{{
-    set ignorecase " Do case insensitive matching
-    set smartcase " Do smart case matching
-    set incsearch " Incremental search
-    set hlsearch  " highlight search matches
+    set ignorecase
+    set smartcase
+    set incsearch
+    set hlsearch
   "}}}
 
   " convenience {{{
-    set autowrite " Automatically save before commands like :next and :make
-    set showmatch " Show matching brackets.
-    set autoread  " auto read when file changed from outside
+    set showmatch
+    set autoread
     set wildmenu
-    " set autochdir " Auto change working dir to current file
+    set wildignore+=*~,#*#
+    set completeopt=menu,menuone
+    " insert completion menu items
+    set pumheight=15
   "}}}
 
   " folding {{{
@@ -100,6 +107,8 @@ filetype plugin indent on
   " backup {{{
     set backup
     set backupcopy&
+    set backupdir=~/.cache/vim
+    set directory=~/.cache/vim
   "}}}
 
   " interface {{{
@@ -113,17 +122,16 @@ filetype plugin indent on
     set noequalalways
     set ruler
     set laststatus=2
-    set showtabline=1 " show tab line when more than one tab exist
-    set nu " Show line number
-    set showbreak=↳ " show linebreak char
-    set showcmd " Show (partial) command in status line.
-    set mouse=a " Enable mouse usage (all modes)
-    "set cursorline " The line cursor at is highlighted
+    set showtabline=1
+    set number
+    set showbreak='↳'
+    set showcmd
+    set mouse&
     set splitbelow
     set splitright
     " stop flashing
-    set noeb vb t_vb=
-    au GUIEnter * set vb t_vb=
+    set noerrorbells visualbell t_vb=
+    au GUIEnter * set visualbell t_vb=
     set noshowmode
 
     " Highlight end of line whitespace.
@@ -138,45 +146,34 @@ filetype plugin indent on
   "}}}
 
   " colorscheme {{{
-    let g:zenburn_high_Contrast=1
-    let g:zenburn_transparent=1
+    let g:zenburn_transparent = 1
     colorscheme zenburn
     set background=dark
-  "}}}
-
-  " filetype {{{
-    autocmd BufRead,BufNewFile *.mdwn set ft=markdown
   "}}}
 "}}}
 
 " languages {{{
-  set completeopt=menu,menuone
-  " insert completion menu items
-  set pumheight=15
-
   " python {{{
-    autocmd BufRead,BufNewFile *.py set ft=python syntax=python
-    autocmd BufRead,BufNewFile *.py set ai
-    autocmd BufRead,BufNewFile *.py set ts=4 et sw=4 sts=4
-    autocmd FileType python set isk+=.,(
-    autocmd FileType python set iskeyword-=(
-    autocmd FileType python set iskeyword-=.
-    " Wrap at 72 chars for comments.
-    set formatoptions=cq textwidth=72 foldignore= wildignore+=*.py[co] foldmethod=indent
+    autocmd FileType python
+          \ setlocal colorcolumn=73,80 |
+          \ setlocal iskeyword& |
+          \ setlocal tabstop=4 expandtab softtabstop=4 shiftround shiftwidth=4 |
+          \ setlocal smartindent cinwords=if,elseif,else,for,while,class |
+          \ setlocal wildignore+=*.py[co] |
+          \ setlocal foldmethod=indent |
+          \ setlocal formatoptions=cq textwidth=72 foldignore=
   "}}}
 
   " ruby {{{
-    autocmd BufRead,BufNewFile *.rb set ts=2 et sw=2 sts=2 ft=ruby
+    autocmd FileType ruby setlocal tabstop=2 expandtab softtabstop=2 shiftround
   "}}}
 
   " c {{{
-    autocmd BufRead,BufNewFile *.c set ts=4 et sw=4 sts=4
-    autocmd BufRead,BufNewFile *.h set ts=4 et sw=4 sts=4
+    autocmd BufRead,BufNewFile *.c,*.h set ts=4 et sw=4 sts=4
   "}}}
 
   " htmL {{{
     autocmd BufRead,BufNewFile *.html set ts=2 et sw=2 sts=2
-    autocmd BufRead *.py set smartindent cinwords=if,elseif,else,for,while,class
   "}}}
 
   " php {{{
@@ -184,20 +181,19 @@ filetype plugin indent on
   "}}}
 
   " javascript {{{
-    autocmd BufRead,BufNewFile *.js set ts=2 et sw=2 sts=2
+    autocmd BufRead,BufNewFile *.js set ts=4 et sw=4 sts=4
     autocmd FileType javascript setlocal omnifunc=tern#Complete
-  "}}}
-
-  " coffeescript {{{
     autocmd BufRead,BufNewFile *.coffee set ts=2 et sw=2 sts=2
   "}}}
 
   " markdown {{{
+    autocmd BufRead,BufNewFile *.md,*.mdwn setlocal filetype=markdown
     autocmd FileType markdown set formatoptions=tcqnmM textwidth=79
   "}}}
 
   " yaml {{{
-    autocmd BufRead,BufNewFile *.yml set ts=2 et sw=2 sts=2
+    autocmd BufRead,BufNewFile *.yaml,*.yml setlocal filetype=yaml
+    autocmd FileType yaml setlocal tabstop=2 expandtab softtabstop=2 shiftround
   "}}}
 "}}}
 
@@ -216,8 +212,7 @@ filetype plugin indent on
 
   " syntastic {{{
     let g:syntastic_enable_balloons = 0
-    let g:syntastic_always_populate_loc_list = 1
-    let g:syntastic_auto_jump = 2
+    let g:syntastic_auto_jump = 1
     let g:syntastic_python_checkers = ['flake8']
     let g:syntastic_javascript_checkers = ['jshint']
     let g:syntastic_mode_map = {
@@ -225,9 +220,8 @@ filetype plugin indent on
         \ "active_filetypes": [],
         \ "passive_filetypes": ["python"],
     \ }
-    nnoremap <silent> <leader>el :Errors<cr>
-    nnoremap <silent> <leader>es :SyntasticCheck<cr>
-    nnoremap <silent> <leader>er :SyntasticReset<cr>
+    nnoremap <silent> [Space]ec :SyntasticCheck<Return> :Errors<Return>
+    nnoremap <silent> [Space]er :SyntasticReset<Return>
   "}}}
 
   " tagbar {{{
@@ -235,7 +229,7 @@ filetype plugin indent on
   "}}}
 
   " ag {{{
-    nmap <leader>a <Esc>:Ag!
+    nnoremap <silent> <leader>a :Ag!<Return>
   "}}}
 
   " ctrl-p {{{
@@ -250,34 +244,30 @@ filetype plugin indent on
     let g:ctrlp_extensions = ['funky']
     let g:ctrlp_funky_syntax_highlight = 1
 
-    noremap <C-P> :CtrlP<CR>
-    nnoremap <Leader>f :CtrlPFunky<Cr>
-    " narrow the list down with a word under cursor
-    nnoremap <Leader>F :execute 'CtrlPFunky ' . expand('<cword>')<Cr>)
+    nnoremap <silent> <C-p> :CtrlP<Return>
+    nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
+    nnoremap <silent> <leader>f :CtrlPFunky<Return>
   "}}}
 
   " fugitive {{{
-    autocmd BufReadPost fugitive://* set bufhidden=delete
-    nnoremap <leader>gs :Gstatus<CR>
-    nnoremap <leader>gd :Gdiff<CR>
-    nnoremap <leader>gc :Gcommit -v -q<CR>
-    nnoremap <leader>gt :Gcommit -v -q %:p<CR>
-    nnoremap <leader>gl :silent! Glog<CR>:bo copen<CR>
-    nnoremap <leader>gb :Gblame<CR>
-    nnoremap <leader>gB :Gbrowse<CR>
-    nnoremap <leader>gv :Gitv<CR>
-    nnoremap <leader>G :Git<space>
+    autocmd BufReadPost fugitive://* setlocal bufhidden=delete
+    nnoremap [Space]gs :Gstatus<CR>
+    nnoremap [Space]gd :Gdiff<CR>
+    nnoremap [Space]gc :Gcommit -v -q<CR>
+    nnoremap [Space]gt :Gcommit -v -q %:p<CR>
+    nnoremap [Space]gl :silent! Glog<CR>:bo copen<CR>
+    nnoremap [Space]gb :Gblame<CR>
+    nnoremap [Space]gB :Gbrowse<CR>
+    nnoremap [Space]gv :Gitv<CR>
+    nnoremap [Space]G :Git<space>
   "}}}
 
   " python-mode {{{
     " let g:pymode_rope = 1
     let g:pymode_rope_completion = 0
     let g:pymode_virtualenv = 1
-    " let g:pymode_motion = 1
-    " let g:pymode_indent = 1
+    let g:pymode_indent = 1
     let g:pymode_breakpoint = 0
-    " let g:pymode_folding = 0
-    " use syntastic instead
     let g:pymode_lint = 0
     let g:pymode_doc = 1
     let g:pymode_doc_bind = ''
@@ -359,11 +349,6 @@ filetype plugin indent on
   " vim-go {{{
     autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
   "}}}
-
-  " braceless {{{
-    " autocmd FileType python,yaml BracelessEnable +indent +fold +highlight
-    " highlight BracelessIndent term=reverse ctermbg=235 guibg=#33332f
-  " }}}
 "}}}
 
 " neovim {{{
