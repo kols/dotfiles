@@ -238,7 +238,7 @@ map <leader>tg :TagbarToggle<cr>
 
 " ag {{{2
 nnoremap <silent> <leader>a :Ag!<Return>
-nnoremap <silent> <leader>A :Ag!<Return>
+nnoremap <leader>A :Ag!<Space>
 "}}}
 
 " ctrl-p {{{2
