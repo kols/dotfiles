@@ -90,6 +90,7 @@ filetype plugin indent on
   "}}}
 
   " convenience {{{
+    set autochdir
     set showmatch
     set autoread
     set wildmenu
@@ -350,6 +351,12 @@ filetype plugin indent on
 
   " vim-go {{{
     autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
+  "}}}
+
+  " vim-rooter {{{
+    let g:rooter_change_directory_for_non_project_files = 1
+    let g:rooter_silent_chdir = 1
+    let g:rooter_resolve_links = 1
   "}}}
 "}}}
 

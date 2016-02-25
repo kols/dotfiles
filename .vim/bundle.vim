@@ -26,6 +26,7 @@ Plugin 'VundleVim/Vundle.vim'
   Plugin 'mhinz/vim-startify'
   " Plugin 'tweekmonster/braceless.vim'
   Plugin 'easymotion/vim-easymotion'
+  Plugin 'airblade/vim-rooter'
 "}}}
 
 " integration {{{
