@@ -15,6 +15,8 @@ filetype plugin indent on
 
     nnoremap <silent> [Space]/ :nohlsearch<Return>
     nnoremap <silent> [Space]j :join<Return>
+    vnoremap [Space]so y:execute @@<Return>:echo 'selection evaluated'<Return>
+    nnoremap [Space]so yy:execute @@<Return>:echo 'line evaluated'<Return>
   "}}}
 
   " buffer {{{
