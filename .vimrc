@@ -171,6 +171,7 @@ autocmd FileType python
 
 " go {{{2
 autocmd FileType go setlocal colorcolumn=
+" }}}
 
 " ruby {{{2
 autocmd FileType ruby setlocal tabstop=2 expandtab softtabstop=2 shiftround
