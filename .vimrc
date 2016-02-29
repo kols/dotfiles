@@ -227,7 +227,7 @@ let g:syntastic_javascript_checkers = ['jshint']
 let g:syntastic_mode_map = {
       \ "mode": "active",
       \ "active_filetypes": [],
-      \ "passive_filetypes": ["python"],
+      \ "passive_filetypes": ["python", "go"],
       \ }
 nnoremap <silent> [Space]ec :SyntasticCheck<Return> :Errors<Return>
 nnoremap <silent> [Space]er :SyntasticReset<Return>
@@ -358,6 +358,7 @@ let g:lightline = {
 
 " vim-go {{{2
 autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
+let g:go_fmt_command = "goimports"
 "}}}
 
 " vim-rooter {{{2
