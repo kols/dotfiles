@@ -126,7 +126,7 @@ set ruler
 set laststatus=2
 set showtabline=1
 set number
-set showbreak='↳'
+set showbreak=↳
 set showcmd
 set mouse&
 set splitbelow
