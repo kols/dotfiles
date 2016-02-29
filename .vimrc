@@ -198,7 +198,10 @@ autocmd BufRead,BufNewFile *.coffee set ts=2 et sw=2 sts=2
 
 " markdown {{{2
 autocmd BufRead,BufNewFile *.md,*.mdwn setlocal filetype=markdown
-autocmd FileType markdown set formatoptions=tcqnmM textwidth=79
+autocmd FileType markdown
+      \ setlocal formatoptions=tcqnmM |
+      \ setlocal textwidth=79 |
+      \ setlocal conceallevel=2
 "}}}
 
 " yaml {{{2

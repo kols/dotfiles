@@ -62,7 +62,7 @@ Plugin 'VundleVim/Vundle.vim'
 "}}}
 
 " syntax {{{
-  Plugin 'tpope/vim-markdown'
+  Plugin 'plasticboy/vim-markdown'
   " Plugin 'vim-scripts/VST'
   " Plugin 'timcharper/textile.vim'
   Plugin 'chase/vim-ansible-yaml'
