@@ -117,9 +117,6 @@ set directory=~/.cache/vim
 "}}}
 
 " interface {{{2
-if !has('gui_running')
-  set t_Co=256
-endif
 if exists('+guioptions')
   set guioptions=cgM
 endif
@@ -142,18 +139,22 @@ set noshowmode
 " Highlight end of line whitespace.
 highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
+
+" https://github.com/kana/config/blob/master/vim/personal/dot.vimrc#L189
+if (&t_Co > 1 || has('gui')) && has('syntax')
+  set t_Co=256
+  if !exists('g:colors_name')
+    let g:zenburn_transparent = 1
+    colorscheme zenburn
+    set background=dark
+  endif
+endif
 "}}}
 
 " font {{{2
 if exists('+guifont')
   set guifont=Hack:h15pt antialias
 endif
-"}}}
-
-" colorscheme {{{2
-let g:zenburn_transparent = 1
-colorscheme zenburn
-set background=dark
 "}}}
 "}}}
 
