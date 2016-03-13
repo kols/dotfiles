@@ -263,19 +263,6 @@ nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
 nnoremap <silent> <leader>f :CtrlPFunky<Return>
 "}}}
 
-" fugitive {{{2
-autocmd BufReadPost fugitive://* setlocal bufhidden=delete
-nnoremap [Space]gs :Gstatus<CR>
-nnoremap [Space]gd :Gdiff<CR>
-nnoremap [Space]gc :Gcommit -v -q<CR>
-nnoremap [Space]gt :Gcommit -v -q %:p<CR>
-nnoremap [Space]gl :silent! Glog<CR>:bo copen<CR>
-nnoremap [Space]gb :Gblame<CR>
-nnoremap [Space]gB :Gbrowse<CR>
-nnoremap [Space]gv :Gitv<CR>
-nnoremap [Space]G :Git<space>
-"}}}
-
 " python-mode {{{2
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
@@ -329,17 +316,11 @@ map <Leader>vx :VimuxInterruptRunner<CR>
 nnoremap <silent> <leader>gg :YcmCompleter GoTo<cr>
 "}}}
 
-" easygrep {{{2
-let g:EasyGrepRoot = 'repo'
-let g:EasyGrepCommand = 1
-set grepprg=ag\ --nocolor\ --line-numbers\ --nogroup\ -S\ $*\ /dev/null
-"}}}
-
 " lightline {{{2
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'fugitive', 'readonly', 'filename', 'modified' ] ],
+      \             [ 'readonly', 'filename', 'modified' ] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ],
       \              [ 'percent' ],
       \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
@@ -351,11 +332,9 @@ let g:lightline = {
       \ 'component': {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"%%":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
-      \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
-      \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
       \ }
       \ }
 " }}}
