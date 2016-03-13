@@ -37,6 +37,7 @@ Plugin 'VundleVim/Vundle.vim'
 "}}}
 
 " colorscheme {{{
+  Plugin 'robertmeta/nofrils'
   Plugin 'nanotech/jellybeans.vim'
   Plugin 'w0ng/vim-hybrid'
   Plugin 'altercation/vim-colors-solarized'

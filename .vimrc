@@ -141,12 +141,11 @@ highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
 
 " https://github.com/kana/config/blob/master/vim/personal/dot.vimrc#L189
-if (&t_Co > 1 || has('gui')) && has('syntax')
-  set t_Co=256
+if (1 < &t_Co || has('gui')) && has('syntax')
+  set t_Co=16
   if !exists('g:colors_name')
-    let g:zenburn_transparent = 1
-    colorscheme zenburn
     set background=dark
+    colorscheme nofrils-dark
   endif
 endif
 "}}}
