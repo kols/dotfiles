@@ -1,5 +1,6 @@
 set nocompatible
 filetype off
+autocmd!
 set rtp+=~/.vim/bundle/Vundle.vim
 source ~/.vim/bundle.vim
 
@@ -150,58 +151,90 @@ endif
 
 " languages {{{1
 " python {{{2
-autocmd FileType python
-      \ setlocal colorcolumn=+1,80 |
-      \ setlocal iskeyword& |
-      \ setlocal tabstop=4 expandtab softtabstop=4 shiftround shiftwidth=4 |
-      \ setlocal smartindent cinwords=if,elseif,else,for,while,class |
-      \ setlocal wildignore+=*.py[co] |
-      \ setlocal foldmethod=indent |
-      \ setlocal formatoptions=cq textwidth=72 foldignore=
+augroup python
+  autocmd!
+  autocmd BufRead,BufNewFile *.py setfiletype python
+  autocmd FileType python
+        \ setlocal colorcolumn=+1,80 |
+        \ setlocal iskeyword& |
+        \ setlocal tabstop=4 expandtab softtabstop=4 shiftround shiftwidth=4 |
+        \ setlocal smartindent cinwords=if,elseif,else,for,while,class |
+        \ setlocal wildignore+=*.py[co] |
+        \ setlocal foldmethod=indent |
+        \ setlocal formatoptions=cq textwidth=72 foldignore=
+augroup END
 "}}}
 
 " go {{{2
-autocmd FileType go setlocal colorcolumn=
+augroup go
+  autocmd!
+  autocmd BufRead,BufNewFile *.go setfiletype go
+  autocmd FileType go setlocal colorcolumn=
+augroup END
 " }}}
 
 " ruby {{{2
-autocmd FileType ruby setlocal tabstop=2 expandtab softtabstop=2 shiftround
+augroup ruby
+  autocmd!
+  autocmd BufRead,BufNewFile *.rb setfiletype ruby
+  autocmd FileType ruby setlocal tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
+augroup END
 "}}}
 
 " c {{{2
-autocmd BufRead,BufNewFile *.c,*.h set ts=4 et sw=4 sts=4
+augroup c
+  autocmd!
+  autocmd BufRead,BufNewFile *.c,*.h setfiletype c
+  autocmd FileType c setlocal tabstop=4 expandtab softtabstop=4 shiftwidth=4 shiftround
+augroup END
 "}}}
 
 " html {{{2
-autocmd BufRead,BufNewFile *.html set ts=2 et sw=2 sts=2
+augroup html
+  autocmd!
+  autocmd BufRead,BufNewFile *.html setfiletype html
+  autocmd FileType html setlocal tabstop=4 expandtab softtabstop=4 shiftwidth=4 shiftround
+augroup END
 "}}}
 
 " php {{{2
-autocmd BufRead,BufNewFile *.php set ts=4 et sw=4 sts=4
+augroup php
+  autocmd!
+  autocmd BufRead,BufNewFile *.php setfiletype php
+  autocmd FileType php setlocal tabstop=4 expandtab softtabstop=4 shiftwidth=4 shiftround
+augroup END
 "}}}
 
 " javascript {{{2
-autocmd BufRead,BufNewFile *.js set ts=4 et sw=4 sts=4
-autocmd FileType javascript setlocal omnifunc=tern#Complete
-autocmd BufRead,BufNewFile *.coffee set ts=2 et sw=2 sts=2
+augroup javascript
+  autocmd!
+  autocmd BufRead,BufNewFile *.js setfiletype javascript
+  autocmd BufRead,BufNewFile *.json setfiletype json
+  autocmd FileType javascript setlocal tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
+
+  autocmd BufRead,BufNewFile *.coffee setfiletype coffeescript
+  autocmd FileType coffeescript setlocal tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
+augroup END
 "}}}
 
 " markdown {{{2
-autocmd BufRead,BufNewFile *.md,*.mdwn setlocal filetype=markdown
-autocmd FileType markdown
-      \ setlocal formatoptions=tcqnmM |
-      \ setlocal textwidth=79 |
-      \ setlocal conceallevel=2
+augroup markdown
+  autocmd!
+  autocmd BufRead,BufNewFile *.md,*.mdwn setfiletype markdown
+  autocmd FileType markdown
+        \ setlocal formatoptions=tcqnmM |
+        \ setlocal textwidth=79 |
+        \ setlocal conceallevel=2
+  autocmd FileType markdown nnoremap <silent> <buffer> [Space]o :!open -a Marked\ 2.app %<Return><Return>
+augroup END
 "}}}
 
 " yaml {{{2
-autocmd BufRead,BufNewFile *.yaml,*.yml setlocal filetype=yaml
-autocmd FileType yaml
-      \ setlocal tabstop=2 |
-      \ setlocal expandtab |
-      \ setlocal softtabstop=2 |
-      \ setlocal shiftwidth=2 |
-      \ setlocal shiftround
+augroup yaml
+  autocmd!
+  autocmd BufRead,BufNewFile *.yaml,*.yml setfiletype yaml
+  autocmd FileType yaml tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
+augroup END
 "}}}
 "}}}
 
@@ -293,7 +326,9 @@ nmap <silent> <leader>tg :TestVisit<CR>
 "}}}
 
 " Dispatch {{{2
-autocmd FileType python let b:dispatch = 'py.test %'
+augroup python
+  autocmd FileType python let b:dispatch = 'py.test %'
+augroup END
 nnoremap <leader>i :Dispatch<CR>
 nnoremap <leader>k :Make<space>
 nnoremap <leader>s :Dispatch<space>
@@ -308,7 +343,11 @@ map <Leader>vx :VimuxInterruptRunner<CR>
 "}}}
 
 " ycm {{{2
-nnoremap <silent> <leader>gg :YcmCompleter GoTo<cr>
+augroup python
+  autocmd FileType python
+        \ nnoremap <silent> <buffer> <leader>gg :YcmCompleter GoTo<Return> |
+        \ nnoremap <silent> <buffer> <leader>gd :YcmCompleter GoToDeclaration<Return>
+augroup END
 "}}}
 
 " lightline {{{2
@@ -335,8 +374,11 @@ let g:lightline = {
 " }}}
 
 " vim-go {{{2
-autocmd FileType go nnoremap <silent><buffer> <leader>gg :GoDef<cr>
-let g:go_fmt_command = "goimports"
+let g:go_def_mapping_enabled=0
+let g:go_fmt_command="goimports"
+augroup go
+  autocmd FileType go nnoremap <silent> <buffer> <leader>gg :GoDef<Return>
+augroup END
 "}}}
 
 " vim-rooter {{{2
