@@ -20,11 +20,6 @@ nnoremap [Space]so yy:execute @@<Return>:echo 'line evaluated'<Return>
 "}}}
 
 " buffer {{{2
-nnoremap <silent> [Space]bs :buffer #<Return>
-nnoremap <silent> [Space]bd :let w:oldbufnr=bufnr('%')<Return>
-      \ :bnext<Return>
-      \ :execute 'bdelete' w:oldbufnr<Return>
-      \ :unlet w:oldbufnr<Return>
 nnoremap <silent> [Space]bq :bdelete<Return>
 nnoremap <silent> [Space]bh :hide<CR>
 "}}}
@@ -238,7 +233,8 @@ nnoremap <silent> [Space]er :SyntasticReset<Return>
 "}}}
 
 " tagbar {{{2
-map <leader>tg :TagbarToggle<cr>
+nnoremap <silent> [Space]tg :Tagbar<Return>
+let g:tagbar_compact=1
 "}}}
 
 " ag {{{2
@@ -259,7 +255,6 @@ let g:ctrlp_extensions = ['funky']
 let g:ctrlp_funky_syntax_highlight = 1
 
 nnoremap <silent> <C-p> :CtrlP<Return>
-nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
 nnoremap <silent> <leader>f :CtrlPFunky<Return>
 "}}}
 
@@ -352,6 +347,8 @@ let g:rooter_resolve_links = 1
 
 " bufexplorer {{{2
 let g:bufExplorerDisableDefaultKeyMapping=1
+let g:bufExplorerFindActive=0
+nnoremap <silent> [Space]bb :BufExplorer<Return>
 nnoremap <silent> [Space]bs :BufExplorerHorizontalSplit<Return>
 nnoremap <silent> [Space]bv :BufExplorerVerticalSplit<Return>
 "}}}
