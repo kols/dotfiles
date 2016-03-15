@@ -15,7 +15,6 @@ Plugin 'VundleVim/Vundle.vim'
   Plugin 'nathanaelkane/vim-indent-guides'
   Plugin 'tpope/vim-obsession'
   Plugin 'terryma/vim-multiple-cursors'
-  Plugin 'tpope/vim-unimpaired'
   Plugin 'tomtom/tcomment_vim'
   Plugin 'chrisbra/NrrwRgn'
   Plugin 'mbbill/undotree'
@@ -37,7 +36,7 @@ Plugin 'VundleVim/Vundle.vim'
 "}}}
 
 " colorscheme {{{
-  Plugin 'robertmeta/nofrils'
+  Plugin 'kols/nofrils'
   Plugin 'nanotech/jellybeans.vim'
   Plugin 'w0ng/vim-hybrid'
   Plugin 'altercation/vim-colors-solarized'

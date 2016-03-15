@@ -42,10 +42,11 @@ nnoremap <C-l> <C-w>l
 "}}}
 
 " list {{{2
-nnoremap [Space]ln :lnext<Return>
-nnoremap [Space]lp :lprevious<Return>
-nnoremap [Space]ld :lclose<Return>
-" }}}
+nnoremap <silent> [q :cprevious<Return>
+nnoremap <silent> ]q :cnext<Return>
+nnoremap <silent> [l :lprevious<Return>
+nnoremap <silent> ]l :lnext<Return>
+"}}}
 
 " editing {{{2
 inoremap jj <Esc>
