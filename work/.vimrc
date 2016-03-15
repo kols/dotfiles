@@ -5,6 +5,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'kien/ctrlp.vim'
+Plugin 'jnurmine/Zenburn'
 call vundle#end()
 
 filetype plugin indent on
@@ -138,6 +139,15 @@ set noshowmode
 " Highlight end of line whitespace.
 highlight WhitespaceEOL ctermbg=red guibg=red
 match WhitespaceEOL /\s\+$/
+
+if (1 < &t_Co || has('gui')) && has('syntax')
+  set t_Co=256
+  if !exists('g:colors_name')
+    set background=dark
+    let g:zenburn_transparent=1
+    colorscheme zenburn
+  endif
+endif
 "}}}
 "}}}
 
