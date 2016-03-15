@@ -57,6 +57,8 @@
     ssp = stash pop
     st = status --short --branch
     su = submodule update --recursive
+    sbta = "!f() { git subtree add --prefix $2 $1 master --squash; }; f"
+    sbtu = "!f() { git subtree pull --prefix $2 $1 master --squash; }; f"
 [push]
     default = current
 [diff]
