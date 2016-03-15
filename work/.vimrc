@@ -192,6 +192,17 @@ autocmd FileType yaml setlocal tabstop=2 expandtab softtabstop=2 shiftround
 "}}}
 "}}}
 
+" plugin {{{1
+" ctrlp {{{2
+let g:ctrlp_match_window = 'top,order:ttb,min:1,max:15,results:12'
+let g:ctrlp_working_path_mode = 'ra'
+set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
+let g:ctrlp_persistent_input = 0
+
+nnoremap <silent> <C-p> :CtrlP<Return>
+nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
+" }}}
+
 " neovim {{{1
 let g:python_host_prog = '/usr/bin/python'
 " }}}
