@@ -35,6 +35,7 @@
     l1 = log --oneline --decorate --graph
     lp = log --oneline --decorate
     m = merge
+    mt = mergetool
     pl = pull
     ps = push
     psf = push --force-with-lease
@@ -59,11 +60,11 @@
 [push]
     default = current
 [diff]
-    tool = diffmerge
+    tool = vimdiff
 [difftool]
     prompt = false
 [merge]
-    tool = diffmerge
+    tool = vimdiff
     defaultToUpstream = true
 [github]
     user = kols
