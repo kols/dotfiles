@@ -240,7 +240,7 @@ augroup END
 
 " plugin/script {{{1
 " undotree {{{2
-map <leader>u :UndotreeToggle<CR>
+nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
 
 " syntastic {{{2
@@ -253,7 +253,7 @@ let g:syntastic_mode_map = {
       \ "active_filetypes": [],
       \ "passive_filetypes": ["python", "go"],
       \ }
-nnoremap <silent> [Space]ec :SyntasticCheck<Return> :Errors<Return>
+nnoremap <silent> [Space]ec :SyntasticCheck<Return>:Errors<Return>
 nnoremap <silent> [Space]er :SyntasticReset<Return>
 "}}}
 
