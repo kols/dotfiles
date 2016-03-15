@@ -29,11 +29,6 @@ nnoremap <silent> [Space]bq :bdelete<Return>
 nnoremap <silent> [Space]bh :hide<CR>
 "}}}
 
-" tab {{{2
-nnoremap <silent>J :tabprevious<cr>
-nnoremap <silent>K :tabnext<cr>
-" }}}
-
 " window {{{2
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
@@ -50,7 +45,7 @@ nnoremap <silent> ]l :lnext<Return>
 
 " editing {{{2
 inoremap jj <Esc>
-inoremap aa <Esc>A
+inoremap <C-e> <Esc>A
 "}}}
 "}}}
 
