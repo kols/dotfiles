@@ -161,7 +161,7 @@ endif
 " languages {{{1
 " python {{{2
 autocmd FileType python
-      \ setlocal colorcolumn=73,80 |
+      \ setlocal colorcolumn=+1,80 |
       \ setlocal iskeyword& |
       \ setlocal tabstop=4 expandtab softtabstop=4 shiftround shiftwidth=4 |
       \ setlocal smartindent cinwords=if,elseif,else,for,while,class |
@@ -206,7 +206,12 @@ autocmd FileType markdown
 
 " yaml {{{2
 autocmd BufRead,BufNewFile *.yaml,*.yml setlocal filetype=yaml
-autocmd FileType yaml setlocal tabstop=2 expandtab softtabstop=2 shiftround
+autocmd FileType yaml
+      \ setlocal tabstop=2 |
+      \ setlocal expandtab |
+      \ setlocal softtabstop=2 |
+      \ setlocal shiftwidth=2 |
+      \ setlocal shiftround
 "}}}
 "}}}
 
