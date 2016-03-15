@@ -349,6 +349,12 @@ let g:rooter_change_directory_for_non_project_files = 1
 let g:rooter_silent_chdir = 1
 let g:rooter_resolve_links = 1
 "}}}
+
+" bufexplorer {{{2
+let g:bufExplorerDisableDefaultKeyMapping=1
+nnoremap <silent> [Space]bs :BufExplorerHorizontalSplit<Return>
+nnoremap <silent> [Space]bv :BufExplorerVerticalSplit<Return>
+"}}}
 "}}}
 
 " neovim {{{1
