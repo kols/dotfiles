@@ -233,7 +233,7 @@ augroup END
 augroup yaml
   autocmd!
   autocmd BufRead,BufNewFile *.yaml,*.yml setfiletype yaml
-  autocmd FileType yaml tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
+  autocmd FileType yaml setlocal tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
 augroup END
 "}}}
 "}}}
@@ -382,9 +382,17 @@ let g:rooter_resolve_links = 1
 " bufexplorer {{{2
 let g:bufExplorerDisableDefaultKeyMapping=1
 let g:bufExplorerFindActive=0
+let g:bufExplorerShowRelativePath=1
+let g:bufExplorerShowTabBuffer=1
 nnoremap <silent> [Space]bb :BufExplorer<Return>
 nnoremap <silent> [Space]bs :BufExplorerHorizontalSplit<Return>
 nnoremap <silent> [Space]bv :BufExplorerVerticalSplit<Return>
+"}}}
+
+" filebeagle {{{2
+let g:filebeagle_suppress_keymaps=1
+let g:filebeagle_check_gitignore=1
+map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 "}}}
 "}}}
 
