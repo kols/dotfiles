@@ -27,3 +27,14 @@ function highcost () {
     [ -z $1 ] && return 1
     grep $1 $asura_reqlog | awk "$awk_expr"
 }
+
+alias vi=vim
+alias tl="tail"
+alias hd="head"
+alias l="less"
+alias lm="ls -lahF"
+alias l1="ls -A1"
+alias findn="find . -name"
+alias tmux="tmux -2 -u"
+alias g="git"
+alias ncpu="getconf _NPROCESSORS_ONLN"
