@@ -8,9 +8,6 @@ Plugin 'airblade/vim-rooter'
 
 " integration {{{2
 Plugin 'rking/ag.vim'
-Plugin 'mhinz/vim-signify'
-Plugin 'tpope/vim-dispatch'
-Plugin 'benmills/vimux'
 "}}}
 "}}}
 
