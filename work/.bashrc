@@ -19,7 +19,7 @@ function _asura_logfiles () {
 }
 
 function rid_trace () {
-    grep -h $1 `_asura_logfiles` | sort -g
+    command grep -h $1 `_asura_logfiles` | sort -g | uniq | nl
 }
 
 function highcost () {
