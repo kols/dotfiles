@@ -248,11 +248,7 @@ let g:syntastic_enable_balloons = 0
 let g:syntastic_auto_jump = 1
 let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_javascript_checkers = ['jshint']
-let g:syntastic_mode_map = {
-      \ "mode": "active",
-      \ "active_filetypes": [],
-      \ "passive_filetypes": ["python", "go"],
-      \ }
+let g:syntastic_mode_map = { "mode": "passive" }
 nnoremap <silent> [Space]ec :SyntasticCheck<Return>:Errors<Return>
 nnoremap <silent> [Space]er :SyntasticReset<Return>
 "}}}

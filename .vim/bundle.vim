@@ -7,6 +7,7 @@ Plugin 'tpope/vim-obsession'
 Plugin 'airblade/vim-rooter'
 
 " integration {{{2
+Plugin 'tpope/vim-fugitive'
 Plugin 'rking/ag.vim'
 "}}}
 "}}}
