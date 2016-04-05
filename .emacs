@@ -7,7 +7,7 @@
      ("melpa" . "https://melpa.org/packages/")))))
 
 (load-theme 'default-black)
-(set-face-attribute 'default nil :font "-apple-IosevkaCC Slab-light-normal-normal-*-17-*-*-*-m-0-iso10646-1")
+(set-face-attribute 'default nil :font "-apple-iosevka-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1")
 (setq mac-option-modifier 'meta)
 (setq scroll-conservatively 1)
 (column-number-mode 1)
