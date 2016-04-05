@@ -156,10 +156,14 @@ already narrowed."
             (pyvenv-mode 1)))
 (add-hook 'go-mode-hook
           (lambda ()
+            (add-hook 'before-save-hook 'gofmt-before-save)
+            (setq gofmt-command "goimports")
             (go-eldoc-setup)
             (which-function-mode 1)
             (company-mode 1)
+            (flycheck-mode 1)
             (eval-after-load "company"
               '(progn
                  (add-to-list 'company-backends 'company-go)))
-            (local-set-key (kbd "M-.") 'godef-jump)))
+            (local-set-key (kbd "M-.") 'godef-jump)
+            (local-set-key (kbd "M-C-." 'godef-jump-other-window))))
