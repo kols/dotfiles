@@ -27,9 +27,7 @@ Plugin 'jnurmine/Zenburn'
 "}}}
 
 " syntax {{{2
-Plugin 'plasticboy/vim-markdown'
-Plugin 'chase/vim-ansible-yaml'
-Plugin 'solarnz/thrift.vim'
+Plugin 'sheerun/vim-polyglot'
 Plugin 'saltstack/salt-vim'
 Plugin 'dag/vim-fish'
 "}}}
