@@ -134,17 +134,19 @@ match WhitespaceEOL /\s\+$/
 
 " https://github.com/kana/config/blob/master/vim/personal/dot.vimrc#L189
 if (1 < &t_Co || has('gui')) && has('syntax')
-  set t_Co=16
+  set t_Co=256
   if !exists('g:colors_name')
     set background=dark
-    colorscheme nofrils-dark
+    let g:zenburn_transparent = 0
+    let g:zenburn_high_Contrast = 1
+    colorscheme zenburn
   endif
 endif
 "}}}
 
 " font {{{2
 if exists('+guifont')
-  set guifont=Hack:h15pt antialias
+  set guifont=iosevka:h15pt antialias
 endif
 "}}}
 "}}}
