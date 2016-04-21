@@ -241,6 +241,14 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" nerdtree {{{2
+let NERDTreeQuitOnOpen=1
+let NERDTreeShowBookmarks=1
+
+map <leader>7 <ESC><ESC>:NERDTreeToggle<CR>
+map <leader>8 <ESC><ESC>:NERDTreeFind<CR>
+"}}}
+
 " undotree {{{2
 nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
@@ -301,7 +309,7 @@ let g:UltiSnipsSnippetDirectories=["bundle/ultisnips/UltiSnips", "mysnippets"]
 
 " indent-guides {{{2
 let g:indent_guides_enable_on_vim_startup = 0
-let g:indent_guides_exclude_filetypes = ['help']
+let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
 let g:indent_guides_color_change_percent = 5
 "}}}
 

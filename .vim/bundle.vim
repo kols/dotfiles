@@ -34,6 +34,7 @@ Plugin 'dag/vim-fish'
 "}}}
 
 " file {{{1
+Plugin 'scrooloose/nerdtree'
 Plugin 'jeetsukumaran/vim-filebeagle'
 Plugin 'kien/ctrlp.vim'
 Plugin 'tacahiroy/ctrlp-funky'
