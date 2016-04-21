@@ -103,6 +103,11 @@ function docker-runbg {
 # find process
 function fps { ps aux | grep "$1" }
 
+# get ssl fingerprint, arg 1 is <host>:<port>
+function sslfp {
+    openssl s_client -connect $1 < /dev/null 2>/dev/null | openssl x509 -fingerprint -noout -in /dev/stdin
+}
+
 ##
 # alias
 ##
