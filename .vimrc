@@ -352,7 +352,7 @@ augroup END
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified' ] ],
+      \             [ 'readonly', 'filename', 'modified', 'fugitive' ] ],
       \   'right': [ [ 'syntastic', 'lineinfo' ],
       \              [ 'percent' ],
       \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
@@ -364,9 +364,11 @@ let g:lightline = {
       \ 'component': {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"%%":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
+      \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
+      \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
       \ }
       \ }
 " }}}
