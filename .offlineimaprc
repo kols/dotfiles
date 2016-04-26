@@ -1,7 +1,7 @@
 [general]
 accounts = xhs
 ui = basic
-socktimeout = 5
+socktimeout = 10
 
 [Account xhs]
 localrepository = Local
@@ -9,12 +9,12 @@ remoterepository = Remote
 
 [Repository Local]
 type = Maildir
-localfolders = ~/mail
+localfolders = ~/mail/qdou@xiaohongshu.com
 
 [Repository Remote]
 type = IMAP
 remotehost = imap.exmail.qq.com
-remoteuser = qdou@xingin.com
+remoteuser = qdou@xiaohongshu.com
 remotepassfile = ~/.qdouatxingindotcom
 ssl = yes
-cert_fingerprint= 1ce76609d8ad0014f713ff48a504ccae1c73476c
+cert_fingerprint= 7a845668b97288ad8d265372f6e6e041c73e8d1e
