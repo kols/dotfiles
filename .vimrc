@@ -22,7 +22,8 @@ nnoremap [Space]so yy:execute @@<Return>:echo 'line evaluated'<Return>
 
 " buffer {{{2
 nnoremap <silent> [Space]bq :bdelete<Return>
-nnoremap <silent> [Space]bh :hide<CR>
+nnoremap <silent> [Space]bh :hide<Return>
+nnoremap <silent> <leader>q :bp\|bd #<Return>
 "}}}
 
 " window {{{2
