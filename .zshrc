@@ -1,4 +1,3 @@
-#!/bin/zsh
 # virtualenv
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 export WORKON_HOME=~/.virtualenvs
@@ -21,19 +20,25 @@ bindkey -e
 # plugin
 ##
 
-# zgen
-export ZGEN_DIR="${HOME}/.zgen/bundles"
-source "${HOME}/.zgen/zgen.zsh"
-if ! zgen saved; then
-    echo "Creating a zgen save..."
-    zgen loadall <<EOPLUGINS
-        zsh-users/zsh-completions src
-        zsh-users/zsh-history-substring-search
-        zsh-users/zaw
-        rupa/z
-EOPLUGINS
-    zgen save
+# zplug
+export ZPLUG_HOME=$HOME/.zplug
+source $ZPLUG_HOME/init.zsh
+zplug "b4b4r07/zplug"
+zplug "zsh-users/zsh-completions", use:src
+zplug "zsh-users/zsh-history-substring-search"
+zplug "zsh-users/zaw"
+zplug "rupa/z", use:z.sh
+zplug "k4rthik/git-cal", as:command
+zplug "github/hub", from:gh-r, as:command
+
+if ! zplug check --verbose; then
+    printf "install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
 fi
+
+zplug load
 
 ##
 # key binding
