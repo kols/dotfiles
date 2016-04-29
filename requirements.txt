@@ -1,4 +1,5 @@
 flake8
+git-remote-dropbox
 html2text
 httpie
 ipython
