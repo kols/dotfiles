@@ -1,7 +1,7 @@
 #!/bin/sh
 export LANG='en_US.UTF-8'
 export LC_CTYPE=$LANG
-export PATH=$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
+export PATH=/usr/local/sbin:$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
 export EDITOR=/usr/local/bin/vim
 export VISUAL=$EDITOR
 
