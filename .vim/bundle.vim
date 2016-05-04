@@ -23,7 +23,7 @@ Plug 'mhinz/vim-startify'
 Plug 'jlanzarotta/bufexplorer'
 
 " colorscheme {{{2
-Plug 'kols/nofrils'
+Plug 'robertmeta/nofrils'
 Plug 'nanotech/jellybeans.vim'
 Plug 'jacekd/vim-iawriter'
 Plug 'morhetz/gruvbox'
@@ -32,14 +32,12 @@ Plug 'jnurmine/Zenburn'
 
 " syntax {{{2
 Plug 'sheerun/vim-polyglot'
-Plug 'saltstack/salt-vim'
-Plug 'dag/vim-fish'
 "}}}
 "}}}
 
 " file {{{1
 Plug 'scrooloose/nerdtree'
-Plug 'jeetsukumaran/vim-filebeagle'
+Plug 'jeetsukumaran/vim-filebeagle', { 'on': '<Plug>FileBeagleOpenCurrentBufferDir' }
 Plug 'kien/ctrlp.vim'
 Plug 'tacahiroy/ctrlp-funky'
 "}}}
@@ -54,33 +52,29 @@ Plug 'mbbill/undotree'
 Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'Raimondi/delimitMate'
-
-" snippets {{{2
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-"}}}
+Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 "}}}
 
 " programming {{{1
-Plug 'scrooloose/syntastic'
-Plug 'majutsushi/tagbar'
+Plug 'scrooloose/syntastic', { 'on': 'SyntasticCheck' }
+Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'janko-m/vim-test'
 
 " c {{{2
-Plug 'WolfgangMehner/c.vim'
+Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
 "}}}
 
 " python {{{2
-Plug 'klen/python-mode'
+Plug 'klen/python-mode', { 'for': 'python' }
 "}}}
 
 " javascript {{{2
-Plug 'pangloss/vim-javascript'
+Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 "}}}
 
 " go {{{2
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'for': 'go' }
 "}}}
 "}}}
 
