@@ -166,4 +166,5 @@ already narrowed."
               '(progn
                  (add-to-list 'company-backends 'company-go)))
             (local-set-key (kbd "M-.") 'godef-jump)
-            (local-set-key (kbd "M-C-." 'godef-jump-other-window))))
+            (local-set-key (kbd "M-C-.") 'godef-jump-other-window)
+            (local-set-key (kbd "M-k") 'godoc-at-point)))
