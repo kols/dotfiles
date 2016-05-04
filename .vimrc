@@ -1,15 +1,15 @@
-set nocompatible
-filetype off
-autocmd!
-set rtp+=~/.vim/bundle/Vundle.vim
 source ~/.vim/bundle.vim
 
-filetype plugin indent on
-
-" keymapping {{{1
+" neovim compat {{{1
+" make `<C-h>` work as expected
 if has('nvim')
   nmap <Backspace> <C-w>h
 endif
+
+let g:python_host_prog = '/usr/bin/python'
+"}}}
+
+" keymapping {{{1
 
 let mapleader = ","
 
@@ -19,7 +19,6 @@ map <Space> [Space]
 noremap [Space] <Nop>
 
 nnoremap <silent> [Space]/ :nohlsearch<Return>
-nnoremap <silent> [Space]j :join<Return>
 vnoremap [Space]so y:execute @@<Return>:echo 'selection evaluated'<Return>
 nnoremap [Space]so yy:execute @@<Return>:echo 'line evaluated'<Return>
 "}}}
@@ -51,6 +50,7 @@ inoremap <C-e> <Esc>A
 "}}}
 
 " general {{{1
+filetype plugin indent on
 syntax on
 
 if &shell =~# 'fish$'
@@ -409,9 +409,5 @@ let g:filebeagle_check_gitignore=1
 map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 "}}}
 "}}}
-
-" neovim {{{1
-let g:python_host_prog = '/usr/bin/python'
-" }}}
 
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0

@@ -1,84 +1,88 @@
-call vundle#begin()
+call plug#begin('~/.vim/bundle')
 
-Plugin 'VundleVim/Vundle.vim'
+function! BuildYCM(info)
+  if a:info.status == 'installed' || a:info.force
+    !./install.py
+  endif
+endfunction
 
 " util {{{1
-Plugin 'tpope/vim-obsession'
-Plugin 'airblade/vim-rooter'
+Plug 'tpope/vim-obsession'
+Plug 'airblade/vim-rooter'
 
 " integration {{{2
-Plugin 'tpope/vim-fugitive'
-Plugin 'rking/ag.vim'
+Plug 'tpope/vim-fugitive'
+Plug 'rking/ag.vim'
 "}}}
 "}}}
 
 " interface {{{1
-Plugin 'itchyny/lightline.vim'
-Plugin 'nathanaelkane/vim-indent-guides'
-Plugin 'mhinz/vim-startify'
-Plugin 'jlanzarotta/bufexplorer'
+Plug 'itchyny/lightline.vim'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'mhinz/vim-startify'
+Plug 'jlanzarotta/bufexplorer'
 
 " colorscheme {{{2
-Plugin 'kols/nofrils'
-Plugin 'nanotech/jellybeans.vim'
-Plugin 'jacekd/vim-iawriter'
-Plugin 'morhetz/gruvbox'
-Plugin 'jnurmine/Zenburn'
+Plug 'kols/nofrils'
+Plug 'nanotech/jellybeans.vim'
+Plug 'jacekd/vim-iawriter'
+Plug 'morhetz/gruvbox'
+Plug 'jnurmine/Zenburn'
 "}}}
 
 " syntax {{{2
-Plugin 'sheerun/vim-polyglot'
-Plugin 'saltstack/salt-vim'
-Plugin 'dag/vim-fish'
+Plug 'sheerun/vim-polyglot'
+Plug 'saltstack/salt-vim'
+Plug 'dag/vim-fish'
 "}}}
 "}}}
 
 " file {{{1
-Plugin 'scrooloose/nerdtree'
-Plugin 'jeetsukumaran/vim-filebeagle'
-Plugin 'kien/ctrlp.vim'
-Plugin 'tacahiroy/ctrlp-funky'
+Plug 'scrooloose/nerdtree'
+Plug 'jeetsukumaran/vim-filebeagle'
+Plug 'kien/ctrlp.vim'
+Plug 'tacahiroy/ctrlp-funky'
 "}}}
 
 " editing {{{1
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-repeat'
-Plugin 'godlygeek/tabular'
-Plugin 'tomtom/tcomment_vim'
-Plugin 'chrisbra/NrrwRgn'
-Plugin 'mbbill/undotree'
-Plugin 'easymotion/vim-easymotion'
-Plugin 'terryma/vim-multiple-cursors'
-Plugin 'Raimondi/delimitMate'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+Plug 'godlygeek/tabular'
+Plug 'tomtom/tcomment_vim'
+Plug 'chrisbra/NrrwRgn'
+Plug 'mbbill/undotree'
+Plug 'easymotion/vim-easymotion'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'Raimondi/delimitMate'
 
 " snippets {{{2
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 "}}}
 "}}}
 
 " programming {{{1
-Plugin 'scrooloose/syntastic'
-Plugin 'majutsushi/tagbar'
-Plugin 'Valloric/YouCompleteMe'
-Plugin 'janko-m/vim-test'
+Plug 'scrooloose/syntastic'
+Plug 'majutsushi/tagbar'
+Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'janko-m/vim-test'
 
 " c {{{2
-Plugin 'WolfgangMehner/c.vim'
+Plug 'WolfgangMehner/c.vim'
 "}}}
 
 " python {{{2
-Plugin 'klen/python-mode'
+Plug 'klen/python-mode'
 "}}}
 
 " javascript {{{2
-Plugin 'pangloss/vim-javascript'
+Plug 'pangloss/vim-javascript'
 "}}}
 
 " go {{{2
-Plugin 'fatih/vim-go'
+Plug 'fatih/vim-go'
 "}}}
 "}}}
 
-call vundle#end()
+call plug#end()
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
