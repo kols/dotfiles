@@ -4,9 +4,8 @@ source ~/.vim/bundle.vim
 " make `<C-h>` work as expected
 if has('nvim')
   nmap <Backspace> <C-w>h
+  let g:python_host_prog = '/usr/bin/python'
 endif
-
-let g:python_host_prog = '/usr/bin/python'
 "}}}
 
 " keymapping {{{1
