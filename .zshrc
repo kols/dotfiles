@@ -116,6 +116,7 @@ function sslfp {
 ##
 # alias
 ##
+alias vim=nvim
 alias vi=vim
 
 alias j="z"
