@@ -8,7 +8,7 @@ endfunction
 
 " util {{{1
 Plug 'tpope/vim-obsession'
-Plug 'airblade/vim-rooter'
+Plug 'airblade/vim-rooter', { 'commit': '5e5d0553641060e07381b142172e6bd53d566621' }
 
 " integration {{{2
 Plug 'tpope/vim-fugitive'
