@@ -7,6 +7,10 @@ source ~/.vim/bundle.vim
 filetype plugin indent on
 
 " keymapping {{{1
+if has('nvim')
+  nmap <Backspace> <C-w>h
+endif
+
 let mapleader = ","
 
 " The <Space> {{{2

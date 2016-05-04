@@ -3,6 +3,7 @@ git-remote-dropbox
 html2text
 httpie
 ipython
+neovim
 pip-autoremove
 pylint
 pudb
