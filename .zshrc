@@ -9,13 +9,36 @@ export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen
 export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
 HISTFILE=~/.histfile
-HISTSIZE=30000
-SAVEHIST=30000
-WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
+HISTSIZE=10000
+SAVEHIST=50000
+WORDCHARS='*?_.[]~&;!#$%^(){}<>'
 
-setopt extendedglob notify interactivecomments \
-    extendedhistory incappendhistory sharehistory histfindnodups histverify histignorespace
-unsetopt autocd nomatch beep
+setopt auto_resume
+setopt extendedglob
+setopt notify
+setopt interactive_comments
+setopt extended_history
+setopt inc_append_history
+setopt share_history
+setopt hist_find_no_dups
+setopt hist_ignore_dups
+setopt hist_reduce_blanks
+setopt hist_verify
+setopt hist_ignore_space
+setopt brace_ccl
+setopt correct
+setopt long_list_jobs
+setopt magic_equal_subst
+setopt print_exit_value
+setopt hash_cmds
+setopt rm_star_wait
+setopt short_loops
+
+unsetopt autocd
+unsetopt nomatch
+unsetopt beep
+unsetopt flow_control
+
 bindkey -e
 
 ##
@@ -25,10 +48,11 @@ bindkey -e
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 source $ZPLUG_HOME/init.zsh
+zplug "supercrabtree/k"
 zplug "b4b4r07/zplug"
 zplug "zsh-users/zsh-completions", use:src
 zplug "zsh-users/zsh-history-substring-search"
-zplug "zsh-users/zaw"
+zplug "zsh-users/zsh-syntax-highlighting"
 zplug "rupa/z", use:z.sh
 zplug "k4rthik/git-cal", as:command
 zplug "github/hub", from:gh-r, as:command
@@ -63,8 +87,15 @@ export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=36;01:cd=33;01:su=31;40;07:sg
 ##
 # completion
 ##
-setopt alwaystoend completeinword automenu autolist autoparamslash listpacked
-unsetopt menucomplete flowcontrol
+setopt alwaystoend
+setopt completeinword
+setopt automenu
+setopt autolist
+setopt autoparamslash
+setopt listpacked
+
+unsetopt menucomplete
+
 zstyle ':completion:*:*:*:*:*' menu select
 # use cache
 zstyle ':completion::complete:*' use-cache on
@@ -76,6 +107,20 @@ zstyle ':completion:*:approximate:*' max-errors 1 numeric
 ##
 # helper
 ##
+
+# bc - An arbitrary precision calculator language
+function = {
+    echo "$@" | bc -l
+}
+alias calc==
+
+function =2 {
+    = "obase=2; $@"
+}
+
+function =16 {
+    = "obase=16; $@"
+}
 
 # `du` prettified
 function duf {
@@ -118,7 +163,6 @@ function sslfp {
 ##
 # alias
 ##
-alias vim=nvim
 alias vi=vim
 
 alias j="z"
@@ -126,6 +170,7 @@ alias tl="tail"
 alias hd="head"
 alias l="less"
 alias lm="ls -lahF"
+alias km="k -ah"
 alias l1="ls -A1"
 alias findn="find . -name"
 alias tmux="tmux -2 -u"
@@ -140,6 +185,15 @@ alias rcopy="rsync -avz --progress -h"
 alias rmove="rsync -avz --progress -h --remove-source-files"
 alias rupdate="rsync -avzu --progress -h"
 alias rsync-synchronize="rsync -avzu --delete --progress -h"
+
+# Improve terminal title
+case "${TERM}" in
+    kterm*|xterm*|vt100)
+        precmd() {
+            echo -ne "\033]0;${USER}@${HOST%%.*}:${PWD}\007"
+        }
+        ;;
+esac
 
 ##
 # prompt
