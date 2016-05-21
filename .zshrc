@@ -3,6 +3,8 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 export WORKON_HOME=~/.virtualenvs
 . ~/Library/Python/2.7/bin/virtualenvwrapper.sh
 
+export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen --RAW-CONTROL-CHARS'
+
 # icloud drive
 export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
