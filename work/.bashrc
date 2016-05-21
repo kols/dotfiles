@@ -11,6 +11,8 @@ shopt -s histappend
 HISTSIZE=25000
 HISTFILESIZE=25000
 
+export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen --RAW-CONTROL-CHARS'
+
 asura_logdir=/data/log/sns.asura
 asura_reqlog=/data/log/sns.asura/asura.log
 
