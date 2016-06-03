@@ -143,6 +143,10 @@ if (1 < &t_Co || has('gui')) && has('syntax')
     set background=dark
     let g:zenburn_transparent = 0
     let g:zenburn_high_Contrast = 1
+    let g:zenburn_alternate_Visual = 0
+    let g:zenburn_unified_CursorColumn = 1
+    let g:zenburn_old_Visual = 1
+    let g:zenburn_enable_TagHighlight = 1
     colorscheme zenburn
   endif
 endif
