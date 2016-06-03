@@ -235,3 +235,7 @@ function prompt_setup {
 }
 
 prompt_setup "$@"
+
+if [ -f ~/.zshrc.custom ]; then
+    . ~/.zshrc.custom
+fi
