@@ -186,7 +186,7 @@ alias rcopy="rsync -avz --progress -h"
 alias rmove="rsync -avz --progress -h --remove-source-files"
 alias rupdate="rsync -avzu --progress -h"
 alias rsync-synchronize="rsync -avzu --delete --progress -h"
-alias gg='__gg () { open "https://www.google.com/search?q=$@" }; __gg'
+alias gg='__gg () { open "https://www.google.com/search?q=$*" }; __gg'
 
 # Improve terminal title
 case "${TERM}" in
