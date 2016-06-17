@@ -414,6 +414,12 @@ let g:filebeagle_suppress_keymaps=1
 let g:filebeagle_check_gitignore=1
 map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 "}}}
+
+" sourcegraph {{{2
+let g:SOURCEGRAPH_AUTO = "false"
+nnoremap <silent> [Space]ss :GRAPH<Return>
+"}}}
+
 "}}}
 
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
