@@ -57,6 +57,11 @@ zplug "zsh-users/zsh-syntax-highlighting"
 zplug "rupa/z", use:z.sh
 zplug "k4rthik/git-cal", as:command
 zplug "github/hub", from:gh-r, as:command
+zplug "ezekg/xo", from:gh-r, as:command, use:*darwin_amd64*
+zplug "peco/peco", from:gh-r, as:command, use:*darwin_amd64*
+zplug "stedolan/jq", from:gh-r, as:command, rename-to:jq, use:*osx-amd64*
+zplug "b4b4r07/emoji-cli", on:stedolan/jq
+zplug "mrowa44/emojify", as:command, use:emojify
 zplug "motemen/ghq", from:gh-r, as:command, use:*darwin_amd64*
 
 if ! zplug check --verbose; then
