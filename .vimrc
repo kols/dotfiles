@@ -321,13 +321,11 @@ let g:indent_guides_exclude_filetypes = ['help', 'nerdtree']
 let g:indent_guides_color_change_percent = 5
 "}}}
 
-" vim-test {{{2
+" test {{{2
+let test#strategy = 'basic'
 augroup python
   autocmd FileType python let test#python#runner = 'pytest'
 augroup END
-if has('nvim')
-  let test#strategy = 'neovim'
-endif
 nmap <silent> <leader>tn :TestNearest<CR>
 nmap <silent> <leader>tf :TestFile<CR>
 nmap <silent> <leader>ta :TestSuite<CR>
