@@ -49,14 +49,15 @@ bindkey -e
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 source $ZPLUG_HOME/init.zsh
+zplug "zplug/zplug"
 zplug "supercrabtree/k"
-zplug "b4b4r07/zplug"
 zplug "zsh-users/zsh-completions", use:src
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "rupa/z", use:z.sh
 zplug "k4rthik/git-cal", as:command
 zplug "github/hub", from:gh-r, as:command
+zplug "motemen/ghq", from:gh-r, as:command, use:*darwin_amd64*
 
 if ! zplug check --verbose; then
     printf "install? [y/N]: "
@@ -167,6 +168,7 @@ function sslfp {
 alias vi=vim
 
 alias j="z"
+alias js='ghq look `ghq list | peco --prompt "repo>"`'
 alias tl="tail"
 alias hd="head"
 alias l="less"

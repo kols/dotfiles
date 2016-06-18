@@ -68,8 +68,12 @@
 [merge]
     tool = vimdiff
     defaultToUpstream = true
-[github]
-    user = kols
 [filter "gpg"]
     clean = "gpg2 --no-armor --encrypt --default-recipient-self"
     smudge = "gpg2 --decrypt"
+[github]
+    user = kols
+[ghq]
+    root = ~/.ghq
+    root = ~/go/src
+    root = ~/work/xhs
