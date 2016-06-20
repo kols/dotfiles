@@ -46,6 +46,12 @@ nnoremap <silent> ]l :lnext<Return>
 inoremap jj <Esc>
 inoremap <C-e> <Esc>A
 "}}}
+
+" terminal (neovim) {{{2
+if has("nvim")
+  tnoremap <Esc> <C-\><C-n>
+  tnoremap jj <C-\><C-n>
+endif
 "}}}
 
 " general {{{1
