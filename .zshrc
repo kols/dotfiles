@@ -168,7 +168,7 @@ function sslfp {
 alias vi=vim
 
 alias j="z"
-alias js='ghq look `ghq list | peco --prompt "repo>"`'
+alias js='cd `ghq list -p | peco --prompt "repo>"` &>/dev/null'
 alias tl="tail"
 alias hd="head"
 alias l="less"

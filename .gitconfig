@@ -77,3 +77,4 @@
     root = ~/.ghq
     root = ~/go/src
     root = ~/work/xhs
+    root = ~/.vim/bundle
