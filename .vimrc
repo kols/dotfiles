@@ -255,6 +255,15 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" netrw {{{2
+let g:netrw_altv = 1
+let g:netrw_banner = 0
+let g:netrw_browse_split = 4
+let g:netrw_liststyle = 0
+let g:netrw_winsize = -28
+let g:netrw_bufsettings="noma nomod nu nobl nowrap ro nornu"
+"}}}
+
 " nerdtree {{{2
 let NERDTreeQuitOnOpen=1
 let NERDTreeShowBookmarks=1
