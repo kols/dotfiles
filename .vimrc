@@ -268,8 +268,8 @@ let g:netrw_bufsettings="noma nomod nu nobl nowrap ro nornu"
 let NERDTreeQuitOnOpen=1
 let NERDTreeShowBookmarks=1
 
-map <leader>7 <ESC><ESC>:NERDTreeToggle<CR>
-map <leader>8 <ESC><ESC>:NERDTreeFind<CR>
+map <leader>7 <ESC><ESC>:NERDTreeToggle<Return>
+map <leader>8 <ESC><ESC>:NERDTreeFind<Return>
 "}}}
 
 " undotree {{{2
@@ -341,28 +341,28 @@ let test#strategy = 'basic'
 augroup python
   autocmd FileType python let test#python#runner = 'pytest'
 augroup END
-nmap <silent> <leader>tn :TestNearest<CR>
-nmap <silent> <leader>tf :TestFile<CR>
-nmap <silent> <leader>ta :TestSuite<CR>
-nmap <silent> <leader>tl :TestLast<CR>
-nmap <silent> <leader>tg :TestVisit<CR>
+nmap <silent> <leader>tn :TestNearest<Return>
+nmap <silent> <leader>tf :TestFile<Return>
+nmap <silent> <leader>ta :TestSuite<Return>
+nmap <silent> <leader>tl :TestLast<Return>
+nmap <silent> <leader>tg :TestVisit<Return>
 "}}}
 
 " Dispatch {{{2
 augroup python
   autocmd FileType python let b:dispatch = 'py.test %'
 augroup END
-nnoremap <leader>i :Dispatch<CR>
+nnoremap <leader>i :Dispatch<Return>
 nnoremap <leader>k :Make<space>
 nnoremap <leader>s :Dispatch<space>
 "}}}
 
 " vimux {{{2
-map <Leader>vp :VimuxPromptCommand<CR>
-map <Leader>vl :VimuxRunLastCommand<CR>
-map <Leader>vi :VimuxInspectRunner<CR>
-map <Leader>vq :VimuxCloseRunner<CR>
-map <Leader>vx :VimuxInterruptRunner<CR>
+map <Leader>vp :VimuxPromptCommand<Return>
+map <Leader>vl :VimuxRunLastCommand<Return>
+map <Leader>vi :VimuxInspectRunner<Return>
+map <Leader>vq :VimuxCloseRunner<Return>
+map <Leader>vx :VimuxInterruptRunner<Return>
 "}}}
 
 " ycm {{{2
