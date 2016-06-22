@@ -39,7 +39,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'scrooloose/nerdtree'
 Plug 'jeetsukumaran/vim-filebeagle', { 'on': '<Plug>FileBeagleOpenCurrentBufferDir' }
 Plug 'kien/ctrlp.vim'
-Plug 'tacahiroy/ctrlp-funky'
 "}}}
 
 " editing {{{1

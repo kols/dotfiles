@@ -305,11 +305,10 @@ let g:ctrlp_custom_ignore = {
   \ }
 let g:ctrlp_persistent_input = 0
 let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-let g:ctrlp_extensions = ['funky']
-let g:ctrlp_funky_syntax_highlight = 1
+let g:ctrlp_extensions = ['buffertag']
 
 nnoremap <silent> <C-p> :CtrlP<Return>
-nnoremap <silent> <leader>f :CtrlPFunky<Return>
+nnoremap <silent> <leader>f :CtrlPBufTag<Return>
 "}}}
 
 " python-mode {{{2
