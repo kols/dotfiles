@@ -265,8 +265,13 @@ let g:netrw_bufsettings="noma nomod nu nobl nowrap ro nornu"
 "}}}
 
 " nerdtree {{{2
-let NERDTreeQuitOnOpen=1
-let NERDTreeShowBookmarks=1
+let NERDTreeQuitOnOpen = 1
+let NERDTreeShowBookmarks = 1
+let NERDTreeHijackNetrw = 0
+
+augroup python
+  autocmd filetype python let NERDTreeIgnore = ['\.pyc$']
+augroup END
 
 map <leader>7 <ESC><ESC>:NERDTreeToggle<Return>
 map <leader>8 <ESC><ESC>:NERDTreeFind<Return>
