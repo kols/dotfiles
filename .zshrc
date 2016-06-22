@@ -168,7 +168,7 @@ function sslfp {
 alias vi=vim
 
 alias j="z"
-alias js='cd `ghq list -p | peco --prompt "repo>"` &>/dev/null'
+alias js='pushd `ghq list -p | peco --prompt "repo>"` &>/dev/null'
 alias tl="tail"
 alias hd="head"
 alias l="less"
@@ -216,9 +216,9 @@ function prompt_precmd {
 
         # Format Git info
         if [ -n "$dirty" ]; then
-            git_prompt=" %F{red}g:($branch)%f"
+            git_prompt=" %F{red}($branch)%f"
         else
-            git_prompt=" %F{green}g:($branch)%f"
+            git_prompt=" %F{green}($branch)%f"
         fi
     fi
 
@@ -237,7 +237,7 @@ function prompt_setup {
     add-zsh-hook precmd prompt_precmd
 }
 
-prompt_setup "$@"
+prompt_setup "$*"
 
 if [ -f ~/.zshrc.custom ]; then
     . ~/.zshrc.custom
