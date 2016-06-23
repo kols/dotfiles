@@ -160,7 +160,7 @@ endif
 
 " font {{{2
 if exists('+guifont')
-  set guifont=iosevka:h15pt antialias
+  set guifont=hack:h16pt antialias
 endif
 "}}}
 "}}}
