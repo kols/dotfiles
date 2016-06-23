@@ -11,3 +11,4 @@ tmuxp
 virtualenv
 virtualenvwrapper
 virtualfish
+yapf
