@@ -1,34 +1,118 @@
-(setq custom-file "~/.emacs-custom.el")
-(load custom-file)
-(custom-set-variables
- '(package-archives
-   (quote
-    (("gnu" . "http://elpa.gnu.org/packages/")
-     ("melpa" . "https://melpa.org/packages/")))))
+(defconst kd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun kd/emacs-subdirectory (d) (expand-file-name d kd/emacs-directory))
 
-(load-theme 'default-black)
-(set-face-attribute 'default nil :font "-apple-iosevka-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1")
-(setq mac-option-modifier 'meta)
-(setq scroll-conservatively 1)
-(column-number-mode 1)
-(setq default-tab-width 4)
+(define-prefix-command 'kd/toggle-map)
+(define-key ctl-x-map "t" 'kd/toggle-map)
 
-(when window-system
-  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-  (tooltip-mode -1))
+;;; customization file
+(setq custom-file (kd/emacs-subdirectory "custom.el"))
+(when (file-exists-p custom-file)
+  (load custom-file))
 
+;;; package initialize
 (require 'package)
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+
+;;; tab
+(setq-default default-tab-width 4)
+(setq-default tab-always-indent 'complete)
+
+;;; display
+(setq initial-scratch-message "")
+(setq visible-bell t)
+
+(when (window-system)
+  (tool-bar-mode 0)
+  (when (fboundp 'horizontal-scroll-bar-mode)
+    (horizontal-scroll-bar-mode -1))
+  (scroll-bar-mode -1)
+  (column-number-mode 1)
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (tooltip-mode -1)
+  (set-face-attribute 'default nil :font "-apple-monaco-regular-normal-normal-*-15-*-*-*-m-0-iso10646-1"))
+
+; show whitespace
+(use-package whitespace
+  :commands whitespace-mode
+  :init
+  (define-key kd/toggle-map "w" 'whitespace-mode)
+  (setq whitespace-line-column nil
+        whitespace-display-mappings '((space-mark 32 [183] [46])
+                                      (newline-mark 10 [9166 10])
+                                      (tab-mark 9 [9654 9] [92 9])))
+  :config
+  (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+  :diminish whitespace-mode)
+
+; auto wrap
+(use-package fill
+  :commands 'auto-fill-mode
+  :init
+  (define-key kd/toggle-map "f" 'auto-fill-mode)
+  :diminish auto-fill-mode)
+
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode 1))
+
+(use-package smex
+  :bind ("M-x" . smex)
+  :ensure t)
+
+(use-package find-file-in-project
+  :bind ("C-c o" . find-file-in-project)
+  :ensure t)
+
+(use-package avy
+  :bind
+  ("C-c SPC" . avy-goto-char)
+  ("C-c l" . avy-goto-line)
+  :ensure t)
+
+(use-package ag
+  :bind ("C-c a" . ag-project-regexp)
+  :ensure t)
+
+(use-package magit
+  :init
+  (setq magit-git-executable "/usr/local/bin/git")
+  :bind
+  ("C-c g s" . magit-status)
+  ("C-c g l" . magit-log-current)
+  :ensure t)
+
+(use-package swiper
+  :bind
+  ("C-s" . swiper)
+  :ensure t)
+
+(use-package expand-region
+  :bind ("C-=" . er/expand-region)
+  :ensure t)
+
+(if (eq system-type 'darwin)
+    (setq mac-option-modifier 'meta))
+(setq scroll-conservatively 1)
+(setq vc-follow-symlinks t)
+
 (defun init--package-install ()
-  (let ((packages '(ag
-                    avy
-                    better-defaults
+  (let ((packages '(better-defaults
                     company
                     company-go
                     company-ycmd
+                    cyberpunk-theme
                     exec-path-from-shell
-                    expand-region
-                    find-file-in-project
                     fish-mode
                     flx-ido
                     flycheck
@@ -36,7 +120,6 @@
                     go-mode
                     ido-at-point
                     ido-vertical-mode
-                    magit
                     markdown-mode
                     multi-term
                     multiple-cursors
@@ -44,9 +127,7 @@
                     pyvenv
                     realgud
                     salt-mode
-                    smex
                     sr-speedbar
-                    swiper
                     tldr
                     undo-tree
                     yasnippet
@@ -61,8 +142,10 @@
    (package-refresh-contents)
    (init--package-install)))
 
+(load-theme 'cyberpunk)
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
+(desktop-save-mode 1)
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
@@ -90,26 +173,13 @@ already narrowed."
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
 
-(define-prefix-command 'my/toggle-map)
-(define-key ctl-x-map "t" 'my/toggle-map)
-(define-key my/toggle-map "n" #'narrow-or-widen-dwim)
-(define-key my/toggle-map "s" #'sr-speedbar-toggle)
-
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "C-c o") 'find-file-in-project)
-(global-set-key (kbd "C-c SPC") 'avy-goto-char)
-(global-set-key (kbd "C-c l") 'avy-goto-line)
-(global-set-key (kbd "C-c a") 'ag-project-regexp)
-(global-set-key (kbd "C-=") 'er/expand-region)
-(global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-c g s") 'magit-status)
-(global-set-key (kbd "C-c g l") 'magit-log-current)
+(define-key kd/toggle-map "n" #'narrow-or-widen-dwim)
+(define-key kd/toggle-map "s" #'sr-speedbar-toggle)
 
 (setq-default save-place t)
 (require 'saveplace)
 
 (setq flycheck-check-syntax-automatically nil)
-(setq magit-git-executable "/usr/local/bin/git")
 (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
