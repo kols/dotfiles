@@ -67,39 +67,39 @@
   (which-key-mode 1))
 
 (use-package smex
-  :bind ("M-x" . smex)
-  :ensure t)
+  :ensure t
+  :bind ("M-x" . smex))
 
 (use-package find-file-in-project
-  :bind ("C-c o" . find-file-in-project)
-  :ensure t)
+  :ensure t
+  :bind ("C-c o" . find-file-in-project))
 
 (use-package avy
+  :ensure t
   :bind
   ("C-c SPC" . avy-goto-char)
-  ("C-c l" . avy-goto-line)
-  :ensure t)
+  ("C-c l" . avy-goto-line))
 
 (use-package ag
-  :bind ("C-c a" . ag-project-regexp)
-  :ensure t)
+  :ensure t
+  :bind ("C-c a" . ag-project-regexp))
 
 (use-package magit
+  :ensure t
   :init
   (setq magit-git-executable "/usr/local/bin/git")
   :bind
   ("C-c g s" . magit-status)
   ("C-c g l" . magit-log-current)
-  :ensure t)
+  ("C-c g b" . magit-blame))
 
 (use-package swiper
-  :bind
-  ("C-s" . swiper)
-  :ensure t)
+  :ensure t
+  :bind ("C-s" . swiper))
 
 (use-package expand-region
-  :bind ("C-=" . er/expand-region)
-  :ensure t)
+  :ensure t
+  :bind ("C-=" . er/expand-region))
 
 (if (eq system-type 'darwin)
     (setq mac-option-modifier 'meta))
