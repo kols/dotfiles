@@ -112,6 +112,39 @@
   :init
   (setq ivy-use-virtual-buffers t)
   (add-hook 'after-init-hook 'ivy-mode))
+
+;;; tags
+(use-package etags
+  :bind ("C-c ." . kd/ivy-find-tag)
+  :after ivy
+  :config
+  (defun kd/ivy-find-tag ()
+    "find a tag using ivy"
+    (interactive)
+    (tags-completion-table)
+    (let ((ivy-sort-functions-alist)
+          (tag-names))
+      (mapatoms (lambda (x)
+                  (push (prin1-to-string x t) tag-names))
+                tags-completion-table)
+      (find-tag (ivy-completing-read "tag: " tag-names)))))
+
+(use-package ctags-update
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
+  :diminish ctags-auto-update-mode)
+
+(use-package imenu-anywhere
+  :ensure t
+  :bind ("C-." . ivy-imenu-anywhere)
+  :after ivy
+  :config
+  ;; only show tag for current buffer
+  (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
+  (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
+
+
 (if (eq system-type 'darwin)
     (setq mac-option-modifier 'meta))
 (setq scroll-conservatively 1)
