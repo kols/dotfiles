@@ -101,6 +101,17 @@
   :ensure t
   :bind ("C-=" . er/expand-region))
 
+(use-package smartscan
+  :ensure t
+  :bind
+  ("M-n" . smartscan-symbol-go-forward)
+  ("M-p" . smartscan-symbol-go-backward))
+
+(use-package ivy
+  :ensure t
+  :init
+  (setq ivy-use-virtual-buffers t)
+  (add-hook 'after-init-hook 'ivy-mode))
 (if (eq system-type 'darwin)
     (setq mac-option-modifier 'meta))
 (setq scroll-conservatively 1)
@@ -185,9 +196,6 @@ already narrowed."
 (add-hook 'after-init-hook
           (lambda ()
             (setq speedbar-tag-hierarchy-method nil)
-            (progn
-              (ivy-mode 1)
-              (setq ivy-use-virtual-buffers t))
             (global-undo-tree-mode 1)
             (yas-global-mode 1)
             (ido-mode 1)
