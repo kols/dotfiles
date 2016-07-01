@@ -55,7 +55,7 @@
 
 ; auto wrap
 (use-package fill
-  :commands 'auto-fill-mode
+  :commands auto-fill-mode
   :init
   (define-key kd/toggle-map "f" 'auto-fill-mode)
   :diminish auto-fill-mode)
@@ -109,6 +109,8 @@
 
 (use-package ivy
   :ensure t
+  :commands ivy-switch-buffer
+  :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t)
   (add-hook 'after-init-hook 'ivy-mode))
@@ -214,7 +216,6 @@
 (load-theme 'cyberpunk)
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
-(desktop-save-mode 1)
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
