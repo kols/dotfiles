@@ -179,6 +179,11 @@
   :init
   (add-hook 'prog-mode-hook #'company-ycmd-setup))
 
+(use-package paredit
+  :ensure t
+  :diminish paredit-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
 
 (defun init--package-install ()
   (let ((packages '(better-defaults
@@ -195,7 +200,6 @@
                     markdown-mode
                     multi-term
                     multiple-cursors
-                    paredit
                     pyvenv
                     realgud
                     salt-mode
@@ -271,10 +275,6 @@ already narrowed."
 (add-hook 'prog-mode-hook
           (lambda ()
             (abbrev-mode 1)))
-
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            (paredit-mode 1)))
 
 (add-hook 'python-mode-hook
           (lambda ()
