@@ -90,8 +90,11 @@
   (setq magit-git-executable "/usr/local/bin/git")
   :bind
   ("C-c g s" . magit-status)
-  ("C-c g l" . magit-log-current)
-  ("C-c g b" . magit-blame))
+  ("C-c g l" . magit-log-current))
+
+(use-package mo-git-blame
+  :ensure t
+  :bind ("C-c g b" . mo-git-blame-current))
 
 (use-package swiper
   :ensure t
