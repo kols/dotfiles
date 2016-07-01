@@ -136,9 +136,11 @@
 
 (use-package ctags-update
   :ensure t
+  :diminish ctags-auto-update-mode
   :config
   (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
-  :diminish ctags-auto-update-mode)
+  (add-hook 'python-mode-hook (lambda ()
+                                (setq-local ctags-update-other-options '("--fields=+l" "--languages=python" "--python-kinds=-iv")))))
 
 (use-package imenu-anywhere
   :ensure t
