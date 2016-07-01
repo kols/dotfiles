@@ -150,11 +150,37 @@
 (setq scroll-conservatively 1)
 (setq vc-follow-symlinks t)
 
+(use-package ycmd
+  :ensure t
+  :commands (ycmd-mode ycmd-open)
+  :diminish ycmd-mode
+  :bind
+  ("M-." . ycmd-goto)
+  ("M-," . ycmd-goto-declaration)
+  :init
+  (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
+  (add-hook 'python-mode-hook (lambda ()
+                                (ycmd-mode)
+                                (local-set-key (kbd "M-.") #'ycmd-goto)
+                                (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
+  (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
+
+(use-package company
+  :ensure t
+  :diminish company-mode
+  :init
+  (add-hook 'after-init-hook #'global-company-mode))
+
+(use-package company-ycmd
+  :ensure t
+  :after (company ycmd)
+  :init
+  (add-hook 'prog-mode-hook #'company-ycmd-setup))
+
+
 (defun init--package-install ()
   (let ((packages '(better-defaults
-                    company
                     company-go
-                    company-ycmd
                     cyberpunk-theme
                     exec-path-from-shell
                     fish-mode
@@ -174,8 +200,7 @@
                     sr-speedbar
                     tldr
                     undo-tree
-                    yasnippet
-                    ycmd)))
+                    yasnippet)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
@@ -224,7 +249,6 @@ already narrowed."
 (require 'saveplace)
 
 (setq flycheck-check-syntax-automatically nil)
-(set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
           (lambda ()
@@ -241,8 +265,7 @@ already narrowed."
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (ido-at-point-mode 1)
-            (setq ffip-prefer-ido-mode t)
-            (global-company-mode 1)))
+            (setq ffip-prefer-ido-mode t)))
 
 (add-hook 'prog-mode-hook
           (lambda ()
@@ -256,14 +279,7 @@ already narrowed."
           (lambda ()
             (set-fill-column 79)
             (which-function-mode 1)
-            (company-mode 1)
-            (ycmd-mode 1)
-            (eval-after-load "ycmd"
-              '(progn
-                 (local-set-key (kbd "M-.") 'ycmd-goto)
-                 (local-set-key (kbd "M-,") 'ycmd-goto-declaration)))
             (flycheck-mode 1)
-            (company-ycmd-setup)
             (pyvenv-mode 1)))
 (add-hook 'go-mode-hook
           (lambda ()
@@ -271,7 +287,6 @@ already narrowed."
             (setq gofmt-command "goimports")
             (go-eldoc-setup)
             (which-function-mode 1)
-            (company-mode 1)
             (flycheck-mode 1)
             (eval-after-load "company"
               '(progn
