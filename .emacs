@@ -188,6 +188,27 @@
   :init
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
 
+(use-package dockerfile-mode
+  :ensure t
+  :mode ("Dockerfile\\'" . dockerfile-mode))
+
+(use-package yasnippet
+  :ensure t
+  :diminish yas-minor-mode
+  :init
+  (add-hook 'after-init-hook #'yas-global-mode))
+
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode
+  :init
+  (add-hook 'after-init-hook #'global-undo-tree-mode))
+
+(use-package abbrev
+  :diminish abbrev-mode
+  :init
+  (add-hook 'prog-mode-hook #'abbrev-mode))
+
 (defun init--package-install ()
   (let ((packages '(better-defaults
                     company-go
@@ -207,9 +228,7 @@
                     realgud
                     salt-mode
                     sr-speedbar
-                    tldr
-                    undo-tree
-                    yasnippet)))
+                    tldr)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
@@ -261,8 +280,6 @@ already narrowed."
 (add-hook 'after-init-hook
           (lambda ()
             (setq speedbar-tag-hierarchy-method nil)
-            (global-undo-tree-mode 1)
-            (yas-global-mode 1)
             (ido-mode 1)
             (ido-everywhere 1)
             (flx-ido-mode 1)
@@ -274,10 +291,6 @@ already narrowed."
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (ido-at-point-mode 1)
             (setq ffip-prefer-ido-mode t)))
-
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (abbrev-mode 1)))
 
 (add-hook 'python-mode-hook
           (lambda ()
