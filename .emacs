@@ -1,34 +1,223 @@
-(setq custom-file "~/.emacs-custom.el")
-(load custom-file)
-(custom-set-variables
- '(package-archives
-   (quote
-    (("gnu" . "http://elpa.gnu.org/packages/")
-     ("melpa" . "https://melpa.org/packages/")))))
+(defconst kd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+(defun kd/emacs-subdirectory (d) (expand-file-name d kd/emacs-directory))
 
-(load-theme 'default-black)
-(set-face-attribute 'default nil :font "-apple-iosevka-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1")
-(setq mac-option-modifier 'meta)
-(setq scroll-conservatively 1)
-(column-number-mode 1)
-(setq default-tab-width 4)
+(define-prefix-command 'kd/toggle-map)
+(define-key ctl-x-map "t" 'kd/toggle-map)
 
-(when window-system
-  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-  (tooltip-mode -1))
+;;; customization file
+(setq custom-file (kd/emacs-subdirectory "custom.el"))
+(when (file-exists-p custom-file)
+  (load custom-file))
 
+;;; package initialize
 (require 'package)
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(require 'use-package)
+
+;;; tab
+(setq-default default-tab-width 4)
+(setq-default tab-always-indent 'complete)
+
+;;; display
+(setq initial-scratch-message "")
+(setq visible-bell t)
+
+(when (window-system)
+  (load-theme 'default-black t)
+  (tool-bar-mode 0)
+  (when (fboundp 'horizontal-scroll-bar-mode)
+    (horizontal-scroll-bar-mode -1))
+  (scroll-bar-mode -1)
+  (column-number-mode 1)
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (tooltip-mode -1)
+  (set-face-attribute 'default nil :font "-apple-hack-regular-normal-normal-*-15-*-*-*-m-0-iso10646-1"))
+
+; show whitespace
+(use-package whitespace
+  :commands whitespace-mode
+  :init
+  (define-key kd/toggle-map "w" 'whitespace-mode)
+  (setq whitespace-line-column nil
+        whitespace-display-mappings '((space-mark 32 [183] [46])
+                                      (newline-mark 10 [9166 10])
+                                      (tab-mark 9 [9654 9] [92 9])))
+  :config
+  (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
+  :diminish whitespace-mode)
+
+; auto wrap
+(use-package fill
+  :commands auto-fill-mode
+  :init
+  (define-key kd/toggle-map "f" 'auto-fill-mode)
+  :diminish auto-fill-mode)
+
+(use-package which-key
+  :ensure t
+  :diminish which-key-mode
+  :config
+  (which-key-mode 1))
+
+(use-package smex
+  :ensure t
+  :bind ("M-x" . smex))
+
+(use-package find-file-in-project
+  :ensure t
+  :bind ("C-c o" . find-file-in-project))
+
+(use-package avy
+  :ensure t
+  :bind
+  ("C-c SPC" . avy-goto-char)
+  ("C-c l" . avy-goto-line))
+
+(use-package ag
+  :ensure t
+  :bind ("C-c a" . ag-project-regexp))
+
+(use-package magit
+  :ensure t
+  :init
+  (setq magit-git-executable "/usr/local/bin/git")
+  :bind
+  ("C-c g s" . magit-status)
+  ("C-c g l" . magit-log-current))
+
+(use-package mo-git-blame
+  :ensure t
+  :bind ("C-c g b" . mo-git-blame-current))
+
+(use-package swiper
+  :ensure t
+  :bind ("C-s" . swiper))
+
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+
+(use-package smartscan
+  :ensure t
+  :bind
+  ("M-n" . smartscan-symbol-go-forward)
+  ("M-p" . smartscan-symbol-go-backward))
+
+(use-package ivy
+  :ensure t
+  :commands ivy-switch-buffer
+  :diminish ivy-mode
+  :init
+  (setq ivy-use-virtual-buffers t)
+  (add-hook 'after-init-hook 'ivy-mode))
+
+;;; tags
+(use-package etags
+  :bind ("C-c ." . kd/ivy-find-tag)
+  :config
+  (defun kd/ivy-find-tag ()
+    "find a tag using ivy"
+    (interactive)
+    (tags-completion-table)
+    (let ((ivy-sort-functions-alist)
+          (tag-names))
+      (mapatoms (lambda (x)
+                  (push (prin1-to-string x t) tag-names))
+                tags-completion-table)
+      (find-tag (ivy-completing-read "tag: " tag-names)))))
+
+(use-package ctags-update
+  :ensure t
+  :commands turn-on-ctags-auto-update-mode
+  :diminish ctags-auto-update-mode
+  :config
+  (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
+  (add-hook 'python-mode-hook (lambda ()
+                                (setq-local ctags-update-other-options '("--fields=+l"
+                                                                         "--languages=python"
+                                                                         "--python-kinds=-iv")))))
+
+(use-package imenu-anywhere
+  :ensure t
+  :bind ("C-." . ivy-imenu-anywhere)
+  :config
+  ;; only show tag for current buffer
+  (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
+  (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
+
+
+(if (eq system-type 'darwin)
+    (setq mac-option-modifier 'meta))
+(setq scroll-conservatively 1)
+(setq vc-follow-symlinks t)
+
+(use-package ycmd
+  :ensure t
+  :commands (ycmd-mode ycmd-open)
+  :diminish ycmd-mode
+  :bind
+  ("M-." . ycmd-goto)
+  ("M-," . ycmd-goto-declaration)
+  :init
+  (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.ghq/github.com/Valloric/ycmd/ycmd/__main__.py")))
+  (add-hook 'python-mode-hook (lambda ()
+                                (ycmd-mode)
+                                (local-set-key (kbd "M-.") #'ycmd-goto)
+                                (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
+  (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
+
+(use-package company
+  :ensure t
+  :diminish company-mode
+  :init
+  (add-hook 'after-init-hook #'global-company-mode))
+
+(use-package company-ycmd
+  :ensure t
+  :after (company ycmd)
+  :init
+  (add-hook 'prog-mode-hook #'company-ycmd-setup))
+
+(use-package paredit
+  :ensure t
+  :diminish paredit-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
+
+(use-package dockerfile-mode
+  :ensure t
+  :mode ("Dockerfile\\'" . dockerfile-mode))
+
+(use-package yasnippet
+  :ensure t
+  :diminish yas-minor-mode
+  :init
+  (add-hook 'after-init-hook #'yas-global-mode))
+
+(use-package undo-tree
+  :ensure t
+  :diminish undo-tree-mode
+  :init
+  (add-hook 'after-init-hook #'global-undo-tree-mode))
+
+(use-package abbrev
+  :diminish abbrev-mode
+  :init
+  (add-hook 'prog-mode-hook #'abbrev-mode))
+
 (defun init--package-install ()
-  (let ((packages '(ag
-                    avy
-                    better-defaults
-                    company
+  (let ((packages '(better-defaults
                     company-go
-                    company-ycmd
+                    cyberpunk-theme
                     exec-path-from-shell
-                    expand-region
-                    find-file-in-project
                     fish-mode
                     flx-ido
                     flycheck
@@ -36,21 +225,14 @@
                     go-mode
                     ido-at-point
                     ido-vertical-mode
-                    magit
                     markdown-mode
                     multi-term
                     multiple-cursors
-                    paredit
                     pyvenv
                     realgud
                     salt-mode
-                    smex
                     sr-speedbar
-                    swiper
-                    tldr
-                    undo-tree
-                    yasnippet
-                    ycmd)))
+                    tldr)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
         (package-install pkg)))))
@@ -90,36 +272,17 @@ already narrowed."
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
 
-(define-prefix-command 'my/toggle-map)
-(define-key ctl-x-map "t" 'my/toggle-map)
-(define-key my/toggle-map "n" #'narrow-or-widen-dwim)
-(define-key my/toggle-map "s" #'sr-speedbar-toggle)
-
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "C-c o") 'find-file-in-project)
-(global-set-key (kbd "C-c SPC") 'avy-goto-char)
-(global-set-key (kbd "C-c l") 'avy-goto-line)
-(global-set-key (kbd "C-c a") 'ag-project-regexp)
-(global-set-key (kbd "C-=") 'er/expand-region)
-(global-set-key (kbd "C-s") 'swiper)
-(global-set-key (kbd "C-c g s") 'magit-status)
-(global-set-key (kbd "C-c g l") 'magit-log-current)
+(define-key kd/toggle-map "n" #'narrow-or-widen-dwim)
+(define-key kd/toggle-map "s" #'sr-speedbar-toggle)
 
 (setq-default save-place t)
 (require 'saveplace)
 
 (setq flycheck-check-syntax-automatically nil)
-(setq magit-git-executable "/usr/local/bin/git")
-(set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
 
 (add-hook 'after-init-hook
           (lambda ()
             (setq speedbar-tag-hierarchy-method nil)
-            (progn
-              (ivy-mode 1)
-              (setq ivy-use-virtual-buffers t))
-            (global-undo-tree-mode 1)
-            (yas-global-mode 1)
             (ido-mode 1)
             (ido-everywhere 1)
             (flx-ido-mode 1)
@@ -130,29 +293,13 @@ already narrowed."
             (ido-vertical-mode 1)
             (setq ido-vertical-define-keys 'C-n-and-C-p-only)
             (ido-at-point-mode 1)
-            (setq ffip-prefer-ido-mode t)
-            (global-company-mode 1)))
-
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (abbrev-mode 1)))
-
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            (paredit-mode 1)))
+            (setq ffip-prefer-ido-mode t)))
 
 (add-hook 'python-mode-hook
           (lambda ()
             (set-fill-column 79)
             (which-function-mode 1)
-            (company-mode 1)
-            (ycmd-mode 1)
-            (eval-after-load "ycmd"
-              '(progn
-                 (local-set-key (kbd "M-.") 'ycmd-goto)
-                 (local-set-key (kbd "M-,") 'ycmd-goto-declaration)))
             (flycheck-mode 1)
-            (company-ycmd-setup)
             (pyvenv-mode 1)))
 (add-hook 'go-mode-hook
           (lambda ()
@@ -160,7 +307,6 @@ already narrowed."
             (setq gofmt-command "goimports")
             (go-eldoc-setup)
             (which-function-mode 1)
-            (company-mode 1)
             (flycheck-mode 1)
             (eval-after-load "company"
               '(progn
