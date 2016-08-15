@@ -3,11 +3,13 @@ git-remote-dropbox
 html2text
 httpie
 ipython
+mitmproxy
 neovim
 pip-autoremove
 pylint
 pudb
 tmuxp
+tcconfig
 virtualenv
 virtualenvwrapper
 virtualfish
