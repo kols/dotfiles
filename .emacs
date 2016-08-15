@@ -167,7 +167,7 @@
   ("M-." . ycmd-goto)
   ("M-," . ycmd-goto-declaration)
   :init
-  (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.vim/bundle/YouCompleteMe/third_party/ycmd/ycmd/__main__.py")))
+  (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.ghq/github.com/Valloric/ycmd/ycmd/__main__.py")))
   (add-hook 'python-mode-hook (lambda ()
                                 (ycmd-mode)
                                 (local-set-key (kbd "M-.") #'ycmd-goto)
