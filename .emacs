@@ -154,7 +154,11 @@
   (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
 
 
-(if (eq system-type 'darwin)
+(when (eq system-type 'darwin)
+    (defun kd/osx-lock-screen ()
+      (interactive)
+      (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
+    (define-key kd/toggle-map "l" #'kd/osx-lock-screen)
     (setq mac-option-modifier 'meta))
 (setq scroll-conservatively 1)
 (setq vc-follow-symlinks t)
