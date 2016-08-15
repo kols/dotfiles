@@ -1,8 +1,10 @@
 GPATH
 GRTAGS
 GTAGS
+TAGS
 gtags.files
 \#*#
 .dir-locals.el
 .venv
 Session.vim
+.python-version
