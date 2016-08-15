@@ -29,6 +29,7 @@
 (setq visible-bell t)
 
 (when (window-system)
+  (load-theme 'default-black t)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -36,7 +37,7 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
-  (set-face-attribute 'default nil :font "-apple-monaco-regular-normal-normal-*-15-*-*-*-m-0-iso10646-1"))
+  (set-face-attribute 'default nil :font "-apple-hack-regular-normal-normal-*-15-*-*-*-m-0-iso10646-1"))
 
 ; show whitespace
 (use-package whitespace
@@ -241,7 +242,6 @@
    (package-refresh-contents)
    (init--package-install)))
 
-(load-theme 'cyberpunk)
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
 
