@@ -174,12 +174,6 @@
                                 (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
   (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
 
-(use-package ycmd-eldoc
-  :commands (ycmd-eldoc-setup)
-  :after (ycmd)
-  :init
-  (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
-
 (use-package company
   :ensure t
   :diminish company-mode
