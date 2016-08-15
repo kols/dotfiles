@@ -122,7 +122,6 @@
 ;;; tags
 (use-package etags
   :bind ("C-c ." . kd/ivy-find-tag)
-  :after ivy
   :config
   (defun kd/ivy-find-tag ()
     "find a tag using ivy"
@@ -137,16 +136,18 @@
 
 (use-package ctags-update
   :ensure t
+  :commands turn-on-ctags-auto-update-mode
   :diminish ctags-auto-update-mode
   :config
   (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
   (add-hook 'python-mode-hook (lambda ()
-                                (setq-local ctags-update-other-options '("--fields=+l" "--languages=python" "--python-kinds=-iv")))))
+                                (setq-local ctags-update-other-options '("--fields=+l"
+                                                                         "--languages=python"
+                                                                         "--python-kinds=-iv")))))
 
 (use-package imenu-anywhere
   :ensure t
   :bind ("C-." . ivy-imenu-anywhere)
-  :after ivy
   :config
   ;; only show tag for current buffer
   (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
@@ -172,6 +173,12 @@
                                 (local-set-key (kbd "M-.") #'ycmd-goto)
                                 (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
   (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
+
+(use-package ycmd-eldoc
+  :commands (ycmd-eldoc-setup)
+  :after (ycmd)
+  :init
+  (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
 
 (use-package company
   :ensure t
