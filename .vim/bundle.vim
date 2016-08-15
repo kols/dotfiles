@@ -31,6 +31,7 @@ Plug 'jnurmine/Zenburn'
 "}}}
 
 " syntax {{{2
+Plug 'saltstack/salt-vim'
 Plug 'sheerun/vim-polyglot'
 "}}}
 "}}}
