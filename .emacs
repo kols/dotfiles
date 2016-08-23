@@ -20,6 +20,10 @@
   (package-install 'use-package))
 (require 'use-package)
 
+;;; general
+(setq scroll-conservatively 1)
+(setq vc-follow-symlinks t)
+
 ;;; tab
 (setq-default default-tab-width 4)
 (setq-default tab-always-indent 'complete)
@@ -71,9 +75,51 @@
   :ensure t
   :bind ("M-x" . smex))
 
+;;; ido
+(use-package ido
+  :ensure t
+  :init
+  (add-hook 'after-init-hook (lambda ()
+                               (ido-mode 1)
+                               (ido-everywhere 1)
+                               (flx-ido-mode 1)
+                               (ido-vertical-mode 1)
+                               (ido-at-point-mode 1)))
+  :config
+  ;; disable ido faces to see flx highlights.
+  (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil))
+
+(use-package flx-ido
+  :ensure t
+  :commands flx-ido-mode)
+
+(use-package ido-vertical-mode
+  :ensure t
+  :commands ido-vertical-mode
+  :config
+  (setq ido-vertical-define-keys 'C-n-and-C-p-only))
+
+(use-package ido-at-point
+  :ensure t
+  :commands ido-at-point-mode)
+
 (use-package find-file-in-project
   :ensure t
-  :bind ("C-c o" . find-file-in-project))
+  :bind ("C-c o" . find-file-in-project)
+  :config
+  (setq ffip-prefer-ido-mode t))
+
+(use-package speedbar
+  :defer t
+  :init
+  (setq speedbar-tag-hierarchy-method nil))
+
+(use-package sr-speedbar
+  :ensure t
+  :commands sr-speedbar-toggle
+  :init
+  (define-key kd/toggle-map "s" #'sr-speedbar-toggle))
 
 (use-package avy
   :ensure t
@@ -119,6 +165,42 @@
   (setq ivy-use-virtual-buffers t)
   (add-hook 'after-init-hook 'ivy-mode))
 
+(use-package applescript-mode
+  :if (eq system-type 'darwin)
+  :ensure t)
+
+(use-package polymode
+  :ensure t
+  :config
+  (defcustom kd-pm-host/Emacs-Lisp
+    (pm-bchunkmode "Emacs-Lisp"
+                   :mode 'emacs-lisp-mode)
+    "Emacs-Lisp host chunkmode"
+    :group 'hostmodes
+    :type 'object)
+  (defcustom kd-pm-inner/Emacs-List+AppleScript
+    (pm-hbtchunkmode "AppleScript"
+                     :mode 'applescript-mode
+                     :head-reg "^[ \t]*;+begin\\.applescript$"
+                     :tail-reg "^[ \t]*;+end\\.applescript$"
+                     :head-mode 'host
+                     :tail-mode 'host)
+    "AppleScript inner mode"
+    :group 'innermodes
+    :type 'object)
+  (defcustom kd-pm-poly/emacs-lisp+applescript
+    (pm-polymode-one "Emacs-Lisp"
+                     :hostmode 'kd-pm-host/Emacs-Lisp
+                     :innermode 'kd-pm-inner/AppleScript)
+    "Emacs Lisp + AppleScript configuration"
+    :group 'polymodes
+    :type 'object)
+  (define-polymode kd/poly-emacs-lisp+applescript-mode kd-pm-poly/emacs-lisp+applescript))
+
+(use-package osx-lib
+  :if '(eq system-type 'darwin)
+  :ensure t)
+
 ;;; tags
 (use-package etags
   :bind ("C-c ." . kd/ivy-find-tag)
@@ -153,17 +235,84 @@
   (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
   (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
 
-
 (when (eq system-type 'darwin)
     (defun kd/osx-lock-screen ()
       (interactive)
       (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
     (define-key kd/toggle-map "l" #'kd/osx-lock-screen)
     (setq mac-option-modifier 'meta))
-(setq scroll-conservatively 1)
-(setq vc-follow-symlinks t)
+
+(use-package company
+  :ensure t
+  :diminish company-mode
+  :init
+  (add-hook 'after-init-hook #'global-company-mode))
+
+(use-package paredit
+  :ensure t
+  :commands paredit-mode
+  :diminish paredit-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
+
+(use-package dockerfile-mode
+  :ensure t
+  :commands dockerfile-mode)
+
+(use-package salt-mode
+  :ensure t
+  :commands salt-mode)
+
+(use-package fish-mode
+  :ensure t
+  :commands fish-mode)
+
+(use-package markdown-mode
+  :ensure t
+  :commands markdown-mode)
+
+(use-package yasnippet
+  :ensure t
+  :commands yas-global-mode
+  :diminish yas-minor-mode
+  :init
+  (add-hook 'after-init-hook #'yas-global-mode))
+
+(use-package undo-tree
+  :ensure t
+  :commands undo-tree-mode
+  :diminish undo-tree-mode
+  :init
+  (add-hook 'after-init-hook #'global-undo-tree-mode))
+
+(use-package abbrev
+  :defer t
+  :diminish abbrev-mode
+  :init
+  (add-hook 'prog-mode-hook #'abbrev-mode))
+
+(use-package flycheck
+  :ensure t
+  :commands flycheck-mode
+  :config
+  (setq flycheck-check-syntax-automatically nil))
+
+
+;;; python
+(use-package python
+  :commands python-mode
+  :init
+  (add-hook 'python-mode-hook (lambda ()
+                                (which-function-mode 1)
+                                (flycheck-mode 1)
+                                (pyvenv-mode 1))))
+
+(use-package pyvenv
+  :ensure t
+  :commands pyenv-mode)
 
 (use-package ycmd
+  :disabled t
   :ensure t
   :commands (ycmd-mode ycmd-open)
   :diminish ycmd-mode
@@ -178,63 +327,52 @@
                                 (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
   (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
 
-(use-package company
-  :ensure t
-  :diminish company-mode
-  :init
-  (add-hook 'after-init-hook #'global-company-mode))
-
 (use-package company-ycmd
   :ensure t
-  :after (company ycmd)
+  :commands company-ycmd-setup
   :init
-  (add-hook 'prog-mode-hook #'company-ycmd-setup))
+  (add-hook 'python-mode-hook #'company-ycmd-setup))
 
-(use-package paredit
+
+;;; golang
+(use-package go-mode
   :ensure t
-  :diminish paredit-mode
-  :init
-  (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
+  :commands go-mode
+  :config
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (add-hook 'go-mode-hook (lambda ()
+                            (local-set-key (kbd "M-.") 'godef-jump)
+                            (local-set-key (kbd "M-C-.") 'godef-jump-other-window)
+                            (local-set-key (kbd "M-k") 'godoc-at-point)
+                            (setq gofmt-command "goimports")
+                            (go-eldoc-setup)
+                            (which-function-mode 1)
+                            (flycheck-mode 1)
+                            (setq flycheck-disabled-checkers '(go-golint)))))
 
-(use-package dockerfile-mode
+(use-package go-eldoc
   :ensure t
-  :mode ("Dockerfile\\'" . dockerfile-mode))
+  :commands go-eldoc-setup)
 
-(use-package yasnippet
+(use-package company-go
   :ensure t
-  :diminish yas-minor-mode
-  :init
-  (add-hook 'after-init-hook #'yas-global-mode))
+  :commands company-go
+  :config
+  (add-to-list 'company-backends 'company-go))
 
-(use-package undo-tree
+(use-package go-guru
   :ensure t
-  :diminish undo-tree-mode
+  :defer t
   :init
-  (add-hook 'after-init-hook #'global-undo-tree-mode))
-
-(use-package abbrev
-  :diminish abbrev-mode
-  :init
-  (add-hook 'prog-mode-hook #'abbrev-mode))
+  (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
 
 (defun init--package-install ()
   (let ((packages '(better-defaults
-                    company-go
                     cyberpunk-theme
                     exec-path-from-shell
-                    fish-mode
-                    flx-ido
-                    flycheck
-                    go-eldoc
-                    go-mode
-                    ido-at-point
-                    ido-vertical-mode
-                    markdown-mode
                     multi-term
                     multiple-cursors
-                    pyvenv
                     realgud
-                    salt-mode
                     sr-speedbar
                     tldr)))
     (dolist (pkg packages)
@@ -277,44 +415,6 @@ already narrowed."
         (t (narrow-to-defun))))
 
 (define-key kd/toggle-map "n" #'narrow-or-widen-dwim)
-(define-key kd/toggle-map "s" #'sr-speedbar-toggle)
 
 (setq-default save-place t)
 (require 'saveplace)
-
-(setq flycheck-check-syntax-automatically nil)
-
-(add-hook 'after-init-hook
-          (lambda ()
-            (setq speedbar-tag-hierarchy-method nil)
-            (ido-mode 1)
-            (ido-everywhere 1)
-            (flx-ido-mode 1)
-            ;; disable ido faces to see flx highlights.
-            (setq ido-enable-flex-matching t)
-            (setq ido-use-faces nil)
-
-            (ido-vertical-mode 1)
-            (setq ido-vertical-define-keys 'C-n-and-C-p-only)
-            (ido-at-point-mode 1)
-            (setq ffip-prefer-ido-mode t)))
-
-(add-hook 'python-mode-hook
-          (lambda ()
-            (set-fill-column 79)
-            (which-function-mode 1)
-            (flycheck-mode 1)
-            (pyvenv-mode 1)))
-(add-hook 'go-mode-hook
-          (lambda ()
-            (add-hook 'before-save-hook 'gofmt-before-save)
-            (setq gofmt-command "goimports")
-            (go-eldoc-setup)
-            (which-function-mode 1)
-            (flycheck-mode 1)
-            (eval-after-load "company"
-              '(progn
-                 (add-to-list 'company-backends 'company-go)))
-            (local-set-key (kbd "M-.") 'godef-jump)
-            (local-set-key (kbd "M-C-.") 'godef-jump-other-window)
-            (local-set-key (kbd "M-k") 'godoc-at-point)))
