@@ -77,6 +77,10 @@ Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
 " go {{{2
 Plug 'fatih/vim-go', { 'for': 'go' }
 "}}}
+
+" rust {{{2
+Plug 'rust-lang/rust.vim'
+"}}}
 "}}}
 
 call plug#end()

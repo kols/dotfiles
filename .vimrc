@@ -375,6 +375,12 @@ augroup python
         \ nnoremap <silent> <buffer> <leader>gg :YcmCompleter GoTo<Return> |
         \ nnoremap <silent> <buffer> <leader>gd :YcmCompleter GoToDeclaration<Return>
 augroup END
+augroup rust
+  let g:ycm_rust_src_path = '/usr/local/src/rustc-1.11.0/src'
+  autocmd FileType rust
+        \ nnoremap <silent> <buffer> <leader>gg :YcmCompleter GoTo<Return> |
+        \ nnoremap <silent> <buffer> <leader>gd :YcmCompleter GoToDeclaration<Return>
+augroup END
 "}}}
 
 " lightline {{{2
@@ -435,6 +441,10 @@ map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 " sourcegraph {{{2
 let g:SOURCEGRAPH_AUTO = "false"
 nnoremap <silent> [Space]ss :GRAPH<Return>
+"}}}
+
+" rust.vim {{{2
+let g:rustfmt_autosave = 1
 "}}}
 
 "}}}
