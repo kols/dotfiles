@@ -330,8 +330,23 @@
   :ensure t
   :commands pyenv-mode)
 
-(use-package ycmd
+(use-package anaconda-mode
   :disabled t
+  :ensure t
+  :commands anaconda-mode
+  :init
+  (add-hook 'python-mode-hook (lambda ()
+                                (anaconda-mode 1)
+                                (eldoc-mode 1))))
+
+(use-package company-anaconda
+  :disabled t
+  :ensure t
+  :commands company-anaconda
+  :init
+  (add-to-list 'company-backends #'company-anaconda))
+
+(use-package ycmd
   :ensure t
   :commands (ycmd-mode ycmd-open)
   :diminish ycmd-mode
@@ -377,7 +392,7 @@
   :ensure t
   :commands company-go
   :config
-  (add-to-list 'company-backends 'company-go))
+  (add-to-list 'company-backends #'company-go))
 
 (use-package go-guru
   :ensure t
