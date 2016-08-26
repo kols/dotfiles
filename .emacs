@@ -21,6 +21,9 @@
 (require 'use-package)
 
 ;;; general
+(use-package better-defaults
+  :ensure t)
+
 (setq scroll-conservatively 1)
 (setq vc-follow-symlinks t)
 
@@ -78,6 +81,7 @@
 ;;; ido
 (use-package ido
   :ensure t
+  :commands ido-mode
   :init
   (add-hook 'after-init-hook (lambda ()
                                (ido-mode 1)
@@ -165,9 +169,15 @@
   (setq ivy-use-virtual-buffers t)
   (add-hook 'after-init-hook 'ivy-mode))
 
-(use-package applescript-mode
-  :if (eq system-type 'darwin)
-  :ensure t)
+(use-package exec-path-from-shell
+  :if (memq window-system '(mac ns))
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
+
+(use-package saveplace
+  :init
+  (setq-default save-place t))
 
 (use-package polymode
   :ensure t
@@ -269,7 +279,13 @@
 
 (use-package markdown-mode
   :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
   :commands markdown-mode)
+
+(use-package applescript-mode
+  :if (eq system-type 'darwin)
+  :mode ("\\.applescript$" . applescript-mode)
+  :ensure t)
 
 (use-package yasnippet
   :ensure t
@@ -367,13 +383,10 @@
   (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
 
 (defun init--package-install ()
-  (let ((packages '(better-defaults
-                    cyberpunk-theme
-                    exec-path-from-shell
+  (let ((packages '(cyberpunk-theme
                     multi-term
                     multiple-cursors
                     realgud
-                    sr-speedbar
                     tldr)))
     (dolist (pkg packages)
       (unless (package-installed-p pkg)
@@ -384,9 +397,6 @@
   (error
    (package-refresh-contents)
    (init--package-install)))
-
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
@@ -415,6 +425,3 @@ already narrowed."
         (t (narrow-to-defun))))
 
 (define-key kd/toggle-map "n" #'narrow-or-widen-dwim)
-
-(setq-default save-place t)
-(require 'saveplace)
