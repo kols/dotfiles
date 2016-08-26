@@ -133,7 +133,10 @@
 
 (use-package ag
   :ensure t
-  :bind ("C-c a" . ag-project-regexp))
+  :bind ("C-c a" . ag-project-regexp)
+  :config
+  (setq ag-highlight-search t)
+  (setq ag-reuse-buffers t))
 
 (use-package magit
   :ensure t
