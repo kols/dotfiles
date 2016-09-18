@@ -29,7 +29,6 @@
 
 ;;; tab
 (setq-default default-tab-width 4)
-(setq-default tab-always-indent 'complete)
 
 ;;; display
 (setq initial-scratch-message "")
@@ -44,7 +43,14 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
-  (set-face-attribute 'default nil :font "-apple-hack-regular-normal-normal-*-15-*-*-*-m-0-iso10646-1"))
+  (set-face-attribute 'default nil :font "-apple-hack-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
+
+(when (eq system-type 'darwin)
+    (defun kd/osx-lock-screen ()
+      (interactive)
+      (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
+    (define-key kd/toggle-map "l" #'kd/osx-lock-screen)
+    (setq mac-option-modifier 'meta))
 
 ; show whitespace
 (use-package whitespace
@@ -74,9 +80,20 @@
   :config
   (which-key-mode 1))
 
-(use-package smex
+(use-package counsel
   :ensure t
-  :bind ("M-x" . smex))
+  :bind
+  (("M-x" . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)
+   ("C-c a" . counsel-ag)))
+
+(use-package wgrep
+  :ensure t)
+
+(use-package winner
+  :commands winner-mode
+  :init
+  (add-hook 'after-init-hook #'winner-mode))
 
 ;;; ido
 (use-package ido
@@ -128,12 +145,12 @@
 (use-package avy
   :ensure t
   :bind
-  ("C-c SPC" . avy-goto-char)
-  ("C-c l" . avy-goto-line))
+  (("C-c SPC" . avy-goto-char)
+   ("C-c l" . avy-goto-line)))
 
 (use-package ag
   :ensure t
-  :bind ("C-c a" . ag-project-regexp)
+  :bind ("C-c C-a" . ag-project-regexp)
   :config
   (setq ag-highlight-search t)
   (setq ag-reuse-buffers t))
@@ -143,12 +160,19 @@
   :init
   (setq magit-git-executable "/usr/local/bin/git")
   :bind
-  ("C-c g s" . magit-status)
-  ("C-c g l" . magit-log-current))
+  (("C-c g s" . magit-status)
+   ("C-c g l" . magit-log-current)))
 
 (use-package mo-git-blame
   :ensure t
   :bind ("C-c g b" . mo-git-blame-current))
+
+(use-package git-gutter
+  :ensure t
+  :commands global-git-gutter-mode
+  :diminish git-gutter-mode
+  :init
+  (add-hook 'after-init-hook #'global-git-gutter-mode))
 
 (use-package swiper
   :ensure t
@@ -161,8 +185,8 @@
 (use-package smartscan
   :ensure t
   :bind
-  ("M-n" . smartscan-symbol-go-forward)
-  ("M-p" . smartscan-symbol-go-backward))
+  (("M-n" . smartscan-symbol-go-forward)
+   ("M-p" . smartscan-symbol-go-backward)))
 
 (use-package ivy
   :ensure t
@@ -181,34 +205,6 @@
 (use-package saveplace
   :init
   (setq-default save-place t))
-
-(use-package polymode
-  :ensure t
-  :config
-  (defcustom kd-pm-host/Emacs-Lisp
-    (pm-bchunkmode "Emacs-Lisp"
-                   :mode 'emacs-lisp-mode)
-    "Emacs-Lisp host chunkmode"
-    :group 'hostmodes
-    :type 'object)
-  (defcustom kd-pm-inner/Emacs-List+AppleScript
-    (pm-hbtchunkmode "AppleScript"
-                     :mode 'applescript-mode
-                     :head-reg "^[ \t]*;+begin\\.applescript$"
-                     :tail-reg "^[ \t]*;+end\\.applescript$"
-                     :head-mode 'host
-                     :tail-mode 'host)
-    "AppleScript inner mode"
-    :group 'innermodes
-    :type 'object)
-  (defcustom kd-pm-poly/emacs-lisp+applescript
-    (pm-polymode-one "Emacs-Lisp"
-                     :hostmode 'kd-pm-host/Emacs-Lisp
-                     :innermode 'kd-pm-inner/AppleScript)
-    "Emacs Lisp + AppleScript configuration"
-    :group 'polymodes
-    :type 'object)
-  (define-polymode kd/poly-emacs-lisp+applescript-mode kd-pm-poly/emacs-lisp+applescript))
 
 (use-package osx-lib
   :if '(eq system-type 'darwin)
@@ -233,8 +229,9 @@
   :ensure t
   :commands turn-on-ctags-auto-update-mode
   :diminish ctags-auto-update-mode
-  :config
+  :init
   (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
+  :config
   (add-hook 'python-mode-hook (lambda ()
                                 (setq-local ctags-update-other-options '("--fields=+l"
                                                                          "--languages=python"
@@ -248,18 +245,24 @@
   (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
   (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
 
-(when (eq system-type 'darwin)
-    (defun kd/osx-lock-screen ()
-      (interactive)
-      (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
-    (define-key kd/toggle-map "l" #'kd/osx-lock-screen)
-    (setq mac-option-modifier 'meta))
-
 (use-package company
   :ensure t
   :diminish company-mode
+  :commands global-company-mode
   :init
-  (add-hook 'after-init-hook #'global-company-mode))
+  (add-hook 'after-init-hook #'global-company-mode)
+  :config
+  (setq tab-always-indent 'complete)
+  (defun kd/local-push-company-backend (backend)
+    "Add BACKEND to a buffer-local version of `company-backends'."
+    (set (make-local-variable 'company-backends)
+         (append (list backend) company-backends))))
+
+(use-package company-flx
+  :ensure t
+  :commands company-flx-mode
+  :init
+  (add-hook 'company-mode-hook #'company-flx-mode))
 
 (use-package paredit
   :ensure t
@@ -285,10 +288,8 @@
   :mode ("README\\.md\\'" . gfm-mode)
   :commands markdown-mode)
 
-(use-package applescript-mode
-  :if (eq system-type 'darwin)
-  :mode ("\\.applescript$" . applescript-mode)
-  :ensure t)
+(use-package conf-mode
+  :mode ("rc$" . conf-mode))
 
 (use-package yasnippet
   :ensure t
@@ -313,46 +314,52 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
+  :diminish flycheck-mode
+  :init
+  (add-hook 'prog-mode-hook #'flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically nil))
 
+(use-package which-func
+  :commands which-function-mode
+  :init
+  (add-hook 'prog-mode-hook #'which-function-mode))
 
 ;;; python
-(use-package python
-  :commands python-mode
-  :init
-  (add-hook 'python-mode-hook (lambda ()
-                                (which-function-mode 1)
-                                (flycheck-mode 1)
-                                (pyvenv-mode 1))))
-
 (use-package pyvenv
   :ensure t
-  :commands pyenv-mode)
+  :commands pyenv-mode
+  :init
+  (add-hook 'python-mode-hook #'pyvenv-tracking-mode))
+
+(use-package pip-requirements
+  :ensure t
+  :defer t)
 
 (use-package anaconda-mode
-  :disabled t
   :ensure t
-  :commands anaconda-mode
+  :commands (anaconda-mode anaconda-eldoc-mode)
+  :diminish anaconda-mode
   :init
   (add-hook 'python-mode-hook (lambda ()
                                 (anaconda-mode 1)
-                                (eldoc-mode 1))))
+                                (anaconda-eldoc-mode 1))))
 
 (use-package company-anaconda
-  :disabled t
   :ensure t
+  :after (company anaconda-mode)
   :commands company-anaconda
-  :init
-  (add-to-list 'company-backends #'company-anaconda))
+  :config
+  (add-hook 'python-mode-hook (lambda () (kd/local-push-company-backend #'company-anaconda))))
 
 (use-package ycmd
+  :disabled t
   :ensure t
   :commands (ycmd-mode ycmd-open)
   :diminish ycmd-mode
   :bind
-  ("M-." . ycmd-goto)
-  ("M-," . ycmd-goto-declaration)
+  (("M-." . ycmd-goto)
+   ("M-," . ycmd-goto-declaration))
   :init
   (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.ghq/github.com/Valloric/ycmd/ycmd/__main__.py")))
   (add-hook 'python-mode-hook (lambda ()
@@ -362,43 +369,52 @@
   (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
 
 (use-package company-ycmd
+  :disabled t
   :ensure t
+  :after (company ycmd)
   :commands company-ycmd-setup
   :init
   (add-hook 'python-mode-hook #'company-ycmd-setup))
-
 
 ;;; golang
 (use-package go-mode
   :ensure t
   :commands go-mode
+  :bind
+  (:map go-mode-map
+        ("M-." . godef-jump)
+        ("M-C-." . godef-jump-other-window)
+        ("M-k" . godoc-at-point))
   :config
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (add-hook 'go-mode-hook (lambda ()
-                            (local-set-key (kbd "M-.") 'godef-jump)
-                            (local-set-key (kbd "M-C-.") 'godef-jump-other-window)
-                            (local-set-key (kbd "M-k") 'godoc-at-point)
-                            (setq gofmt-command "goimports")
-                            (go-eldoc-setup)
-                            (which-function-mode 1)
-                            (flycheck-mode 1)
-                            (setq flycheck-disabled-checkers '(go-golint)))))
+  (setq gofmt-command "goimports")
+  (setq-local flycheck-disabled-checkers '(go-golint)))
 
 (use-package go-eldoc
   :ensure t
-  :commands go-eldoc-setup)
+  :commands go-eldoc-setup
+  :init
+  (add-hook 'go-mode-hook #'go-eldoc-setup))
 
 (use-package company-go
   :ensure t
   :commands company-go
+  :after company
   :config
-  (add-to-list 'company-backends #'company-go))
+  (add-hook 'go-mode-hook (lambda () (kd/local-push-company-backend #'company-go))))
 
 (use-package go-guru
   :ensure t
   :defer t
   :init
   (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+
+;;; lisp
+(use-package elisp-slime-nav
+  :ensure t
+  :commands turn-on-elisp-slime-nav-mode
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-elisp-slime-nav-mode))
 
 (defun init--package-install ()
   (let ((packages '(cyberpunk-theme
