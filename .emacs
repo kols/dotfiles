@@ -210,6 +210,16 @@
   :if '(eq system-type 'darwin)
   :ensure t)
 
+;;; org-mode
+(use-package org
+  :bind
+  ("C-c c" . org-capture)
+  :init
+  (setq org-directory "~/Dropbox/org")
+  (setq org-default-notes-file (concat org-directory "/cap.org"))
+  (setq org-capture-templates
+        '(("c" "cap" entry (file "") "* %?\n  %U"))))
+
 ;;; tags
 (use-package etags
   :bind ("C-c ." . kd/ivy-find-tag)
