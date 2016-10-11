@@ -49,7 +49,6 @@ bindkey -e
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 source $ZPLUG_HOME/init.zsh
-zplug "zplug/zplug"
 zplug "supercrabtree/k"
 zplug "zsh-users/zsh-completions", use:src
 zplug "zsh-users/zsh-history-substring-search"
