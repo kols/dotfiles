@@ -60,7 +60,6 @@ Plug 'scrooloose/syntastic', { 'on': 'SyntasticCheck' }
 Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'janko-m/vim-test'
-Plug 'sourcegraph/sourcegraph-vim', {'for': 'go'}
 
 " c {{{2
 Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
