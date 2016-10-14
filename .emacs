@@ -213,12 +213,15 @@
 ;;; org-mode
 (use-package org
   :bind
-  ("C-c c" . org-capture)
+  (("C-c a" . org-agenda)
+   ("C-c c" . org-capture)
+   ("C-c b" . org-iswitchb))
   :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
-        '(("c" "cap" entry (file "") "* %?\n  %U"))))
+        '(("c" "cap" entry (file "") "* %?\n  %U")))
+  (setq org-src-fontify-natively t))
 
 ;;; tags
 (use-package etags
