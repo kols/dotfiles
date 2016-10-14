@@ -95,6 +95,18 @@
   :init
   (add-hook 'after-init-hook #'winner-mode))
 
+;;; dired
+(use-package dired
+  :init
+  (setq dired-listing-switches "-lahF")
+  (setq dired-isearch-filenames t)
+  (setq dired-ls-F-marks-symlinks t))
+
+(use-package dired-x
+  :commands dired-omit-mode
+  :init
+  (add-hook 'dired-mode-hook #'dired-omit-mode))
+
 ;;; ido
 (use-package ido
   :ensure t
