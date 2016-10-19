@@ -320,6 +320,17 @@
   :ensure t
   :commands salt-mode)
 
+(use-package ansible
+  :ensure t)
+
+(use-package company-ansible
+  :ensure t
+  :commands company-ansible
+  :init
+  (add-hook 'ansible::hook (lambda ()
+                             (company-mode 1)
+                             (kd/local-push-company-backend 'company-ansible))))
+
 (use-package fish-mode
   :ensure t
   :commands fish-mode)
