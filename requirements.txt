@@ -3,6 +3,7 @@ git-remote-dropbox
 html2text
 httpie
 ipython
+jupyter
 mitmproxy
 neovim
 pip-autoremove

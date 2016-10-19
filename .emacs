@@ -430,6 +430,10 @@
   :init
   (add-hook 'python-mode-hook #'company-ycmd-setup))
 
+(use-package ein
+  :ensure t
+  :commands ein:notebooklist-open)
+
 ;;; golang
 (use-package go-mode
   :ensure t
