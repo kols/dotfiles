@@ -232,7 +232,7 @@
   :init
   (add-hook 'restclient-mode-hook (lambda ()
                                     (company-mode 1)
-                                    (add-to-list 'company-backends 'company-restclient))))
+                                    (kd/local-push-company-backend 'company-restclient))))
 
 ;;; org-mode
 (use-package org
@@ -285,7 +285,7 @@
 (use-package company
   :ensure t
   :diminish company-mode
-  :commands global-company-mode
+  :commands (company-mode global-company-mode)
   :init
   (add-hook 'after-init-hook #'global-company-mode)
   :config
@@ -307,6 +307,10 @@
   :diminish paredit-mode
   :init
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
+
+(use-package csv-mode
+  :ensure t
+  :defer t)
 
 (use-package dockerfile-mode
   :ensure t
@@ -387,7 +391,9 @@
   :after (company anaconda-mode)
   :commands company-anaconda
   :config
-  (add-hook 'python-mode-hook (lambda () (kd/local-push-company-backend #'company-anaconda))))
+  (add-hook 'python-mode-hook (lambda ()
+                                (company-mode 1)
+                                (kd/local-push-company-backend 'company-anaconda))))
 
 (use-package ycmd
   :disabled t
@@ -438,7 +444,9 @@
   :commands company-go
   :after company
   :config
-  (add-hook 'go-mode-hook (lambda () (kd/local-push-company-backend #'company-go))))
+  (add-hook 'go-mode-hook (lambda ()
+                            (company-mode 1)
+                            (kd/local-push-company-backend 'company-go))))
 
 (use-package go-guru
   :ensure t
