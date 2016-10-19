@@ -222,6 +222,18 @@
   :if '(eq system-type 'darwin)
   :ensure t)
 
+(use-package restclient
+  :ensure t
+  :commands restclient-mode)
+
+(use-package company-restclient
+  :ensure t
+  :commands company-restclient
+  :init
+  (add-hook 'restclient-mode-hook (lambda ()
+                                    (company-mode 1)
+                                    (add-to-list 'company-backends 'company-restclient))))
+
 ;;; org-mode
 (use-package org
   :bind
