@@ -100,7 +100,8 @@
   :init
   (setq dired-listing-switches "-lahF")
   (setq dired-isearch-filenames t)
-  (setq dired-ls-F-marks-symlinks t))
+  (setq dired-ls-F-marks-symlinks t)
+  (add-hook 'dired-mode-hook #'dired-hide-details-mode))
 
 (use-package dired-x
   :commands dired-omit-mode
