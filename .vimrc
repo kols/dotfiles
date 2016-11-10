@@ -268,6 +268,7 @@ let g:netrw_bufsettings="noma nomod nu nobl nowrap ro nornu"
 let NERDTreeQuitOnOpen = 1
 let NERDTreeShowBookmarks = 1
 let NERDTreeHijackNetrw = 0
+let NERDTreeMinimalUI = 1
 
 augroup python
   autocmd filetype python let NERDTreeIgnore = ['\.pyc$']
@@ -436,11 +437,6 @@ nnoremap <silent> [Space]bv :BufExplorerVerticalSplit<Return>
 let g:filebeagle_suppress_keymaps=1
 let g:filebeagle_check_gitignore=1
 map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
-"}}}
-
-" sourcegraph {{{2
-let g:SOURCEGRAPH_AUTO = "false"
-nnoremap <silent> [Space]ss :GRAPH<Return>
 "}}}
 
 " rust.vim {{{2

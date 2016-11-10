@@ -68,6 +68,7 @@ Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
 
 " python {{{2
 Plug 'klen/python-mode', { 'for': 'python' }
+Plug 'lambdalisue/vim-pyenv', { 'for': 'python' }
 "}}}
 
 " javascript {{{2
