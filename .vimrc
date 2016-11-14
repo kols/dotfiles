@@ -35,6 +35,29 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 "}}}
 
+" tab {{{2
+nnoremap <C-t> <Nop>
+
+nmap <silent> <C-t>n :tabnew \| tabmove<Return>
+nmap <silent> <C-t>c :tabclose<Return>
+nmap <silent> <C-t>C :tabclose!<Return>
+nmap <silent> <C-t>o :tabonly<Return>
+nmap <silent> <C-t>i :tabs<Return>
+
+nmap <C-t><C-n> <C-t>n
+nmap <C-t><C-c> <C-t>c
+nmap <C-t><C-o> <C-t>o
+nmap <C-t><C-i> <C-t>i
+
+nmap <silent> <C-t>j :execute 'tabnext' 1 + (tabpagenr() + v:count1 - 1) % tabpagenr('$')<Return>
+nmap <silent> <C-t>k :tabprevious<Return>
+nmap <silent> <C-t>K :tabfirst<Return>
+nmap <silent> <C-t>J :tablast<Return>
+
+nmap <C-t><C-j> <C-t>j
+nmap <C-t><C-k> <C-t>k
+"}}}
+
 " list {{{2
 nnoremap <silent> [q :cprevious<Return>
 nnoremap <silent> ]q :cnext<Return>
