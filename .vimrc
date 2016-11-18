@@ -59,15 +59,17 @@ nmap <C-t><C-k> <C-t>k
 "}}}
 
 " list {{{2
-nnoremap <silent> [q :cprevious<Return>
 nnoremap <silent> ]q :cnext<Return>
-nnoremap <silent> [l :lprevious<Return>
+nnoremap <silent> [q :cprevious<Return>
 nnoremap <silent> ]l :lnext<Return>
+nnoremap <silent> [l :lprevious<Return>
 "}}}
 
 " editing {{{2
 inoremap jj <Esc>
 inoremap <C-e> <Esc>A
+nmap <silent> [Space]p :set paste<Return>
+nmap <silent> [Space]P :set nopaste<Return>
 "}}}
 
 " terminal (neovim) {{{2
@@ -145,7 +147,6 @@ set directory=~/.cache/vim
 if exists('+guioptions')
   set guioptions=cgM
 endif
-set ambiwidth=double
 set noequalalways
 set ruler
 set laststatus=2
@@ -320,9 +321,9 @@ nnoremap <silent> [Space]tg :Tagbar<Return>
 let g:tagbar_compact=1
 "}}}
 
-" ag {{{2
-nnoremap <silent> <leader>a :Ag!<Return>
-nnoremap <leader>A :Ag!<Space>
+" mhinz/vim-grepper {{{2
+nnoremap <silent> <leader>a :Grepper -highlight -noprompt -cword<Return>
+nnoremap <leader>A :Grepper<Return>
 "}}}
 
 " ctrl-p {{{2
@@ -338,12 +339,25 @@ let g:ctrlp_extensions = ['buffertag']
 
 nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> <leader>f :CtrlPBufTag<Return>
+
+" ctrlp-ghq {{{3
+let ctrlp_ghq_default_action = 'e'
+"}}}
 "}}}
 
 " python-mode {{{2
-let g:pymode_rope = 0
+" rope {{{3
+let g:pymode_rope = 1
 let g:pymode_rope_completion = 0
-let g:pymode_virtualenv = 1
+let g:pymode_rope_rename_bind = '<C-c>rr'
+let g:pymode_rope_rename_module_bind = '<C-c>r1r'
+let g:pymode_rope_organize_imports_bind = '<C-c>ro'
+let g:pymode_rope_autoimport_bind = '<C-c>ra'
+let g:pymode_rope_extract_method_bind = '<C-c>rm'
+let g:pymode_rope_extract_variable_bind = '<C-c>rl'
+let g:pymode_rope_use_function_bind = '<C-c>ru'
+" }}}
+let g:pymode_virtualenv = 0
 let g:pymode_indent = 1
 let g:pymode_folding = 0
 let g:pymode_breakpoint = 0

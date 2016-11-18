@@ -13,6 +13,7 @@ Plug 'airblade/vim-rooter'
 " integration {{{2
 Plug 'tpope/vim-fugitive'
 Plug 'rking/ag.vim'
+Plug 'mhinz/vim-grepper'
 "}}}
 "}}}
 
