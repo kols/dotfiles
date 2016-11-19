@@ -57,7 +57,8 @@ Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 "}}}
 
 " programming {{{1
-Plug 'scrooloose/syntastic', { 'on': 'SyntasticCheck' }
+Plug 'metakirby5/codi.vim'
+Plug 'w0rp/ale'
 Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
 Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
 Plug 'janko-m/vim-test'

@@ -306,15 +306,11 @@ map <leader>8 <ESC><ESC>:NERDTreeFind<Return>
 nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
 
-" syntastic {{{2
-let g:syntastic_enable_balloons = 0
-let g:syntastic_auto_jump = 1
-let g:syntastic_python_checkers = ['flake8']
-let g:syntastic_javascript_checkers = ['jshint']
-let g:syntastic_mode_map = { "mode": "passive" }
-nnoremap <silent> [Space]ec :SyntasticCheck<Return>:Errors<Return>
-nnoremap <silent> [Space]er :SyntasticReset<Return>
-"}}}
+" w0rp/ale {{{2
+let g:ale_linters = {
+\   'python': ['flake8'],
+\}
+let g:ale_sign_column_always = 1
 
 " tagbar {{{2
 nnoremap <silent> [Space]tg :Tagbar<Return>
