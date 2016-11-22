@@ -421,8 +421,8 @@ augroup END
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified', 'fugitive' ] ],
-      \   'right': [ [ 'syntastic', 'lineinfo' ],
+      \             [ 'readonly', 'filename', 'modified', 'fugitive', "ale" ] ],
+      \   'right': [ [ 'lineinfo' ],
       \              [ 'percent' ],
       \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
       \ },
@@ -434,11 +434,16 @@ let g:lightline = {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"%%":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
       \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
+      \   'ale': '%{(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())?ALEGetStatusLine():""}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
       \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
-      \ }
+      \   'ale': '(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())',
+      \ },
+      \ 'component_type': {
+      \   'ale': 'error',
+      \ },
       \ }
 " }}}
 
