@@ -71,7 +71,6 @@ Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
 
 " python {{{2
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
-Plug 'klen/python-mode', { 'for': 'python' }
 Plug 'lambdalisue/vim-pyenv', { 'for': 'python' }
 "}}}
 

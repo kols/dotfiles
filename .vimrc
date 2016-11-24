@@ -351,27 +351,6 @@ nnoremap <silent> <leader>f :CtrlPBufTag<Return>
 let g:completor_python_binary = '/usr/local/bin/python'
 "}}}
 
-" python-mode {{{2
-" rope {{{3
-let g:pymode_rope = 1
-let g:pymode_rope_completion = 0
-let g:pymode_rope_rename_bind = '<C-c>rr'
-let g:pymode_rope_rename_module_bind = '<C-c>r1r'
-let g:pymode_rope_organize_imports_bind = '<C-c>ro'
-let g:pymode_rope_autoimport_bind = '<C-c>ra'
-let g:pymode_rope_extract_method_bind = '<C-c>rm'
-let g:pymode_rope_extract_variable_bind = '<C-c>rl'
-let g:pymode_rope_use_function_bind = '<C-c>ru'
-" }}}
-let g:pymode_virtualenv = 0
-let g:pymode_indent = 1
-let g:pymode_folding = 0
-let g:pymode_breakpoint = 0
-let g:pymode_lint = 0
-let g:pymode_doc = 1
-let g:pymode_doc_bind = ''
-"}}}
-
 " lambdalisue/vim-pyenv {{{2
 let g:pyenv#auto_activate = 1
 "}}}
