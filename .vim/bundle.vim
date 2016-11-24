@@ -54,6 +54,7 @@ Plug 'easymotion/vim-easymotion'
 Plug 'terryma/vim-multiple-cursors'
 Plug 'Raimondi/delimitMate'
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+Plug 'ervandew/supertab'
 "}}}
 
 " programming {{{1

@@ -279,6 +279,10 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" ervandew/supertab {{{2
+let g:SuperTabDefaultCompletionType = "<c-n>"
+"}}}
+
 " netrw {{{2
 let g:netrw_altv = 1
 let g:netrw_banner = 0
