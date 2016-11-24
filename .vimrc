@@ -315,6 +315,10 @@ let g:ale_linters = {
 \   'python': ['flake8'],
 \}
 let g:ale_sign_column_always = 1
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_text_changed = 1
+let g:ale_lint_on_save = 1
+nnoremap <silent> [Space]ec :call ale#Queue(0)<Return>
 
 " tagbar {{{2
 nnoremap <silent> [Space]tg :Tagbar<Return>
