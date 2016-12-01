@@ -42,6 +42,8 @@
     psm = push me
     psfm = push --force-with-lease me
     plr = pull --rebase
+    plrm = pull --rebase origin master
+    plrd = pull --rebase origin develop
     rmfs = rm --cache
     rmo = !git ls-files --exclude-standard --others | xargs rm -rf
     rb = rebase
