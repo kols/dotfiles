@@ -326,6 +326,9 @@ let g:tagbar_compact=1
 "}}}
 
 " mhinz/vim-grepper {{{2
+let g:grepper = {
+    \ 'tools': ['rg', 'ag'],
+    \ }
 nnoremap <silent> <leader>a :Grepper -highlight -noprompt -cword<Return>
 nnoremap <leader>A :Grepper<Return>
 "}}}
