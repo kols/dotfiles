@@ -9,6 +9,7 @@ endfunction
 " util {{{1
 Plug 'tpope/vim-obsession'
 Plug 'airblade/vim-rooter'
+Plug 'skywind3000/asyncrun.vim'
 
 " integration {{{2
 Plug 'tpope/vim-fugitive'
