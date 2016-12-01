@@ -4,6 +4,7 @@ git-remote-dropbox
 html2text
 httpie
 ipython
+jedi
 jupyter
 mitmproxy
 neovim

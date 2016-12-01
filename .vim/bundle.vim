@@ -62,7 +62,7 @@ Plug 'ervandew/supertab'
 Plug 'metakirby5/codi.vim'
 Plug 'w0rp/ale'
 Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
-Plug 'Valloric/YouCompleteMe', { 'do': function('BuildYCM') }
+Plug 'maralla/completor.vim'
 Plug 'janko-m/vim-test'
 
 " c {{{2
@@ -70,7 +70,7 @@ Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
 "}}}
 
 " python {{{2
-Plug 'klen/python-mode', { 'for': 'python' }
+Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'lambdalisue/vim-pyenv', { 'for': 'python' }
 "}}}
 

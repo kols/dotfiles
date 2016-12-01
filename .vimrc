@@ -347,30 +347,24 @@ let g:ctrlp_extensions = ['buffertag']
 nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> <leader>f :CtrlPBufTag<Return>
 
-" ctrlp-ghq {{{3
-let ctrlp_ghq_default_action = 'e'
-"}}}
+" maralla/completor.vim {{{2
+let g:completor_python_binary = '/usr/local/bin/python'
 "}}}
 
-" python-mode {{{2
-" rope {{{3
-let g:pymode_rope = 1
-let g:pymode_rope_completion = 0
-let g:pymode_rope_rename_bind = '<C-c>rr'
-let g:pymode_rope_rename_module_bind = '<C-c>r1r'
-let g:pymode_rope_organize_imports_bind = '<C-c>ro'
-let g:pymode_rope_autoimport_bind = '<C-c>ra'
-let g:pymode_rope_extract_method_bind = '<C-c>rm'
-let g:pymode_rope_extract_variable_bind = '<C-c>rl'
-let g:pymode_rope_use_function_bind = '<C-c>ru'
-" }}}
-let g:pymode_virtualenv = 0
-let g:pymode_indent = 1
-let g:pymode_folding = 0
-let g:pymode_breakpoint = 0
-let g:pymode_lint = 0
-let g:pymode_doc = 1
-let g:pymode_doc_bind = ''
+" lambdalisue/vim-pyenv {{{2
+let g:pyenv#auto_activate = 1
+"}}}
+
+" davidhalter/jedi-vim {{{2
+let g:jedi#auto_initialization = 0
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#completions_enabled = 0
+let g:jedi#show_call_signatures = "2"
+augroup python
+  autocmd FileType python
+        \ nnoremap <silent> <buffer> [Space]gg :call jedi#goto()<Return> |
+        \ nnoremap <silent> <buffer> [Space]gd :call jedi#goto_assignments()<Return>
+augroup END
 "}}}
 
 " ultisnips {{{2
@@ -414,25 +408,11 @@ map <Leader>vq :VimuxCloseRunner<Return>
 map <Leader>vx :VimuxInterruptRunner<Return>
 "}}}
 
-" ycm {{{2
-augroup python
-  autocmd FileType python
-        \ nnoremap <silent> <buffer> <leader>gg :YcmCompleter GoTo<Return> |
-        \ nnoremap <silent> <buffer> <leader>gd :YcmCompleter GoToDeclaration<Return>
-augroup END
-augroup rust
-  let g:ycm_rust_src_path = '/usr/local/src/rustc-1.11.0/src'
-  autocmd FileType rust
-        \ nnoremap <silent> <buffer> <leader>gg :YcmCompleter GoTo<Return> |
-        \ nnoremap <silent> <buffer> <leader>gd :YcmCompleter GoToDeclaration<Return>
-augroup END
-"}}}
-
 " lightline {{{2
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified', 'fugitive', "ale" ] ],
+      \             [ 'readonly', 'filename', 'modified', 'fugitive', 'pyenv', "ale" ] ],
       \   'right': [ [ 'lineinfo' ],
       \              [ 'percent' ],
       \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
@@ -446,11 +426,13 @@ let g:lightline = {
       \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
       \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
       \   'ale': '%{(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())?ALEGetStatusLine():""}',
+      \   'pyenv': '%{exists("*pyenv#info#preset")?"py:" . pyenv#info#preset("long"):""}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
       \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
       \   'ale': '(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())',
+      \   'pyenv': '(exists("*pyenv#pyenv#is_activated") && pyenv#pyenv#is_activated())',
       \ },
       \ 'component_type': {
       \   'ale': 'error',
