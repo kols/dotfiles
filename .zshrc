@@ -1,5 +1,8 @@
-# virtualenv
+# pyenv
+eval "$(pyenv init -)"
 export VIRTUAL_ENV_DISABLE_PROMPT=1
+eval "$(pyenv virtualenv-init -)"
+
 export WORKON_HOME=~/.virtualenvs
 . ~/Library/Python/2.7/bin/virtualenvwrapper.sh
 alias V=workon
