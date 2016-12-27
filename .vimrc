@@ -67,7 +67,6 @@ nnoremap <silent> [l :lprevious<Return>
 
 " editing {{{2
 inoremap jj <Esc>
-inoremap <C-e> <Esc>A
 nmap <silent> [Space]p :set paste<Return>
 nmap <silent> [Space]P :set nopaste<Return>
 "}}}
