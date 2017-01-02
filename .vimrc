@@ -310,8 +310,22 @@ nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
 
 " w0rp/ale {{{2
+let g:ale_go_gometalinter_args = get(g:, 'ale_go_gometalinter_args',
+\   '--fast --disable=golint --disable=govet')
+
+let s:format = '--format="{{.Path}}:{{.Line}}:{{if .Col}}{{.Col}}{{end}}: {{.Severity}}: {{.Message}} ({{.Linter}})"'
+
+call ale#linter#Define('go', {
+\   'name': 'gometalinter',
+\   'output_stream': 'stdout',
+\   'executable': 'gometalinter',
+\   'command': 'gometalinter ' . s:format . ' ' . g:ale_go_gometalinter_args,
+\   'callback': 'ale#handlers#HandleGCCFormat',
+\})
+
 let g:ale_linters = {
 \   'python': ['flake8'],
+\   'go': ['gometalinter'],
 \}
 let g:ale_sign_column_always = 1
 let g:ale_lint_on_enter = 0
