@@ -426,7 +426,8 @@ let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
       \             [ 'readonly', 'filename', 'modified', 'fugitive', 'pyenv', "ale" ] ],
-      \   'right': [ [ 'lineinfo' ],
+      \   'right': [ [ 'time' ],
+      \              [ 'lineinfo' ],
       \              [ 'percent' ],
       \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
       \ },
@@ -440,6 +441,7 @@ let g:lightline = {
       \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
       \   'ale': '%{(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())?ALEGetStatusLine():""}',
       \   'pyenv': '%{exists("*pyenv#info#preset")?"py:" . pyenv#info#preset("long"):""}',
+      \   'time': '%{strftime("%H:%M")}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
