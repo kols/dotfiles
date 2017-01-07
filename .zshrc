@@ -1,12 +1,3 @@
-# pyenv
-eval "$(pyenv init -)"
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-eval "$(pyenv virtualenv-init -)"
-
-export WORKON_HOME=~/.virtualenvs
-. ~/Library/Python/2.7/bin/virtualenvwrapper.sh
-alias V=workon
-
 export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen --RAW-CONTROL-CHARS'
 
 # icloud drive
@@ -254,3 +245,7 @@ prompt_setup "$*"
 if [ -f ~/.zshrc.custom ]; then
     . ~/.zshrc.custom
 fi
+
+# pyenv
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
