@@ -203,6 +203,23 @@ case "${TERM}" in
         ;;
 esac
 
+# ssh interactively select host
+function sshi {
+	local q="$1"
+	if [ -n "$q" ]; then
+		shift
+		local opts="$*"
+	fi
+	local host=$(cut -d' ' -f1 ~/.ssh/known_hosts \
+		| sort \
+		| peco --select-1 --prompt 'host>' --query "$q")
+	if [ -z "$host" ]; then
+		return 1
+	fi
+	ssh "$host" "$opts"
+}
+
+
 ##
 # prompt
 ##
