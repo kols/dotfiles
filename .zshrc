@@ -171,7 +171,6 @@ function lo {
 alias vi=vim
 
 alias j="z"
-alias js='pushd `ghq list -p | peco --prompt "repo>"` &>/dev/null'
 alias tl="tail"
 alias hd="head"
 alias l="less"
@@ -203,6 +202,16 @@ case "${TERM}" in
         ;;
 esac
 
+# jump to source dir managed by _motemen/ghq_
+function js {
+    local srcpath=$(ghq list -p \
+        | peco --select-1 --prompt "repo>" --query "$*")
+	if [ -z "$srcpath" ]; then
+		return 1
+	fi
+    pushd "$srcpath"
+}
+
 # ssh interactively select host
 function sshi {
 	local q="$1"
@@ -218,7 +227,6 @@ function sshi {
 	fi
 	ssh "$host" "$opts"
 }
-
 
 ##
 # prompt
