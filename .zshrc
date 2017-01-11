@@ -165,11 +165,15 @@ function lo {
     $* "$(`fc -ln -1` | peco)"
 }
 
+function _mvim_open_in_tab {
+    mvim --remote-tab-silent "${@:-.}"
+}
+
 ##
 # alias
 ##
 alias vi=vim
-
+alias mvim='_mvim_open_in_tab'
 alias j="z"
 alias tl="tail"
 alias hd="head"
