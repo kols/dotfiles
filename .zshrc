@@ -279,3 +279,5 @@ fi
 # pyenv
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+# vim:ft=zsh
