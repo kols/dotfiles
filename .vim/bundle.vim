@@ -34,14 +34,17 @@ Plug 'jnurmine/Zenburn'
 
 " syntax {{{2
 Plug 'saltstack/salt-vim'
+Plug 'plasticboy/vim-markdown'
+Plug 'solarnz/thrift.vim'
+Plug 'pearofducks/ansible-vim'
 Plug 'sheerun/vim-polyglot'
 "}}}
 "}}}
 
 " file {{{1
-Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 Plug 'jeetsukumaran/vim-filebeagle', { 'on': '<Plug>FileBeagleOpenCurrentBufferDir' }
-Plug 'kien/ctrlp.vim'
+Plug 'kien/ctrlp.vim', { 'on': ['CtrlP', 'CtrlPBufTag'] }
 "}}}
 
 " editing {{{1
@@ -66,20 +69,22 @@ Plug 'maralla/completor.vim'
 Plug 'janko-m/vim-test'
 
 " c {{{2
-Plug 'WolfgangMehner/c.vim', { 'for': 'c' }
+Plug 'vim-jp/vim-cpp'
 "}}}
 
 " python {{{2
+Plug 'mitsuhiko/vim-python-combined'
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'lambdalisue/vim-pyenv', { 'for': 'python' }
 "}}}
 
 " javascript {{{2
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'pangloss/vim-javascript'
+Plug 'elzr/vim-json'
 "}}}
 
 " go {{{2
-Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'fatih/vim-go'
 "}}}
 
 " rust {{{2

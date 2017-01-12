@@ -1,13 +1,5 @@
 source ~/.vim/bundle.vim
 
-" neovim compat {{{1
-" make `<C-h>` work as expected
-if has('nvim')
-  nmap <Backspace> <C-w>h
-  let g:python_host_prog = '/usr/bin/python'
-endif
-"}}}
-
 " keymapping {{{1
 
 let mapleader = ","
@@ -76,6 +68,7 @@ if has("nvim")
   tnoremap <Esc> <C-\><C-n>
   tnoremap jj <C-\><C-n>
 endif
+"}}}
 "}}}
 
 " general {{{1
@@ -192,7 +185,6 @@ endif
 " python {{{2
 augroup python
   autocmd!
-  autocmd BufRead,BufNewFile *.py setfiletype python
   autocmd FileType python
         \ setlocal colorcolumn=+1,80 |
         \ setlocal iskeyword& |
@@ -207,7 +199,6 @@ augroup END
 " go {{{2
 augroup go
   autocmd!
-  autocmd BufRead,BufNewFile *.go setfiletype go
   autocmd FileType go setlocal colorcolumn=
 augroup END
 " }}}
@@ -223,7 +214,6 @@ augroup END
 " c {{{2
 augroup c
   autocmd!
-  autocmd BufRead,BufNewFile *.c,*.h setfiletype c
   autocmd FileType c setlocal tabstop=4 expandtab softtabstop=4 shiftwidth=4 shiftround
 augroup END
 "}}}
@@ -247,8 +237,6 @@ augroup END
 " javascript {{{2
 augroup javascript
   autocmd!
-  autocmd BufRead,BufNewFile *.js setfiletype javascript
-  autocmd BufRead,BufNewFile *.json setfiletype json
   autocmd FileType javascript setlocal tabstop=2 expandtab softtabstop=2 shiftwidth=2 shiftround
 
   autocmd BufRead,BufNewFile *.coffee setfiletype coffeescript
@@ -259,12 +247,11 @@ augroup END
 " markdown {{{2
 augroup markdown
   autocmd!
-  autocmd BufRead,BufNewFile *.md,*.mdwn setfiletype markdown
   autocmd FileType markdown
-        \ setlocal formatoptions=tcqnmM |
         \ setlocal textwidth=79 |
         \ setlocal conceallevel=2
-  autocmd FileType markdown nnoremap <silent> <buffer> [Space]o :!open -a Marked\ 2.app %<Return><Return>
+  autocmd FileType markdown nnoremap <silent> <buffer> [Space]o :AsyncRun open -a Marked\ 2 %<Return>
+  autocmd FileType markdown nnoremap <silent> <buffer> <leader>e :AsyncRun open -a Ulysses %<Return>
 augroup END
 "}}}
 
@@ -332,6 +319,7 @@ let g:ale_lint_on_enter = 0
 let g:ale_lint_on_text_changed = 1
 let g:ale_lint_on_save = 1
 nnoremap <silent> [Space]ec :call ale#Queue(0)<Return>
+"}}}
 
 " tagbar {{{2
 nnoremap <silent> [Space]tg :Tagbar<Return>
@@ -359,6 +347,7 @@ let g:ctrlp_extensions = ['buffertag']
 
 nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> <leader>f :CtrlPBufTag<Return>
+"}}}
 
 " maralla/completor.vim {{{2
 let g:completor_python_binary = '/usr/local/bin/python'
@@ -402,23 +391,6 @@ nmap <silent> <leader>tf :TestFile<Return>
 nmap <silent> <leader>ta :TestSuite<Return>
 nmap <silent> <leader>tl :TestLast<Return>
 nmap <silent> <leader>tg :TestVisit<Return>
-"}}}
-
-" Dispatch {{{2
-augroup python
-  autocmd FileType python let b:dispatch = 'py.test %'
-augroup END
-nnoremap <leader>i :Dispatch<Return>
-nnoremap <leader>k :Make<space>
-nnoremap <leader>s :Dispatch<space>
-"}}}
-
-" vimux {{{2
-map <Leader>vp :VimuxPromptCommand<Return>
-map <Leader>vl :VimuxRunLastCommand<Return>
-map <Leader>vi :VimuxInspectRunner<Return>
-map <Leader>vq :VimuxCloseRunner<Return>
-map <Leader>vx :VimuxInterruptRunner<Return>
 "}}}
 
 " lightline {{{2
