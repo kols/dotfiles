@@ -44,7 +44,7 @@ Plug 'sheerun/vim-polyglot'
 " file {{{1
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 Plug 'jeetsukumaran/vim-filebeagle', { 'on': '<Plug>FileBeagleOpenCurrentBufferDir' }
-Plug 'kien/ctrlp.vim', { 'on': ['CtrlP', 'CtrlPBufTag'] }
+Plug 'ctrlpvim/ctrlp.vim', { 'on': ['CtrlP', 'CtrlPBufTag'] }
 "}}}
 
 " editing {{{1
