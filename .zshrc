@@ -47,6 +47,7 @@ zplug "supercrabtree/k"
 zplug "zsh-users/zsh-completions", use:src
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-autosuggestions"
 zplug "rupa/z", use:z.sh
 zplug "k4rthik/git-cal", as:command
 zplug "github/hub", from:gh-r, as:command
