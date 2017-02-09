@@ -345,7 +345,7 @@ let g:ctrlp_custom_ignore = {
   \ 'dir':  '\v[\/](node_modules|bower_components)$',
   \ }
 let g:ctrlp_persistent_input = 0
-let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+let g:ctrlp_user_command = 'rg %s -l --color never --files'
 let g:ctrlp_extensions = ['buffertag']
 
 nnoremap <silent> <C-p> :CtrlP<Return>
