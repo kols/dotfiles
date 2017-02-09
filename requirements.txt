@@ -1,4 +1,5 @@
 ansible>=2.1.0.0,<2.2.0.0
+ansible-lint
 flake8
 git-remote-dropbox
 httpie
@@ -13,4 +14,5 @@ tmuxp
 tcconfig
 virtualenv
 yapf
+yamllint
 wheel
