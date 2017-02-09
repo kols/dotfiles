@@ -400,7 +400,7 @@ nmap <silent> <leader>tg :TestVisit<Return>
 let g:lightline = {
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified', 'fugitive', 'pyenv', "ale" ] ],
+      \             [ 'readonly', 'session', 'repo', 'filename', 'modified', 'fugitive', "ale" ] ],
       \   'right': [ [ 'time' ],
       \              [ 'lineinfo' ],
       \              [ 'percent' ],
@@ -417,12 +417,16 @@ let g:lightline = {
       \   'ale': '%{(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())?ALEGetStatusLine():""}',
       \   'pyenv': '%{exists("*pyenv#info#preset")?"py:" . pyenv#info#preset("long"):""}',
       \   'time': '%{strftime("%H:%M")}',
+      \   'repo': '%{exists("*FindRootDirectory")?fnamemodify(FindRootDirectory(), ":t:."):""}',
+      \   'session': '%{exists("*ObsessionStatus")&&""!=ObsessionStatus()?ObsessionStatus("~", "-"):"-"}',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
       \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
       \   'ale': '(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())',
       \   'pyenv': '(exists("*pyenv#pyenv#is_activated") && pyenv#pyenv#is_activated())',
+      \   'repo': '(exists("*FindRootDirectory") && ""!=FindRootDirectory())',
+      \   'session': '(exists("*ObsessionStatus"))',
       \ },
       \ 'component_type': {
       \   'ale': 'error',
