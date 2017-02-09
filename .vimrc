@@ -314,6 +314,9 @@ let g:ale_linters = {
 \   'python': ['flake8'],
 \   'go': ['gometalinter'],
 \}
+let g:ale_linter_aliases = {
+\   'sls': 'yaml',
+\}
 let g:ale_sign_column_always = 1
 let g:ale_lint_on_enter = 0
 let g:ale_lint_on_text_changed = 1
