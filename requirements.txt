@@ -3,6 +3,7 @@ ansible-lint
 flake8
 git-remote-dropbox
 httpie
+http-prompt
 ipython
 jedi
 jupyter
@@ -15,4 +16,5 @@ tcconfig
 virtualenv
 yapf
 yamllint
+wharfee
 wheel
