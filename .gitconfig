@@ -52,6 +52,7 @@
     rbi = rebase --interactive
     ru = remote update
     rh = reset --hard
+    rv = remote -v
     s = show
     ss = stash
     ssa = stash apply
