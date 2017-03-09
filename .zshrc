@@ -43,21 +43,23 @@ bindkey -e
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 source $ZPLUG_HOME/init.zsh
-zplug "supercrabtree/k"
-zplug "zsh-users/zsh-completions", use:src
-zplug "zsh-users/zsh-history-substring-search"
-zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-autosuggestions"
-zplug "rupa/z", use:z.sh
-zplug "k4rthik/git-cal", as:command
-zplug "github/hub", from:gh-r, as:command
-zplug "ezekg/xo", from:gh-r, as:command, use:*darwin_amd64*
-zplug "peco/peco", from:gh-r, as:command, use:*darwin_amd64*
-zplug "stedolan/jq", from:gh-r, as:command, rename-to:jq, use:*osx-amd64*
-zplug "b4b4r07/emoji-cli", on:stedolan/jq
-zplug "mrowa44/emojify", as:command, use:emojify
-zplug "motemen/ghq", from:gh-r, as:command, use:*darwin_amd64*
-zplug "openshift/source-to-image", from:gh-r, as:command, rename-to:s2i, use:*darwin-amd64*
+zplug supercrabtree/k
+zplug zsh-users/zsh-completions, use:src
+zplug zsh-users/zsh-history-substring-search
+zplug zsh-users/zsh-syntax-highlighting
+zplug zsh-users/zsh-autosuggestions
+zplug rupa/z, use:z.sh
+zplug k4rthik/git-cal, as:command
+zplug github/hub, from:gh-r, as:command
+zplug ezekg/xo, from:gh-r, as:command, use:*darwin_amd64*
+zplug peco/peco, from:gh-r, as:command, use:*darwin_amd64*
+zplug stedolan/jq, from:gh-r, as:command, rename-to:jq, use:*osx-amd64*
+zplug b4b4r07/emoji-cli, on:stedolan/jq
+zplug mrowa44/emojify, as:command, use:emojify
+zplug motemen/ghq, from:gh-r, as:command, use:*darwin_amd64*
+zplug openshift/source-to-image, from:gh-r, as:command, rename-to:s2i, use:*darwin-amd64*
+zplug mafredri/zsh-async, from:github
+zplug sindresorhus/pure, use:pure.zsh, from:github, as:theme
 
 if ! zplug check --verbose; then
     printf "install? [y/N]: "
@@ -237,46 +239,6 @@ function sshi {
 	fi
 	ssh "$host" "$opts"
 }
-
-##
-# prompt
-##
-function prompt_precmd {
-    local git_prompt=
-    if [[ "true" = "$(git rev-parse --is-inside-work-tree 2>/dev/null)" ]]; then
-        local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-
-        # Working tree status (red when dirty)
-        local dirty=
-        # Modified files
-        git diff --no-ext-diff --quiet --exit-code --ignore-submodules 2>/dev/null || dirty=1
-        # Untracked files
-        [ -z "$dirty" ] && test -n "$(git status --porcelain)" && dirty=1
-
-        # Format Git info
-        if [ -n "$dirty" ]; then
-            git_prompt=" %F{red}($branch)%f"
-        else
-            git_prompt=" %F{green}($branch)%f"
-        fi
-    fi
-
-    # Virtualenv
-    local venv_prompt=
-    if [ -n "$VIRTUAL_ENV" ]; then
-        venv_prompt=" %F{blue}v:($(basename $VIRTUAL_ENV))%f"
-    fi
-
-    PROMPT="%F{cyan}%1~%f${git_prompt}${venv_prompt} %F{cyan}>%f "
-}
-
-function prompt_setup {
-    prompt_opts=(cr percent)
-    autoload -Uz add-zsh-hook
-    add-zsh-hook precmd prompt_precmd
-}
-
-prompt_setup "$*"
 
 if [ -f ~/.zshrc.custom ]; then
     . ~/.zshrc.custom
