@@ -43,6 +43,7 @@ bindkey -e
 # zplug
 export ZPLUG_HOME=$HOME/.zplug
 source $ZPLUG_HOME/init.zsh
+zplug 'zplug/zplug', hook-build:'zplug --self-manage'
 zplug supercrabtree/k
 zplug zsh-users/zsh-completions, use:src
 zplug zsh-users/zsh-history-substring-search
@@ -60,6 +61,7 @@ zplug motemen/ghq, from:gh-r, as:command, use:*darwin_amd64*
 zplug openshift/source-to-image, from:gh-r, as:command, rename-to:s2i, use:*darwin-amd64*
 zplug mafredri/zsh-async, from:github
 zplug sindresorhus/pure, use:pure.zsh, from:github, as:theme
+zplug jeffkaufman/icdiff, use:{git-icdiff,icdiff}, as:command
 
 if ! zplug check --verbose; then
     printf "install? [y/N]: "

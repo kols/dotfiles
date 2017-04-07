@@ -65,8 +65,9 @@
 [push]
     default = current
 [diff]
-    tool = vimdiff
-[difftool]
+    tool = icdiff
+[difftool "icdiff"]
+    cmd = icdiff --line-numbers $LOCAL $REMOTE
     prompt = false
 [merge]
     tool = vimdiff
