@@ -56,6 +56,7 @@
     rv = remote -v
     s = show
     ss = stash
+    sss = stash save --include-untrackd
     ssa = stash apply
     ssl = stash list
     ssp = stash pop
@@ -63,6 +64,7 @@
     su = submodule update --recursive
     sbta = "!f() { git subtree add --prefix $2 --squash $1 ${3:-master}; }; f"
     sbtu = "!f() { git subtree pull --prefix $2 --squash $1 ${3:-master}; }; f"
+    uc = reset --soft HEAD^
 [push]
     default = current
 [diff]
@@ -83,3 +85,7 @@
     root = ~/go/src
     root = ~/work/xhs
     root = ~/.vim/bundle
+[status]
+    showUntrackedFiles = all
+[transfer]
+    fsckObjects = true
