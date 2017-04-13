@@ -438,6 +438,7 @@ let g:lightline = {
 " }}}
 
 " vim-go {{{2
+let g:go_list_type = "quickfix"
 let g:go_def_mapping_enabled=0
 let g:go_fmt_command="goimports"
 augroup go
