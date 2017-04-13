@@ -32,7 +32,8 @@
     f = fetch
     fa = fetch --all
     lm = log --stat --summary --graph --decorate
-    l1 = log --oneline --decorate --graph
+    l1 = log --decorate --graph --pretty=format:'%C(auto)%h%d%Creset %s %C(black)by @%an on %cr%Creset'
+    l1m = log --stat --graph --decorate --pretty=tformat:'%C(auto)%h%d%Creset %s %C(black)by @%an on %cr%Creset'
     lp = log --oneline --decorate
     m = merge
     mt = mergetool
