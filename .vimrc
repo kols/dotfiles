@@ -169,7 +169,10 @@ if (1 < &t_Co || has('gui')) && has('syntax')
     let g:zenburn_unified_CursorColumn = 1
     let g:zenburn_old_Visual = 0
     let g:zenburn_enable_TagHighlight = 1
-    colorscheme zenburn
+
+    let g:seoul256_background = 233
+
+    colorscheme seoul256
   endif
 endif
 "}}}

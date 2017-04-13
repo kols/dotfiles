@@ -25,6 +25,7 @@ Plug 'mhinz/vim-startify'
 Plug 'jlanzarotta/bufexplorer'
 
 " colorscheme {{{2
+Plug 'junegunn/seoul256.vim'
 Plug 'robertmeta/nofrils'
 Plug 'nanotech/jellybeans.vim'
 Plug 'jacekd/vim-iawriter'
