@@ -268,6 +268,21 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" xolox/vim-easytags {{{2
+set cpoptions+=d
+set tags=./tags
+let g:easytags_file = ''
+let g:easytags_dynamic_files = 2
+let g:easytags_async = 1
+augroup go
+  autocmd FileType go let b:easytags_autorecurse = 1
+augroup END
+
+augroup python
+  autocmd FileType python let b:easytags_autorecurse = 1
+augroup END
+" }}}
+
 " ervandew/supertab {{{2
 let g:SuperTabDefaultCompletionType = "<c-n>"
 "}}}
@@ -330,6 +345,33 @@ nnoremap <silent> [Space]ec :call ale#Queue(0)<Return>
 " tagbar {{{2
 nnoremap <silent> [Space]tg :Tagbar<Return>
 let g:tagbar_compact=1
+let g:tagbar_type_go = {
+	\ 'ctagstype' : 'go',
+	\ 'kinds'     : [
+		\ 'p:package',
+		\ 'i:imports:1',
+		\ 'c:constants',
+		\ 'v:variables',
+		\ 't:types',
+		\ 'n:interfaces',
+		\ 'w:fields',
+		\ 'e:embedded',
+		\ 'm:methods',
+		\ 'r:constructor',
+		\ 'f:functions'
+	\ ],
+	\ 'sro' : '.',
+	\ 'kind2scope' : {
+		\ 't' : 'ctype',
+		\ 'n' : 'ntype'
+	\ },
+	\ 'scope2kind' : {
+		\ 'ctype' : 't',
+		\ 'ntype' : 'n'
+	\ },
+	\ 'ctagsbin'  : 'gotags',
+	\ 'ctagsargs' : '-sort -silent'
+\ }
 "}}}
 
 " mhinz/vim-grepper {{{2
@@ -349,10 +391,15 @@ let g:ctrlp_custom_ignore = {
   \ }
 let g:ctrlp_persistent_input = 0
 let g:ctrlp_user_command = 'rg %s -l --color never --files'
-let g:ctrlp_extensions = ['buffertag']
+let g:ctrlp_extensions = ['tag', 'buffertag']
+
+augroup go
+  autocmd FileType go let b:ctrlp_buftag_ctags_bin="gotags"
+augroup END
 
 nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> <leader>f :CtrlPBufTag<Return>
+nnoremap <silent> <leader>t :CtrlPTag<Return>
 "}}}
 
 " maralla/completor.vim {{{2

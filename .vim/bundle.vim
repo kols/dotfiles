@@ -45,7 +45,7 @@ Plug 'sheerun/vim-polyglot'
 " file {{{1
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
 Plug 'jeetsukumaran/vim-filebeagle', { 'on': '<Plug>FileBeagleOpenCurrentBufferDir' }
-Plug 'ctrlpvim/ctrlp.vim', { 'on': ['CtrlP', 'CtrlPBufTag'] }
+Plug 'ctrlpvim/ctrlp.vim', { 'on': ['CtrlP', 'CtrlPBufTag', 'CtrlPTag'] }
 "}}}
 
 " editing {{{1
@@ -63,6 +63,7 @@ Plug 'ervandew/supertab'
 "}}}
 
 " programming {{{1
+Plug 'xolox/vim-misc' | Plug 'xolox/vim-easytags'
 Plug 'metakirby5/codi.vim'
 Plug 'w0rp/ale'
 Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
