@@ -401,8 +401,8 @@ augroup go
 augroup END
 
 nnoremap <silent> <C-p> :CtrlP<Return>
-nnoremap <silent> <leader>f :CtrlPBufTag<Return>
-nnoremap <silent> <leader>t :CtrlPTag<Return>
+nnoremap <silent> [Space]f :CtrlPBufTag<Return>
+nnoremap <silent> [Space]t :CtrlPTag<Return>
 "}}}
 
 " maralla/completor.vim {{{2
