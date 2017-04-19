@@ -392,6 +392,9 @@ let g:ctrlp_custom_ignore = {
 let g:ctrlp_persistent_input = 0
 let g:ctrlp_user_command = 'rg %s -l --color never --files'
 let g:ctrlp_extensions = ['tag', 'buffertag']
+let g:ctrlp_buftag_types = {
+    \ 'thrift'     : '--language-force=thrift',
+    \ }
 
 augroup go
   autocmd FileType go let b:ctrlp_buftag_ctags_bin="gotags"
