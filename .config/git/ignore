@@ -8,3 +8,4 @@ gtags.files
 .venv
 Session.vim
 .python-version
+tags
