@@ -373,6 +373,26 @@ let g:tagbar_type_go = {
 	\ 'ctagsbin'  : 'gotags',
 	\ 'ctagsargs' : '-sort -silent'
 \ }
+let g:tagbar_type_thrift = {
+	\ 'ctagstype' : 'thrift',
+	\ 'kinds'     : [
+		\ 'n:namespace',
+		\ 'i:include:1',
+		\ 'c:constant',
+		\ 'v:service',
+		\ 'x:exception',
+		\ 'e:enum',
+		\ 's:struct',
+		\ 'm:member',
+		\ 'a:value',
+		\ 'f:function',
+	\ ],
+	\ 'sro' : '{',
+	\ 'kind2scope' : {
+	\ },
+	\ 'scope2kind' : {
+	\ },
+\ }
 "}}}
 
 " mhinz/vim-grepper {{{2
