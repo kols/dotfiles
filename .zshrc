@@ -172,7 +172,7 @@ function sslfp {
 }
 
 function lo {
-    $* "$(`fc -ln -1` | peco)"
+    $* "$(`fc -ln -1` | fzy)"
 }
 
 function _mvim_open_in_tab {
@@ -219,7 +219,7 @@ esac
 # jump to source dir managed by _motemen/ghq_
 function js {
     local srcpath=$(ghq list -p \
-        | peco --select-1 --prompt "repo>" --query "$*")
+        | fzy --prompt "repo> " --query "$*")
 	if [ -z "$srcpath" ]; then
 		return 1
 	fi
@@ -235,7 +235,7 @@ function sshi {
 	fi
 	local host=$(cut -d' ' -f1 ~/.ssh/known_hosts \
 		| sort \
-		| peco --select-1 --prompt 'host>' --query "$q")
+		| fzy --prompt 'host> ' --query "$q")
 	if [ -z "$host" ]; then
 		return 1
 	fi
