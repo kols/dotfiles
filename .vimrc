@@ -274,6 +274,7 @@ set tags=./tags
 let g:easytags_file = ''
 let g:easytags_dynamic_files = 2
 let g:easytags_async = 1
+let g:easytags_auto_highlight = 0
 augroup go
   autocmd FileType go let b:easytags_autorecurse = 1
 augroup END
