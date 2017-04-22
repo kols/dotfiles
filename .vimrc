@@ -520,6 +520,7 @@ let g:go_def_mapping_enabled=0
 let g:go_fmt_command="goimports"
 augroup go
   autocmd FileType go nnoremap <silent> <buffer> [Space]gg :GoDef<Return>
+  autocmd FileType go nnoremap <silent> <buffer> <leader>r :GoRun<Return>
 augroup END
 "}}}
 
