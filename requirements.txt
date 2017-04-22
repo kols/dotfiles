@@ -5,7 +5,7 @@ git-remote-dropbox
 haxor-news
 httpie
 http-prompt
-ipython
+ipython<6.0.0
 jedi
 jupyter
 mitmproxy
