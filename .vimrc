@@ -170,7 +170,7 @@ if (1 < &t_Co || has('gui')) && has('syntax')
     let g:zenburn_old_Visual = 0
     let g:zenburn_enable_TagHighlight = 1
 
-    let g:seoul256_background = 233
+    let g:seoul256_background = 235
 
     colorscheme seoul256
   endif
