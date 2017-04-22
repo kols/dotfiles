@@ -15,6 +15,8 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'rking/ag.vim'
 Plug 'mhinz/vim-grepper'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'benmills/vimux'
 "}}}
 "}}}
 
