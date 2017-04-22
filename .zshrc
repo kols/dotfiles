@@ -222,7 +222,7 @@ function js {
     local srcpath=$(ghq list -p \
         | fzy --prompt "repo> " --query "$*")
 	if [ -z "$srcpath" ]; then
-		return 1
+		return
 	fi
     pushd "$srcpath"
 }
@@ -238,7 +238,7 @@ function sshi {
 		| sort \
 		| fzy --prompt 'host> ' --query "$q")
 	if [ -z "$host" ]; then
-		return 1
+		return
 	fi
 	ssh "$host" "$opts"
 }
@@ -252,6 +252,6 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 function install_pypkg {
-    PYENV_VERSION=`pyenv global` pyenv exec pip install -r $HOME/requirements.txt
+    PYENV_VERSION=`pyenv global` pyenv exec pip install -r $HOME/requirements.txt "$1"
 }
 # vim:ft=zsh
