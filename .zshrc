@@ -182,6 +182,7 @@ function _mvim_open_in_tab {
 ##
 # alias
 ##
+alias c=clear
 alias vi=vim
 alias mvim='_mvim_open_in_tab'
 alias j="z"
