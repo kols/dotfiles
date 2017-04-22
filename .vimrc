@@ -268,6 +268,12 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" benmills/vimux {{{2
+nnoremap [Space]vp :VimuxPromptCommand<Return>
+nnoremap [Space]vl :VimuxRunLastCommand<Return>
+nnoremap [Space]vi :VimuxInspectRunner<Return>
+"}}}
+
 " xolox/vim-easytags {{{2
 set cpoptions+=d
 set tags=./tags
@@ -459,7 +465,7 @@ let g:indent_guides_color_change_percent = 5
 "}}}
 
 " test {{{2
-let test#strategy = 'basic'
+let test#strategy = 'vimux'
 augroup python
   autocmd FileType python let test#python#runner = 'pytest'
 augroup END
