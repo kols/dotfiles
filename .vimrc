@@ -116,7 +116,7 @@ set showmatch
 set autoread
 set wildmenu
 set wildignore+=*~,#*#
-set completeopt=menu,menuone
+set completeopt=menu,menuone,longest
 " insert completion menu items
 set pumheight=15
 "}}}
@@ -185,6 +185,12 @@ endif
 "}}}
 
 " languages {{{1
+" java {{{2
+augroup java
+  autocmd!
+augroup END
+"}}}
+
 " python {{{2
 augroup python
   autocmd!
@@ -268,6 +274,13 @@ augroup END
 "}}}
 
 " plugin/script {{{1
+" eclim {{{2
+let g:EclimCompletionMethod = 'omnifunc'
+augroup java
+  autocmd FileType java nnoremap <silent> <buffer> [Space]r :Java %<Return>
+  autocmd FileType java nnoremap <silent> <buffer> <leader>i :JavaImportOrganize<Return>
+augroup END
+"}}}
 " benmills/vimux {{{2
 nnoremap [Space]vp :VimuxPromptCommand<Return>
 nnoremap [Space]vl :VimuxRunLastCommand<Return>
@@ -292,6 +305,10 @@ augroup END
 
 " ervandew/supertab {{{2
 let g:SuperTabDefaultCompletionType = "<c-n>"
+let g:SuperTabLongestEnhanced = 1
+augroup java
+  autocmd FileType java call SuperTabSetDefaultCompletionType("<c-x><c-o>")
+augroup END
 "}}}
 
 " netrw {{{2
@@ -434,6 +451,7 @@ nnoremap <silent> [Space]t :CtrlPTag<Return>
 
 " maralla/completor.vim {{{2
 let g:completor_python_binary = '/usr/local/bin/python'
+let g:completor_blacklist = ['java', 'tagbar', 'netrw']
 "}}}
 
 " lambdalisue/vim-pyenv {{{2
