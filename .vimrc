@@ -172,7 +172,7 @@ if (1 < &t_Co || has('gui')) && has('syntax')
 
     let g:seoul256_background = 235
 
-    colorscheme seoul256
+    colorscheme peaksea
   endif
 endif
 "}}}
