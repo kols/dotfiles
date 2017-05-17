@@ -9,3 +9,4 @@ gtags.files
 Session.vim
 .python-version
 tags
+.vscode/
