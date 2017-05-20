@@ -41,6 +41,7 @@ Plug 'saltstack/salt-vim'
 Plug 'plasticboy/vim-markdown'
 Plug 'solarnz/thrift.vim'
 Plug 'pearofducks/ansible-vim'
+Plug 'elzr/vim-json'
 Plug 'sheerun/vim-polyglot'
 "}}}
 "}}}
