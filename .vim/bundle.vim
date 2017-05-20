@@ -69,7 +69,7 @@ Plug 'ervandew/supertab'
 " programming {{{1
 Plug 'xolox/vim-misc' | Plug 'xolox/vim-easytags'
 Plug 'metakirby5/codi.vim'
-Plug 'w0rp/ale'
+Plug 'w0rp/ale' , { 'commit': 'bf8aae02e8a1a58649c4617008bd38b71b6b602d' }
 Plug 'majutsushi/tagbar', { 'on': ['Tagbar', 'TagbarToggle'] }
 Plug 'maralla/completor.vim'
 Plug 'janko-m/vim-test'
