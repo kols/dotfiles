@@ -80,7 +80,6 @@ Plug 'vim-jp/vim-cpp'
 
 " python {{{2
 Plug 'mitsuhiko/vim-python-combined'
-Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'lambdalisue/vim-pyenv', { 'for': 'python' }
 "}}}
 
