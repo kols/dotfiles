@@ -389,47 +389,19 @@
   :ensure t
   :defer t)
 
-(use-package anaconda-mode
+(use-package jedi-core
   :ensure t
-  :commands (anaconda-mode anaconda-eldoc-mode)
-  :diminish anaconda-mode
+  :commands jedi-mode
+  :init
+  (setq jedi:use-shortcuts t)
+  (add-hook 'python-mode-hook #'jedi:setup))
+
+(use-package company-jedi
+  :ensure t
+  :commands company-jedi
   :init
   (add-hook 'python-mode-hook (lambda ()
-                                (anaconda-mode 1)
-                                (anaconda-eldoc-mode 1))))
-
-(use-package company-anaconda
-  :ensure t
-  :after (company anaconda-mode)
-  :commands company-anaconda
-  :config
-  (add-hook 'python-mode-hook (lambda ()
-                                (company-mode 1)
-                                (kd/local-push-company-backend 'company-anaconda))))
-
-(use-package ycmd
-  :disabled t
-  :ensure t
-  :commands (ycmd-mode ycmd-open)
-  :diminish ycmd-mode
-  :bind
-  (("M-." . ycmd-goto)
-   ("M-," . ycmd-goto-declaration))
-  :init
-  (set-variable 'ycmd-server-command `("python" ,(expand-file-name "~/.ghq/github.com/Valloric/ycmd/ycmd/__main__.py")))
-  (add-hook 'python-mode-hook (lambda ()
-                                (ycmd-mode)
-                                (local-set-key (kbd "M-.") #'ycmd-goto)
-                                (local-set-key (kbd "M-,") #'ycmd-goto-declaration)))
-  (advice-add 'pyvenv-activate :after (lambda (&rest r) (ycmd-open))))
-
-(use-package company-ycmd
-  :disabled t
-  :ensure t
-  :after (company ycmd)
-  :commands company-ycmd-setup
-  :init
-  (add-hook 'python-mode-hook #'company-ycmd-setup))
+                                (add-to-list 'company-backends 'company-jedi))))
 
 (use-package ein
   :ensure t
