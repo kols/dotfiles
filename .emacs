@@ -85,7 +85,7 @@
   :bind
   (("M-x" . counsel-M-x)
    ("C-x C-f" . counsel-find-file)
-   ("C-c a" . counsel-ag)))
+   ("C-c a" . counsel-rg)))
 
 (use-package wgrep
   :ensure t)
@@ -238,8 +238,7 @@
 ;;; org-mode
 (use-package org
   :bind
-  (("C-c a" . org-agenda)
-   ("C-c c" . org-capture)
+  (("C-c c" . org-capture)
    ("C-c b" . org-iswitchb))
   :init
   (setq org-directory "~/Dropbox/org")
