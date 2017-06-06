@@ -33,6 +33,7 @@
 ;;; display
 (setq initial-scratch-message "")
 (setq visible-bell t)
+(global-visual-line-mode t)
 
 (when (window-system)
   (load-theme 'default-black t)
