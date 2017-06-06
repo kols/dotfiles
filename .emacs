@@ -371,7 +371,7 @@
   :init
   (add-hook 'prog-mode-hook #'flycheck-mode)
   :config
-  (setq flycheck-check-syntax-automatically nil))
+  (setq flycheck-check-syntax-automatically '(save idle-change)))
 
 (use-package which-func
   :commands which-function-mode
