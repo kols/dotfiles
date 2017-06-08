@@ -60,7 +60,7 @@ zplug motemen/ghq, from:gh-r, as:command, use:*darwin_amd64*
 zplug openshift/source-to-image, from:gh-r, as:command, rename-to:s2i, use:*darwin-amd64*
 zplug mafredri/zsh-async, from:github
 zplug sindresorhus/pure, use:pure.zsh, from:github, as:theme
-zplug jeffkaufman/icdiff, use:{git-icdiff,icdiff}, as:command
+zplug jeffkaufman/icdiff, use:"{git-icdiff,icdiff}", as:command
 
 if ! zplug check --verbose; then
     printf "install? [y/N]: "
