@@ -246,7 +246,21 @@
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
         '(("c" "cap" entry (file "") "* %?\n  %U")))
-  (setq org-src-fontify-natively t))
+  (setq org-src-fontify-natively t)
+  ;; babel
+  (setq org-confirm-babel-evaluate nil)
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+  (org-babel-do-load-languages 'org-babel-load-languages '((ipython . t)
+                                                           (shell . t)
+                                                           (emacs-lisp . t))))
+
+(use-package org-download
+  :ensure t
+  :after org)
+
+(use-package ob-ipython
+  :ensure t
+  :after org)
 
 ;;; tags
 (use-package etags
@@ -406,10 +420,6 @@
   :init
   (add-hook 'python-mode-hook (lambda ()
                                 (add-to-list 'company-backends 'company-jedi))))
-
-(use-package ein
-  :ensure t
-  :commands ein:notebooklist-open)
 
 ;;; golang
 (use-package go-mode
