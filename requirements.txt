@@ -9,6 +9,7 @@ http-prompt
 ipython<6.0.0
 jedi
 jupyter
+matplotlib
 mitmproxy
 pip-autoremove
 pylint
