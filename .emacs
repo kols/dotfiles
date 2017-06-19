@@ -379,11 +379,15 @@
   (add-hook 'prog-mode-hook #'which-function-mode))
 
 ;;; python
-(use-package pyvenv
+(use-package pyenv-mode
   :ensure t
   :commands pyenv-mode
   :init
-  (add-hook 'python-mode-hook #'pyvenv-tracking-mode))
+  (add-hook 'python-mode-hook #'pyenv-mode))
+
+(use-package pyenv-mode-auto
+  :ensure t
+  :after pyenv-mode)
 
 (use-package pip-requirements
   :ensure t
