@@ -205,6 +205,7 @@
 (use-package ivy
   :ensure t
   :commands ivy-switch-buffer
+  :bind ("C-c C-r" . ivy-resume)
   :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t)
