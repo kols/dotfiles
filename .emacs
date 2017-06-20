@@ -19,6 +19,8 @@
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
+;; You can turn this on to see when exactly a package get's configured
+;; (setq use-package-verbose t)
 
 ;;; general
 (use-package better-defaults
@@ -85,8 +87,7 @@
   :ensure t
   :bind
   (("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-c a" . counsel-rg)))
+   ("C-x C-f" . counsel-find-file)))
 
 (use-package wgrep
   :ensure t)
@@ -95,6 +96,9 @@
   :commands winner-mode
   :init
   (add-hook 'after-init-hook #'winner-mode))
+
+(use-package narrow-indirect
+  :ensure t)
 
 ;;; dired
 (use-package dired
@@ -162,12 +166,10 @@
   (("C-c SPC" . avy-goto-char)
    ("C-c l" . avy-goto-line)))
 
-(use-package ag
+(use-package rg
   :ensure t
-  :bind ("C-c C-a" . ag-project-regexp)
-  :config
-  (setq ag-highlight-search t)
-  (setq ag-reuse-buffers t))
+  :bind (("C-c a" . rg-dwim)
+         ("C-c C-a" . rg-project)))
 
 (use-package magit
   :ensure t
@@ -265,7 +267,7 @@
 
 ;;; tags
 (use-package etags
-  :bind ("C-c ." . kd/ivy-find-tag)
+  :bind ("C-," . kd/ivy-find-tag)
   :config
   (defun kd/ivy-find-tag ()
     "find a tag using ivy"
@@ -335,6 +337,10 @@
 (use-package salt-mode
   :ensure t
   :commands salt-mode)
+
+(use-package apib-mode
+  :ensure t
+  :mode ("\\.apib\\'" . apib-mode))
 
 (use-package ansible
   :ensure t)
