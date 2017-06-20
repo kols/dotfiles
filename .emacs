@@ -265,6 +265,11 @@
   :ensure t
   :after org)
 
+(use-package ob-async
+  :ensure t
+  :config
+  (add-to-list 'org-ctrl-c-ctrl-c-hook 'ob-async-org-babel-execute-src-block))
+
 ;;; tags
 (use-package etags
   :bind ("C-," . kd/ivy-find-tag)
