@@ -46,7 +46,7 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
-  (set-face-attribute 'default nil :font "-apple-hack-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
+  (set-face-attribute 'default nil :font "-apple-luculent 16-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
 
 (when (eq system-type 'darwin)
     (defun kd/osx-lock-screen ()
@@ -83,12 +83,6 @@
   :config
   (which-key-mode 1))
 
-(use-package counsel
-  :ensure t
-  :bind
-  (("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)))
-
 (use-package wgrep
   :ensure t)
 
@@ -112,6 +106,10 @@
   :commands dired-omit-mode
   :init
   (add-hook 'dired-mode-hook #'dired-omit-mode))
+
+(use-package zoom-window
+  :ensure t
+  :bind ("C-x C-z" . zoom-window-zoom))
 
 ;;; ido
 (use-package ido
@@ -173,11 +171,10 @@
 
 (use-package magit
   :ensure t
-  :init
+  :bind (("C-c g s" . magit-status)
+         ("C-c g l" . magit-log-current)))
+  :config
   (setq magit-git-executable "/usr/local/bin/git")
-  :bind
-  (("C-c g s" . magit-status)
-   ("C-c g l" . magit-log-current)))
 
 (use-package mo-git-blame
   :ensure t
@@ -190,10 +187,6 @@
   :init
   (add-hook 'after-init-hook #'global-git-gutter-mode))
 
-(use-package swiper
-  :ensure t
-  :bind ("C-s" . swiper))
-
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
@@ -204,6 +197,8 @@
   (("M-n" . smartscan-symbol-go-forward)
    ("M-p" . smartscan-symbol-go-backward)))
 
+;;; ivy, swiper & counsel
+
 (use-package ivy
   :ensure t
   :commands ivy-switch-buffer
@@ -211,7 +206,21 @@
   :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-count-format "%d/%d ")
   (add-hook 'after-init-hook 'ivy-mode))
+
+(use-package swiper
+  :ensure t
+  :after ivy)
+
+(use-package counsel
+  :ensure t
+  :after (ivy swiper)
+  :bind
+  (("C-s" . counsel-grep-or-swiper)
+   ("M-x" . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)))
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
@@ -239,7 +248,20 @@
                                     (company-mode 1)
                                     (kd/local-push-company-backend 'company-restclient))))
 
+(use-package outshine
+  :ensure t
+  :commands outshine-hook-function
+  :init
+  (setq outshine-use-speed-commands t)
+  (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
+
+(use-package outline
+  :commands outline-minor-mode
+  :init
+  (add-hook 'prog-mode-hook 'outline-minor-mode))
+
 ;;; org-mode
+
 (use-package org
   :bind
   (("C-c c" . org-capture)
@@ -267,10 +289,25 @@
 
 (use-package ob-async
   :ensure t
-  :config
+  :after org
+  :commands ob-async-org-babel-execute-src-block
+  :init
   (add-to-list 'org-ctrl-c-ctrl-c-hook 'ob-async-org-babel-execute-src-block))
 
+;;; integration
+
+(use-package browse-at-remote
+  :ensure t
+  :commands browse-at-remote
+  :config
+  (add-to-list 'browse-at-remote-remote-type-domains '("gitlab.xiaohongshu.com" . "gitlab")))
+
 ;;; tags
+(use-package counsel-gtags
+  :ensure t
+  :bind (("C-," . counsel-gtags-find-definition)
+         ("C-<" . counsel-gtags-go-backward)))
+
 (use-package etags
   :bind ("C-," . kd/ivy-find-tag)
   :config
@@ -283,19 +320,12 @@
       (mapatoms (lambda (x)
                   (push (prin1-to-string x t) tag-names))
                 tags-completion-table)
-      (find-tag (ivy-completing-read "tag: " tag-names)))))
+      (xref-find-definitions (ivy-completing-read "tag: " tag-names)))))
 
-(use-package ctags-update
+(use-package ggtags
   :ensure t
-  :commands turn-on-ctags-auto-update-mode
-  :diminish ctags-auto-update-mode
   :init
-  (add-hook 'prog-mode-hook 'turn-on-ctags-auto-update-mode)
-  :config
-  (add-hook 'python-mode-hook (lambda ()
-                                (setq-local ctags-update-other-options '("--fields=+l"
-                                                                         "--languages=python"
-                                                                         "--python-kinds=-iv")))))
+  (add-hook 'prog-mode-hook #'ggtags-mode))
 
 (use-package imenu-anywhere
   :ensure t
@@ -397,7 +427,7 @@
   :init
   (add-hook 'prog-mode-hook #'flycheck-mode)
   :config
-  (setq flycheck-check-syntax-automatically '(save idle-change)))
+  (setq flycheck-check-syntax-automatically '(save)))
 
 (use-package which-func
   :commands which-function-mode
