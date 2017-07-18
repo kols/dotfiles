@@ -325,7 +325,12 @@
 (use-package ggtags
   :ensure t
   :init
-  (add-hook 'prog-mode-hook #'ggtags-mode))
+  (add-hook 'prog-mode-hook #'ggtags-mode)
+  :config
+  (setq ggtags-use-sqlite3 t)
+  (setq ggtags-sort-by-nearness t)
+  (setq ggtags-highlight-tag nil)
+  (setq ggtags-enable-navigation-keys nil))
 
 (use-package imenu-anywhere
   :ensure t
