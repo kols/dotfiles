@@ -147,17 +147,6 @@
   :config
   (setq ffip-prefer-ido-mode t))
 
-(use-package speedbar
-  :defer t
-  :init
-  (setq speedbar-tag-hierarchy-method nil))
-
-(use-package sr-speedbar
-  :ensure t
-  :commands sr-speedbar-toggle
-  :init
-  (define-key kd/toggle-map "s" #'sr-speedbar-toggle))
-
 (use-package avy
   :ensure t
   :bind
@@ -260,6 +249,13 @@
   :init
   (add-hook 'prog-mode-hook 'outline-minor-mode))
 
+(use-package irfc
+  :ensure t
+  :commands irfc-mode
+  :init
+  (setq irfc-directory "~/Documents/rfc/rfc")
+  (setq irfc-assoc-mode t))
+
 ;;; org-mode
 
 (use-package org
@@ -331,6 +327,10 @@
   (setq ggtags-sort-by-nearness t)
   (setq ggtags-highlight-tag nil)
   (setq ggtags-enable-navigation-keys nil))
+
+(use-package imenu-list
+  :ensure t
+  :bind ("C-'" . imenu-list-smart-toggle))
 
 (use-package imenu-anywhere
   :ensure t
