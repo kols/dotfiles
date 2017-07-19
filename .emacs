@@ -199,7 +199,8 @@
     ("h" shrink-window-horizontally "shrink horizontal")
     ("j" enlarge-window "enlarge vertical")
     ("k" shrink-window "shrink vertical")
-    ("l" enlarge-window-horizontally "enlarge horizontal")))
+    ("l" enlarge-window-horizontally "enlarge horizontal")
+    ("=" balance-windows "balance")))
 
 (use-package edit-indirect
   :ensure t
@@ -250,11 +251,11 @@
 
 (use-package company-restclient
   :ensure t
+  :after company
   :commands company-restclient
   :init
   (add-hook 'restclient-mode-hook (lambda ()
-                                    (company-mode 1)
-                                    (kd/local-push-company-backend 'company-restclient))))
+                                    (kd/local-push-company-backend #'company-restclient))))
 
 (use-package outshine
   :ensure t
@@ -356,10 +357,11 @@
   (defun kd/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
     (set (make-local-variable 'company-backends)
-         (append (list backend) company-backends))))
+         (add-to-list 'company-backends backend))))
 
 (use-package company-flx
   :ensure t
+  :after company
   :commands company-flx-mode
   :init
   (add-hook 'company-mode-hook #'company-flx-mode))
@@ -373,39 +375,42 @@
 
 (use-package csv-mode
   :ensure t
-  :defer t)
+  :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
   :ensure t
-  :commands dockerfile-mode)
+  :mode ("Dockerfile.*\\'" . dockerfile-mode))
 
 (use-package salt-mode
   :ensure t
-  :commands salt-mode)
+  :mode ("\\.sls\\'" . salt-mode))
 
 (use-package apib-mode
   :ensure t
+  :commands apib-mode
   :mode ("\\.apib\\'" . apib-mode))
 
 (use-package ansible
-  :ensure t)
+  :ensure t
+  :commands ansible
+  :diminish ansible)
 
 (use-package company-ansible
   :ensure t
+  :after company
   :commands company-ansible
   :init
   (add-hook 'ansible::hook (lambda ()
-                             (company-mode 1)
-                             (kd/local-push-company-backend 'company-ansible))))
-
-(use-package fish-mode
-  :ensure t
-  :commands fish-mode)
+                             (kd/local-push-company-backend #'company-ansible))))
 
 (use-package markdown-mode
   :ensure t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :commands markdown-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.markdown\\'" . markdown-mode)
+         ("\\.md\\'" . markdown-mode))
+  :commands (markdown-mode gfm-mode)
+  :init
+  (setq markdown-command "multimarkdown"))
 
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
@@ -455,6 +460,23 @@
 
 
 ;;; python
+
+(use-package python
+  :commands python-mode
+  :init
+  (defun kd/python-mode-defaults ()
+    (subword-mode +1)
+    (eldoc-mode 1)
+    (when (fboundp 'exec-path-from-shell-copy-env)
+      (exec-path-from-shell-copy-env "PYTHONPATH"))
+    (setq-local electric-layout-rules
+                '((?: . (lambda ()
+                          (and (zerop (first (syntax-ppss)))
+                               (python-info-statement-starts-block-p)
+                               'after)))))
+    (add-hook 'post-self-insert-hook #'electric-layout-post-self-insert-function nil 'local))
+  (add-hook 'python-mode-hook #'kd/python-mode-defaults))
+
 (use-package pyenv-mode
   :ensure t
   :commands pyenv-mode
@@ -505,12 +527,11 @@
 
 (use-package company-go
   :ensure t
-  :commands company-go
   :after company
+  :commands company-go
   :config
   (add-hook 'go-mode-hook (lambda ()
-                            (company-mode 1)
-                            (kd/local-push-company-backend 'company-go))))
+                            (kd/local-push-company-backend #'company-go))))
 
 (use-package go-guru
   :ensure t
