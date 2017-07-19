@@ -38,7 +38,7 @@
 (global-visual-line-mode t)
 
 (when (window-system)
-  (load-theme 'default-black t)
+  ;; (load-theme 'default-black t)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -47,6 +47,9 @@
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
   (set-face-attribute 'default nil :font "-apple-luculent 16-regular-normal-normal-*-16-*-*-*-m-0-iso10646-1"))
+
+(use-package cyberpunk-theme
+  :ensure t)
 
 (when (eq system-type 'darwin)
     (defun kd/osx-lock-screen ()
@@ -143,9 +146,7 @@
 
 (use-package find-file-in-project
   :ensure t
-  :bind ("C-c o" . find-file-in-project)
-  :config
-  (setq ffip-prefer-ido-mode t))
+  :bind ("C-c o" . find-file-in-project))
 
 (use-package avy
   :ensure t
@@ -185,6 +186,24 @@
   :bind
   (("M-n" . smartscan-symbol-go-forward)
    ("M-p" . smartscan-symbol-go-backward)))
+
+(use-package hydra
+  :ensure t
+  :config
+  (defhydra hydra-zoom (global-map "<f2>")
+    "zoom"
+    ("g" text-scale-increase "in")
+    ("l" text-scale-decrease "out"))
+  (defhydra hydra-window-size (global-map "C-M-o")
+    "window size"
+    ("h" shrink-window-horizontally "shrink horizontal")
+    ("j" enlarge-window "enlarge vertical")
+    ("k" shrink-window "shrink vertical")
+    ("l" enlarge-window-horizontally "enlarge horizontal")))
+
+(use-package edit-indirect
+  :ensure t
+  :bind ("C-c '" . edit-indirect-region))
 
 ;;; ivy, swiper & counsel
 
@@ -288,7 +307,7 @@
   :after org
   :commands ob-async-org-babel-execute-src-block
   :init
-  (add-to-list 'org-ctrl-c-ctrl-c-hook 'ob-async-org-babel-execute-src-block))
+  (add-hook 'org-ctrl-c-ctrl-c-hook #'ob-async-org-babel-execute-src-block))
 
 ;;; integration
 
@@ -303,20 +322,6 @@
   :ensure t
   :bind (("C-," . counsel-gtags-find-definition)
          ("C-<" . counsel-gtags-go-backward)))
-
-(use-package etags
-  :bind ("C-," . kd/ivy-find-tag)
-  :config
-  (defun kd/ivy-find-tag ()
-    "find a tag using ivy"
-    (interactive)
-    (tags-completion-table)
-    (let ((ivy-sort-functions-alist)
-          (tag-names))
-      (mapatoms (lambda (x)
-                  (push (prin1-to-string x t) tag-names))
-                tags-completion-table)
-      (xref-find-definitions (ivy-completing-read "tag: " tag-names)))))
 
 (use-package ggtags
   :ensure t
@@ -405,6 +410,11 @@
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
 
+(use-package lua-mode
+  :ensure t
+  :mode ("\\.lua$" . lua-mode)
+  :interpreter ("lua" . lua-mode))
+
 (use-package yasnippet
   :ensure t
   :commands yas-global-mode
@@ -439,6 +449,11 @@
   :init
   (add-hook 'prog-mode-hook #'which-function-mode))
 
+(use-package realgud
+  :ensure t
+  :commands (realgud:trepan2))
+
+
 ;;; python
 (use-package pyenv-mode
   :ensure t
@@ -466,7 +481,7 @@
   :commands company-jedi
   :init
   (add-hook 'python-mode-hook (lambda ()
-                                (add-to-list 'company-backends 'company-jedi))))
+                                (add-to-list 'company-backends #'company-jedi))))
 
 ;;; golang
 (use-package go-mode
@@ -510,21 +525,18 @@
   :init
   (add-hook 'emacs-lisp-mode-hook #'turn-on-elisp-slime-nav-mode))
 
-(defun init--package-install ()
-  (let ((packages '(cyberpunk-theme
-                    multi-term
-                    multiple-cursors
-                    realgud
-                    tldr)))
-    (dolist (pkg packages)
-      (unless (package-installed-p pkg)
-        (package-install pkg)))))
 
-(condition-case nil
-    (init--package-install)
-  (error
-   (package-refresh-contents)
-   (init--package-install)))
+(use-package tldr
+  :ensure t
+  :commands tldr)
+
+(use-package multi-term
+  :ensure t
+  :commands multi-term)
+
+(use-package multiple-cursors
+  :ensure t)
+
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
