@@ -47,7 +47,7 @@
 (setq initial-scratch-message "")
 (setq visible-bell t)
 (when (window-system)
-  ;; (load-theme 'default-black t)
+  (load-theme 'default-black t)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -60,8 +60,8 @@
 
 ;; theme
 (use-package cyberpunk-theme
-  :ensure t
-  :defer 1)
+  :disabled t
+  :ensure t)
 
 
 ;;; macOS
