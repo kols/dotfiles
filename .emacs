@@ -183,8 +183,10 @@
 
 (use-package avy
   :ensure t
-  :bind (("C-c SPC" . avy-goto-char)
-         ("C-c l" . avy-goto-line)))
+  :chords (("jw" . avy-goto-word-1)
+           ("jc" . avy-goto-char-timer)
+           ("js" . avy-goto-symbol-1)
+           ("jl" . avy-goto-line)))
 
 (use-package rg
   :ensure t
@@ -270,7 +272,8 @@
   :bind
   (("C-s" . counsel-grep-or-swiper)
    ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)))
+   ("C-x C-f" . counsel-find-file)
+   ("C-." . counsel-imenu)))
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
@@ -366,14 +369,16 @@
 
 (use-package ggtags
   :ensure t
-  :diminish ggtags-mode
-  :commands ggtags-mode
+  :commands (ggtags-after-save-function)
+  :bind (("M-[" . ggtags-find-definition)
+         ("M-]" . ggtags-find-reference))
   :init
+  (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
   (setq ggtags-sort-by-nearness t)
   (setq ggtags-highlight-tag nil)
   (setq ggtags-enable-navigation-keys nil)
-  (add-hook 'prog-mode-hook #'ggtags-mode))
+  (add-hook 'after-save-hook #'ggtags-after-save-function nil t))
 
 (use-package counsel-gtags
   :ensure t
@@ -384,14 +389,6 @@
 (use-package imenu-list
   :ensure t
   :bind ("C-'" . imenu-list-smart-toggle))
-
-(use-package imenu-anywhere
-  :ensure t
-  :bind ("C-." . ivy-imenu-anywhere)
-  :init
-  ;; only show tag for current buffer
-  (setq-default imenu-anywhere-buffer-list-function (lambda () (list (current-buffer))))
-  (setq imenu-anywhere-buffer-filter-functions '((lambda (current other) t))))
 
 
 ;;; Completion
@@ -512,16 +509,14 @@
   :commands python-mode
   :init
   (defun kd/python-mode-defaults ()
-    (subword-mode +1)
+    (subword-mode 1)
     (eldoc-mode 1)
     (when (fboundp 'exec-path-from-shell-copy-env)
       (exec-path-from-shell-copy-env "PYTHONPATH"))
-    (setq-local electric-layout-rules
-                '((?: . (lambda ()
-                          (and (zerop (first (syntax-ppss)))
-                               (python-info-statement-starts-block-p)
-                               'after)))))
-    (add-hook 'post-self-insert-hook #'electric-layout-post-self-insert-function nil 'local))
+    (defun kd/avy-goto-py-declaration ()
+      (interactive)
+      (avy--generic-jump "\\s\\*\\(def\\|class\\) " nil 'pre))
+    (key-chord-define-local "jd" #'kd/avy-goto-py-declaration))
   (add-hook 'python-mode-hook #'kd/python-mode-defaults))
 
 (use-package pyenv-mode
