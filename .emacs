@@ -196,7 +196,8 @@
   :chords (("jw" . avy-goto-word-1)
            ("jc" . avy-goto-char-timer)
            ("js" . avy-goto-symbol-1)
-           ("jl" . avy-goto-line)))
+           ("jl" . avy-goto-line))
+  :init (setq avy-background t))
 
 (use-package rg
   :ensure t
@@ -421,6 +422,11 @@
   :after company
   :commands company-flx-mode
   :init (add-hook 'company-mode-hook #'company-flx-mode))
+
+(use-package company-quickhelp
+  :ensure t
+  :after company
+  :init (add-hook 'company-mode-hook #'company-quickhelp-mode))
 
 
 (use-package paredit
