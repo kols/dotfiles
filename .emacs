@@ -2,6 +2,7 @@
 (defun kd/emacs-subdirectory (d)
   (expand-file-name d kd/emacs-directory))
 
+(defvar kd/toggle-map nil)
 (define-prefix-command 'kd/toggle-map)
 (define-key ctl-x-map "t" 'kd/toggle-map)
 
@@ -89,8 +90,9 @@
 
 (use-package whitespace
   :commands whitespace-mode
+  :bind (:map kd/toggle-map
+              ("w" . whitespace-mode))
   :init
-  (define-key kd/toggle-map "w" 'whitespace-mode)
   (setq whitespace-line-column nil
         whitespace-display-mappings '((space-mark 32 [183] [46])
                                       (newline-mark 10 [9166 10])
@@ -103,8 +105,8 @@
 
 (use-package fill
   :diminish auto-fill-mode
-  :commands auto-fill-mode
-  :init (define-key kd/toggle-map "f" 'auto-fill-mode))
+  :bind (:map kd/toggle-map
+              ("f" . auto-fill-mode)))
 
 (use-package visual-fill-column
   :ensure t
@@ -113,7 +115,7 @@
 (use-package which-key
   :ensure t
   :diminish which-key-mode
-  :config (which-key-mode 1))
+  :init (add-hook 'after-init-hook #'which-key-mode))
 
 (use-package wgrep
   :ensure t
@@ -127,10 +129,12 @@
 
 (use-package zoom-window
   :ensure t
-  :bind ("C-x C-z" . zoom-window-zoom))
+  :bind (:map kd/toggle-map
+              ("z" . zoom-window-zoom)))
 
 (use-package eldoc
-  :diminish eldoc-mode)
+  :diminish eldoc-mode
+  :init (add-hook 'after-init-hook #'global-eldoc-mode))
 
 ;;; Dired
 
@@ -521,7 +525,6 @@
   :commands python-mode
   :init
   (defun kd/python-mode-defaults ()
-    (eldoc-mode 1)
     (when (fboundp 'exec-path-from-shell-copy-env)
       (exec-path-from-shell-copy-env "PYTHONPATH"))
     (defun kd/avy-goto-py-declaration ()
