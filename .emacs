@@ -56,7 +56,11 @@
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
   (set-face-attribute 'default nil :font "-apple-luculent 14-regular-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
-(global-visual-line-mode t)
+
+(use-package simple
+  :diminish visual-line-mode
+  :commands global-visual-line-mode
+  :init (add-hook 'after-init-hook #'global-visual-line-mode))
 
 ;; theme
 (use-package cyberpunk-theme
@@ -221,10 +225,10 @@
 
 (use-package smartscan
   :ensure t
-  :bind
-  (("M-n" . smartscan-symbol-go-forward)
-   ("M-p" . smartscan-symbol-go-backward))
-  :init (setq smartscan-symbol-selector "symbol"))
+  :commands global-smartscan-mode
+  :init
+  (setq smartscan-symbol-selector "symbol")
+  (add-hook 'after-init-hook #'global-smartscan-mode))
 
 (use-package hydra
   :ensure t
@@ -421,6 +425,12 @@
   :diminish paredit-mode
   :init (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
 
+(use-package smartparens
+  :ensure t
+  :diminish smartparens-mode
+  :commands smartparens-global-strict-mode
+  :init (add-hook 'after-init-hook #'smartparens-global-strict-mode))
+
 (use-package csv-mode
   :ensure t
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
@@ -511,7 +521,6 @@
   :commands python-mode
   :init
   (defun kd/python-mode-defaults ()
-    (subword-mode 1)
     (eldoc-mode 1)
     (when (fboundp 'exec-path-from-shell-copy-env)
       (exec-path-from-shell-copy-env "PYTHONPATH"))
@@ -521,6 +530,11 @@
     (key-chord-define-local "jd" #'kd/avy-goto-py-declaration))
   (add-hook 'python-mode-hook #'kd/python-mode-defaults))
 
+(use-package subword
+  :diminish subword-mode
+  :commands subword-mode
+  :init (add-hook 'python-mode-hook #'subword-mode))
+
 (use-package pyenv-mode
   :ensure t
   :commands pyenv-mode
@@ -528,11 +542,12 @@
 
 (use-package pyenv-mode-auto
   :ensure t
+  :commands pyenv-mode-auto-hook
   :after pyenv-mode)
 
 (use-package pip-requirements
   :ensure t
-  :defer t)
+  :commands pip-requirements-mode)
 
 (use-package jedi-core
   :ensure t
@@ -549,7 +564,9 @@
   (add-hook 'python-mode-hook (lambda ()
                                 (kd/local-push-company-backend #'company-jedi))))
 
-;;; golang
+
+;;; Golang
+
 (use-package go-mode
   :ensure t
   :commands go-mode
@@ -581,6 +598,7 @@
   :ensure t
   :commands go-guru-hl-identifier-mode
   :init (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+
 
 ;;; Elisp
 
