@@ -217,8 +217,10 @@
 
 (use-package smartscan
   :ensure t
-  :bind (("M-n" . smartscan-symbol-go-forward)
-         ("M-p" . smartscan-symbol-go-backward)))
+  :bind
+  (("M-n" . smartscan-symbol-go-forward)
+   ("M-p" . smartscan-symbol-go-backward))
+  :init (setq smartscan-symbol-selector "symbol"))
 
 (use-package hydra
   :ensure t
