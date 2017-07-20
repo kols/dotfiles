@@ -125,6 +125,8 @@
   :ensure t
   :bind ("C-x C-z" . zoom-window-zoom))
 
+(use-package eldoc
+  :diminish eldoc-mode)
 
 ;;; Dired
 
@@ -229,8 +231,8 @@
   :config
   (defhydra hydra-winner (global-map "C-c w")
     "winner mode"
-    ("<left>" winner-undo "undo")
-    ("<right>" winner-redo "redo"))
+    ("h" winner-undo "undo")
+    ("l" winner-redo "redo"))
   (defhydra hydra-zoom (global-map "<f2>")
     "zoom"
     ("g" text-scale-increase "in")
