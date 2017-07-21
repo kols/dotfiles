@@ -48,6 +48,8 @@
 
 (setq initial-scratch-message "")
 (setq visible-bell t)
+
+;; GUI
 (when (window-system)
   (load-theme 'default-black t)
   (tool-bar-mode 0)
@@ -58,13 +60,17 @@
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
   (set-face-attribute 'default nil :font "-apple-luculent 14-regular-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
+  ;; mouse
+  (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
+  (setq mouse-wheel-progressive-speed nil)
+  (setq mouse-wheel-follow-mouse 't))
 
 (use-package simple
   :diminish visual-line-mode
   :commands global-visual-line-mode
   :init (add-hook 'after-init-hook #'global-visual-line-mode))
 
-;; theme
+;; Theme
 (use-package cyberpunk-theme
   :disabled t
   :ensure t)
@@ -131,6 +137,8 @@
   :ensure t
   :commands wgrep-change-to-wgrep-mode)
 
+;; Window
+
 (use-package winner
   :commands winner-mode
   :init
@@ -139,8 +147,10 @@
 
 (use-package ace-window
   :ensure t
+  :demand t
   :bind ("s-o" . ace-window)
-  :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+  :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  :config (global-unset-key (kbd "C-x o")))
 
 (use-package zoom-window
   :ensure t
@@ -222,13 +232,12 @@
 
 (use-package magit
   :ensure t
-  :bind (("C-c g s" . magit-status)
-         ("C-c g l" . magit-log-current)))
-  :init (setq magit-git-executable "/usr/local/bin/git")
-
-(use-package mo-git-blame
-  :ensure t
-  :bind ("C-c g b" . mo-git-blame-current))
+  :bind (("s-g s" . magit-status)
+         ("s-g l" . magit-log-current)
+         ("s-g b" . magit-blame))
+  :init
+  (setq magit-git-executable "/usr/local/bin/git")
+  (setq magit-status-expand-stashes nil))
 
 (use-package git-gutter
   :ensure t
@@ -277,13 +286,18 @@
 (use-package ivy
   :ensure t
   :commands ivy-switch-buffer
-  :bind ("C-c C-r" . ivy-resume)
+  :bind (:map ivy-mode-map
+              ("s-x" . ivy-switch-buffer)
+              ("C-c C-r" . ivy-resume))
   :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
   (setq ivy-count-format "%d/%d ")
-  (add-hook 'after-init-hook 'ivy-mode))
+  (add-hook 'after-init-hook 'ivy-mode)
+  :config
+  (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
+  (global-unset-key (kbd "C-x b")))
 
 (use-package swiper
   :ensure t
@@ -550,8 +564,6 @@
   :commands python-mode
   :init
   (defun kd/python-mode-defaults ()
-    (when (fboundp 'exec-path-from-shell-copy-env)
-      (exec-path-from-shell-copy-env "PYTHONPATH"))
     (defun kd/avy-goto-py-declaration ()
       (interactive)
       (avy--generic-jump "\\s\\*\\(def\\|class\\) " nil 'pre))

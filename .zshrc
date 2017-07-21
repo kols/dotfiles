@@ -237,10 +237,6 @@ if [ -f ~/.zshrc.custom ]; then
     . ~/.zshrc.custom
 fi
 
-# pyenv
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-
 function install_pypkg {
     PYENV_VERSION=`pyenv global` pyenv exec pip install -r $HOME/requirements.txt "$1"
 }

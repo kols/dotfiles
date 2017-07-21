@@ -1,6 +1,6 @@
 export LANG='en_US.UTF-8'
 export LC_CTYPE=$LANG
-export PATH=/usr/local/sbin:$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
+export PATH=/usr/local/sbin:/usr/local/bin:$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
 export EDITOR=/usr/local/bin/vim
 export VISUAL=$EDITOR
 
@@ -16,6 +16,10 @@ export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
 # zplug
 export ZPLUG_HOME=/usr/local/opt/zplug
+
+# pyenv
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 # go
 export GOROOT=/usr/local/opt/go/libexec
