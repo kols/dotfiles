@@ -6,6 +6,7 @@
 (define-prefix-command 'kd/toggle-map)
 (define-key ctl-x-map "t" 'kd/toggle-map)
 
+
 ;;; Customization
 
 (setq custom-file (kd/emacs-subdirectory "custom.el"))
@@ -68,6 +69,11 @@
   :disabled t
   :ensure t)
 
+(use-package popwin
+  :ensure t
+  :commands popwin-mode
+  :init (add-hook 'after-init-hook #'popwin-mode))
+
 
 ;;; macOS
 
@@ -75,8 +81,11 @@
     (defun kd/osx-lock-screen ()
       (interactive)
       (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
-    (key-chord-define-global "l0" #'kd/osx-lock-screen)
-    (setq mac-option-modifier 'meta))
+    (key-chord-define-global "lk" #'kd/osx-lock-screen)
+    (setq mac-option-modifier 'meta)
+    (setq mac-command-modifier 'super)
+    (when (memq window-system '(mac ns))
+      (setq mac-mouse-wheel-smooth-scroll nil)))
 
 (use-package osx-lib
   :if '(eq system-type 'darwin)
@@ -84,6 +93,7 @@
   :ensure t)
 
 (use-package osx-dictionary
+  :if '(eq system-type 'darwin)
   :ensure t
   :bind ("C-c f" . osx-dictionary-search-word-at-point))
 
@@ -127,14 +137,16 @@
   (setq winner-dont-bind-my-keys t)
   (add-hook 'after-init-hook #'winner-mode))
 
+(use-package ace-window
+  :ensure t
+  :bind ("s-o" . ace-window)
+  :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+
 (use-package zoom-window
   :ensure t
   :bind (:map kd/toggle-map
               ("z" . zoom-window-zoom)))
 
-(use-package eldoc
-  :diminish eldoc-mode
-  :init (add-hook 'after-init-hook #'global-eldoc-mode))
 
 ;;; Dired
 
@@ -189,7 +201,8 @@
 
 (use-package find-file-in-project
   :ensure t
-  :bind ("C-c o" . find-file-in-project))
+  :bind (("C-c o" . find-file-in-project)
+         ("s-p" . find-file-in-project)))
 
 (use-package avy
   :ensure t
@@ -320,6 +333,7 @@
   (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
 
 (use-package outline
+  :disabled t
   :commands outline-minor-mode
   :init (add-hook 'prog-mode-hook 'outline-minor-mode))
 
@@ -409,9 +423,10 @@
   :diminish company-mode
   :commands (company-mode global-company-mode)
   :init
+  (setq company-minimum-prefix-length 2)
+  (setq tab-always-indent 'complete)
   (add-hook 'after-init-hook #'global-company-mode)
   :config
-  (setq tab-always-indent 'complete)
   (defun kd/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
     (set (make-local-variable 'company-backends)
@@ -426,7 +441,11 @@
 (use-package company-quickhelp
   :ensure t
   :after company
-  :init (add-hook 'company-mode-hook #'company-quickhelp-mode))
+  :bind (:map company-active-map
+              ("M-d" . company-quickhelp-manual-begin))
+  :init
+  (setq company-quickhelp-delay nil)
+  (add-hook 'company-mode-hook #'company-quickhelp-mode))
 
 
 (use-package paredit
@@ -563,6 +582,8 @@
   :commands jedi:setup
   :init
   (setq jedi:use-shortcuts t)
+  (setq jedi:tooltip-method nil)
+  (setq jedi:complete-on-dot t)
   (add-hook 'python-mode-hook #'jedi:setup))
 
 (use-package company-jedi
