@@ -39,7 +39,9 @@
 (use-package better-defaults
   :ensure t)
 
-(setq scroll-conservatively 1)
+(setq gc-cons-threshold 50000000)
+(setq scroll-conservatively 10000
+      scroll-preserve-screen-position t)
 (setq vc-follow-symlinks t)
 (setq-default default-tab-width 4)
 
@@ -48,6 +50,7 @@
 
 (setq initial-scratch-message "")
 (setq visible-bell t)
+(fset 'yes-or-no-p 'y-or-n-p)
 
 ;; GUI
 (when (window-system)
@@ -471,8 +474,10 @@
 (use-package smartparens
   :ensure t
   :diminish smartparens-mode
-  :commands smartparens-global-strict-mode
-  :init (add-hook 'after-init-hook #'smartparens-global-strict-mode))
+  :commands smartparens-global-mode
+  :init
+  (add-hook 'after-init-hook #'smartparens-global-mode)
+  (add-hook 'python-mode-hook (lambda () (require 'smartparens-python))))
 
 (use-package csv-mode
   :ensure t
