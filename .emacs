@@ -36,8 +36,11 @@
 
 ;;; Daemon
 
-(unless (server-running-p)
-  (server-start))
+(use-package server
+  :init
+  (add-hook 'after-init-hook (lambda ()
+			       (unless (server-running-p)
+				 (server-start)))))
 
 
 ;;; General
