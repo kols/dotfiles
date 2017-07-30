@@ -187,6 +187,7 @@ alias tmux="tmux -2 -u"
 alias ta="tmux attach"
 alias csk="brew cask"
 alias ec="open -a Emacs.app"
+alias em="/Applications/Emacs.app/Contents/MacOS/bin/emacsclient -c -n"
 alias g="git"
 alias ncpu="getconf _NPROCESSORS_ONLN"
 alias dr=docker-run

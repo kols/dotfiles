@@ -34,6 +34,12 @@
   :config (key-chord-mode 1))
 
 
+;;; Daemon
+
+(unless (server-running-p)
+  (server-start))
+
+
 ;;; General
 
 (use-package better-defaults
