@@ -365,9 +365,7 @@
 ;;; Org-mode
 
 (use-package org
-  :bind
-  (("C-c c" . org-capture)
-   ("C-c b" . org-iswitchb))
+  :bind ("C-c l" . org-store-link)
   :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
