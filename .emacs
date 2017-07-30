@@ -668,6 +668,10 @@
   :ensure t
   :commands mc/edit-lines)
 
+(use-package iedit
+  :ensure t
+  :bind ("C-;" . iedit-mode))
+
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
