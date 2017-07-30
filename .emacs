@@ -62,7 +62,7 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
-  (set-face-attribute 'default nil :font "-apple-luculent 14-regular-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
+  (set-face-attribute 'default nil :font "-apple-luculent 14-regular-normal-normal-*-14-*-*-*-m-0-iso10646-1")
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
