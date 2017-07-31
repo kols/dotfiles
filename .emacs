@@ -597,10 +597,6 @@
   :commands pyenv-mode-auto-hook
   :after pyenv-mode)
 
-(use-package pip-requirements
-  :ensure t
-  :commands pip-requirements-mode)
-
 (use-package jedi-core
   :ensure t
   :commands jedi:setup
