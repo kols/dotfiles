@@ -382,13 +382,22 @@
   (setq org-capture-templates
         '(("c" "cap" entry (file "") "* %?\n  %U")))
   (setq org-src-fontify-natively t)
+  (setq org-imenu-depth 3)
   ;; babel
   (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append)
-  :config (org-babel-do-load-languages 'org-babel-load-languages
-                                       '((ipython . t)
-                                         (sh . t)
-                                         (emacs-lisp . t))))
+  ;; avy
+  (defun kd/avy-goto-org-heading ()
+    (interactive)
+    (avy--generic-jump org-heading-regexp nil 'at))
+  (add-hook 'org-mode-hook (lambda ()
+                             (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
+  :config
+  (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '((ipython . t)
+                                 (sh . t)
+                                 (emacs-lisp . t))))
 
 (use-package org-download
   :ensure t
