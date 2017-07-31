@@ -1,6 +1,7 @@
 (defconst kd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 (defun kd/emacs-subdirectory (d)
   (expand-file-name d kd/emacs-directory))
+(add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
 (defvar kd/toggle-map nil)
 (define-prefix-command 'kd/toggle-map)
@@ -63,7 +64,7 @@
 
 ;; GUI
 (when (window-system)
-  (load-theme 'default-black t)
+  (use-package default-black-theme)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -530,6 +531,9 @@
   :ensure t
   :mode ("\\.lua$" . lua-mode)
   :interpreter ("lua" . lua-mode))
+
+(use-package thrift-mode
+  :mode ("\\.thrift\\'" . thrift-mode))
 
 (use-package yasnippet
   :ensure t
