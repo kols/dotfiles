@@ -160,9 +160,11 @@
 
 (use-package ace-window
   :ensure t
-  :demand t
   :bind ("s-o" . ace-window)
-  :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  :init
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (setq aw-scope 'frame)
+  (setq aw-ignore-current t)
   :config (global-unset-key (kbd "C-x o")))
 
 (use-package zoom-window
