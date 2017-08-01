@@ -226,8 +226,17 @@
 
 (use-package find-file-in-project
   :ensure t
-  :bind (("C-c o" . find-file-in-project)
-         ("s-p" . find-file-in-project)))
+  :bind ("C-c o" . find-file-in-project))
+
+(use-package projectile
+  :ensure t
+  :commands projectile-mode
+  :bind ("s-p" . projectile-find-file)
+  :init
+  (setq projectile-enable-caching t)
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-tags-backend 'ggtags)
+  (setq projectile-tags-file-name ""))
 
 (use-package avy
   :ensure t
