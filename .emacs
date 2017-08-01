@@ -591,7 +591,7 @@
   (defun kd/python-mode-defaults ()
     (defun kd/avy-goto-py-declaration ()
       (interactive)
-      (avy--generic-jump "\\s\\*\\(def\\|class\\) " nil 'pre))
+      (avy--generic-jump python-nav-beginning-of-defun-regexp nil 'pre))
     (key-chord-define-local "jd" #'kd/avy-goto-py-declaration))
   (add-hook 'python-mode-hook #'kd/python-mode-defaults))
 
