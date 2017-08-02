@@ -64,7 +64,7 @@
 
 ;; GUI
 (when (window-system)
-  (use-package default-black-theme)
+  (use-package zenburn-theme)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -149,6 +149,13 @@
 (use-package wgrep
   :ensure t
   :commands wgrep-change-to-wgrep-mode)
+
+(use-package autoinsert
+  :commands auto-insert-mode
+  :init (add-hook 'after-init-hook #'auto-insert-mode)
+  :config
+  (define-auto-insert 'python-mode '(nil
+                                     "# encoding: utf-8\n")))
 
 ;; Window
 
