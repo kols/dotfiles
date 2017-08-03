@@ -68,7 +68,8 @@
 
 ;; GUI
 (when (window-system)
-  (use-package zenburn-theme)
+  (use-package zenburn-theme
+    :ensure t)
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
