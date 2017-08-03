@@ -5,7 +5,11 @@
 
 (defvar kd/toggle-map nil)
 (define-prefix-command 'kd/toggle-map)
-(define-key ctl-x-map "t" 'kd/toggle-map)
+(global-set-key (kbd "s-t") 'kd/toggle-map)
+
+(defvar kd/pop-map nil)
+(define-prefix-command 'kd/pop-map)
+(global-set-key (kbd "s-o") 'kd/pop-map)
 
 
 ;;; Customization
@@ -167,7 +171,7 @@
 
 (use-package ace-window
   :ensure t
-  :bind ("s-o" . ace-window)
+  :bind ("s-j" . ace-window)
   :init
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (setq aw-scope 'frame)
@@ -195,6 +199,19 @@
 (use-package dired-x
   :commands dired-omit-mode
   :init (add-hook 'dired-mode-hook #'dired-omit-mode))
+
+
+;;; neotree
+
+(use-package neotree
+  :ensure t
+  :bind (:map kd/pop-map
+              ("n" . neotree-toggle)
+              ("N" . neotree-find))
+  :commands (neotree neotree-toggle neotree-find)
+  :init
+  (setq neo-window-width 35)
+  (setq neo-confirm-change-root 'off-p))
 
 
 ;;; ido
@@ -465,7 +482,8 @@
 
 (use-package imenu-list
   :ensure t
-  :bind ("C-'" . imenu-list-smart-toggle))
+  :bind (:map kd/pop-map
+              ("'" . imenu-list-smart-toggle)))
 
 
 ;;; Completion
