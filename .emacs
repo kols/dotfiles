@@ -93,11 +93,24 @@
   :disabled t
   :ensure t)
 
-(use-package popwin
+(use-package shackle
   :ensure t
-  :commands popwin-mode
-  :init (add-hook 'after-init-hook #'popwin-mode))
-
+  :commands shackle-mode
+  :init
+  (setq shackle-default-alignment 'below
+        shackle-default-size 8
+        shackle-rules
+        '(("*info*" :size 0.5 :select t :autokill t :align t)
+          ("*Backtrace*" :size 20 :noselect t :align t)
+          ("*Warnings*"  :size 8  :noselect t :align t)
+          ("*Messages*"  :size 12 :noselect t :align t)
+          ("*Help*" :size 0.3 :align t :select t)
+          (grep-mode :size 25 :noselect t :autokill t :align t)
+          (special-mode :noselect t :autokill t :autoclose t :align t)
+          (magit-status-mode :autoclose t :align t :size 0.4)
+          ("^\\*"  :regexp t :noselect t :autokill t :align t)
+          ("^ \\*" :regexp t :size 12 :noselect t :autokill t :autoclose t :align t)))
+  (add-hook 'after-init-hook #'shackle-mode))
 
 ;;; macOS
 
