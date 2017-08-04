@@ -459,6 +459,14 @@
   :commands browse-at-remote
   :config (add-to-list 'browse-at-remote-remote-type-domains '("gitlab.xiaohongshu.com" . "gitlab")))
 
+(use-package ispell
+  :init (setq ispell-program-name "aspell"))
+
+(use-package flyspell
+  :commands flyspell-mode
+  :after ispell
+  :init (add-hook 'org-mode-hook #'flyspell-mode))
+
 
 ;;; Tags
 
