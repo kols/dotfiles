@@ -98,18 +98,17 @@
   :commands shackle-mode
   :init
   (setq shackle-default-alignment 'below
-        shackle-default-size 8
+        shackle-default-size 0.25
         shackle-rules
-        '(("*info*" :size 0.5 :select t :autokill t :align t)
-          ("*Backtrace*" :size 20 :noselect t :align t)
-          ("*Warnings*"  :size 8  :noselect t :align t)
-          ("*Messages*"  :size 12 :noselect t :align t)
-          ("*Help*" :size 0.3 :align t :select t)
-          (grep-mode :size 25 :noselect t :autokill t :align t)
-          (special-mode :noselect t :autokill t :autoclose t :align t)
+        '(("*info*" :size 0.5 :select t :align t)
+          ("*Backtrace*" :size 20 :select nil :align t)
+          ("*Warnings*"  :size 8  :select nil :align t)
+          ("*Messages*"  :size 12 :select nil :align t)
+          ("*Help*" :align t :select t)
           (magit-status-mode :autoclose t :align t :size 0.4)
-          ("^\\*"  :regexp t :noselect t :autokill t :align t)
-          ("^ \\*" :regexp t :size 12 :noselect t :autokill t :autoclose t :align t)))
+          ("^\*magit" :regexp :select nil :align 'right)
+          ("^\\*"  :regexp t :select nil :align t)
+          ("^ \\*" :regexp t :select nil :align t)))
   (add-hook 'after-init-hook #'shackle-mode))
 
 ;;; macOS
@@ -197,6 +196,16 @@
   :bind (:map kd/toggle-map
               ("z" . zoom-window-zoom)))
 
+(use-package eyebrowse
+  :ensure t
+  :bind (("C-c C--" . eyebrowse-next-window-config)
+         ("C-c C-=" . eyebrowse-prev-window-config))
+  :init
+  (setq eyebrowse-mode-line-separator " "
+        eyebrowse-mode-line-style 'always
+        eyebrowse-new-workspace t
+        eyebrowse-wrap-around t)
+  (add-hook 'after-init-hook #'eyebrowse-mode))
 
 ;;; Dired
 
@@ -268,13 +277,22 @@
 
 (use-package projectile
   :ensure t
+  :diminish projectile-mode
   :commands projectile-mode
   :bind ("s-p" . projectile-find-file)
   :init
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-tags-file-name ""))
+  (setq projectile-tags-file-name "")
+  (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name))))
+  (add-hook 'after-init-hook #'projectile-mode))
+
+(use-package counsel-projectile
+  :ensure t
+  :bind (:map projectile-command-map
+              ("p" . counsel-projectile-switch-project)
+              ("r" . counsel-projectile-rg)))
 
 (use-package avy
   :ensure t
@@ -473,11 +491,11 @@
   :config (add-to-list 'browse-at-remote-remote-type-domains '("gitlab.xiaohongshu.com" . "gitlab")))
 
 (use-package ispell
+  :defer t
   :init (setq ispell-program-name "aspell"))
 
 (use-package flyspell
   :commands flyspell-mode
-  :after ispell
   :init (add-hook 'org-mode-hook #'flyspell-mode))
 
 
