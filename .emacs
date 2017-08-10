@@ -284,9 +284,9 @@
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-tags-file-name "")
   (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name))))
-  (add-hook 'after-init-hook #'projectile-mode))
+  (add-hook 'after-init-hook #'projectile-mode)
+  :config (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
 
 (use-package counsel-projectile
   :ensure t
