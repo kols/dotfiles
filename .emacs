@@ -607,7 +607,9 @@
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
   :commands (markdown-mode gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
+  :init
+  (setq markdown-command "multimarkdown")
+  (add-hook 'markdown-mode-hook #'orgtbl-mode))
 
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
