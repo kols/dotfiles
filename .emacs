@@ -176,6 +176,12 @@
 
 ;; Window
 
+(use-package windmove
+  :bind (("C-s-h" . windmove-left)
+         ("C-s-j" . windmove-down)
+         ("C-s-k" . windmove-up)
+         ("C-s-l" . windmove-right)))
+
 (use-package winner
   :commands winner-mode
   :init
@@ -199,7 +205,14 @@
 (use-package eyebrowse
   :ensure t
   :bind (("C-c C--" . eyebrowse-next-window-config)
-         ("C-c C-=" . eyebrowse-prev-window-config))
+         ("C-c C-=" . eyebrowse-prev-window-config)
+         ("s-w" . eyebrowse-close-window-config)
+         ("s-'" . eyebrowse-last-window-config)
+         ("s-1" . eyebrowse-switch-to-window-config-1)
+         ("s-2" . eyebrowse-switch-to-window-config-2)
+         ("s-3" . eyebrowse-switch-to-window-config-3)
+         ("s-4" . eyebrowse-switch-to-window-config-4)
+         ("s-5" . eyebrowse-switch-to-window-config-5))
   :init
   (setq eyebrowse-mode-line-separator " "
         eyebrowse-mode-line-style 'always
