@@ -241,4 +241,9 @@ fi
 function install_pypkg {
     PYENV_VERSION=`pyenv global` pyenv exec pip install -r $HOME/requirements.txt "$1"
 }
+
+# pyenv
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
 # vim:ft=zsh
