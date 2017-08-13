@@ -97,6 +97,8 @@
   :ensure t
   :commands shackle-mode
   :init
+  (add-hook 'after-init-hook #'shackle-mode)
+  :config
   (setq shackle-default-alignment 'below
         shackle-default-size 0.25
         shackle-rules
@@ -108,8 +110,7 @@
           (magit-status-mode :autoclose t :align t :size 0.4)
           ("^\*magit" :regexp :select nil :align 'right)
           ("^\\*"  :regexp t :select nil :align t)
-          ("^ \\*" :regexp t :select nil :align t)))
-  (add-hook 'after-init-hook #'shackle-mode))
+          ("^ \\*" :regexp t :select nil :align t))))
 
 ;;; macOS
 
@@ -135,19 +136,18 @@
 
 
 (use-package whitespace
+  :diminish whitespace-mode
   :commands whitespace-mode
   :bind (:map kd/toggle-map
               ("w" . whitespace-mode))
-  :init
+  :config
   (setq whitespace-line-column nil
         whitespace-display-mappings '((space-mark 32 [183] [46])
                                       (newline-mark 10 [9166 10])
                                       (tab-mark 9 [9654 9] [92 9])))
-  :config
   (set-face-attribute 'whitespace-space       nil :foreground "#666666" :background nil)
   (set-face-attribute 'whitespace-newline     nil :foreground "#666666" :background nil)
-  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil)
-  :diminish whitespace-mode)
+  (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil))
 
 (use-package fill
   :diminish auto-fill-mode
@@ -191,11 +191,11 @@
 (use-package ace-window
   :ensure t
   :bind ("s-j" . ace-window)
-  :init
+  :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (setq aw-scope 'frame)
   (setq aw-ignore-current t)
-  :config (global-unset-key (kbd "C-x o")))
+  (global-unset-key (kbd "C-x o")))
 
 (use-package zoom-window
   :ensure t
@@ -214,11 +214,12 @@
          ("s-4" . eyebrowse-switch-to-window-config-4)
          ("s-5" . eyebrowse-switch-to-window-config-5))
   :init
+  (add-hook 'after-init-hook #'eyebrowse-mode)
+  :config
   (setq eyebrowse-mode-line-separator " "
         eyebrowse-mode-line-style 'always
         eyebrowse-new-workspace t
-        eyebrowse-wrap-around t)
-  (add-hook 'after-init-hook #'eyebrowse-mode))
+        eyebrowse-wrap-around t))
 
 ;;; Dired
 
@@ -227,10 +228,11 @@
   :commands dired
   :diminish dired-mode
   :init
+  (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+  :config
   (setq dired-listing-switches "-lahF")
   (setq dired-isearch-filenames t)
-  (setq dired-ls-F-marks-symlinks t)
-  (add-hook 'dired-mode-hook #'dired-hide-details-mode))
+  (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired-x
   :commands dired-omit-mode
@@ -245,7 +247,7 @@
               ("n" . neotree-toggle)
               ("N" . neotree-find))
   :commands (neotree neotree-toggle neotree-find)
-  :init
+  :config
   (setq neo-window-width 35)
   (setq neo-confirm-change-root 'off-p))
 
@@ -256,16 +258,16 @@
   :ensure t
   :commands ido-mode
   :init
-  (defun kd/ido-defaults ()
-    "ido defaults"
+  (defun kd/ido-after-init-hook-function ()
     ;; disable ido faces to see flx highlights.
     (ido-mode 1)
     (ido-everywhere 1)
     (flx-ido-mode 1)
     (ido-vertical-mode 1)
     (ido-at-point-mode 1))
-  (setq ido-use-faces nil)
-  (add-hook 'after-init-hook #'kd/ido-defaults))
+  (add-hook 'after-init-hook #'kd/ido-after-init-hook-function)
+  :config
+  (setq ido-use-faces nil))
 
 (use-package flx-ido
   :ensure t
@@ -276,7 +278,7 @@
   :ensure t
   :after ido
   :commands ido-vertical-mode
-  :init (setq ido-vertical-define-keys 'C-n-and-C-p-only))
+  :config (setq ido-vertical-define-keys 'C-n-and-C-p-only))
 
 (use-package ido-at-point
   :ensure t
@@ -294,12 +296,13 @@
   :commands projectile-mode
   :bind ("s-p" . projectile-find-file)
   :init
+  (add-hook 'after-init-hook #'projectile-mode)
+  :config
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
   (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name))))
-  (add-hook 'after-init-hook #'projectile-mode)
-  :config (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
+  (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
 
 (use-package counsel-projectile
   :ensure t
@@ -313,7 +316,7 @@
            ("jc" . avy-goto-char-timer)
            ("js" . avy-goto-symbol-1)
            ("jl" . avy-goto-line))
-  :init (setq avy-background t))
+  :config (setq avy-background t))
 
 (use-package rg
   :ensure t
@@ -328,7 +331,7 @@
   :bind (("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
-  :init
+  :config
   (setq magit-git-executable "/usr/local/bin/git")
   (setq magit-status-expand-stashes nil))
 
@@ -346,9 +349,8 @@
 (use-package smartscan
   :ensure t
   :commands global-smartscan-mode
-  :init
-  (setq smartscan-symbol-selector "symbol")
-  (add-hook 'after-init-hook #'global-smartscan-mode))
+  :init (add-hook 'after-init-hook #'global-smartscan-mode)
+  :config (setq smartscan-symbol-selector "symbol"))
 
 (use-package hydra
   :ensure t
@@ -383,12 +385,11 @@
               ("s-x" . ivy-switch-buffer)
               ("C-c C-r" . ivy-resume))
   :diminish ivy-mode
-  :init
+  :init (add-hook 'after-init-hook 'ivy-mode)
+  :config
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
   (setq ivy-count-format "%d/%d ")
-  (add-hook 'after-init-hook 'ivy-mode)
-  :config
   (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
   (global-unset-key (kbd "C-x b")))
 
@@ -409,12 +410,11 @@
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
   :ensure t
-  :init
-  (setq exec-path-from-shell-arguments '("-l"))
-  (add-hook 'after-init-hook #'exec-path-from-shell-initialize))
+  :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
+  :config (setq exec-path-from-shell-arguments '("-l")))
 
 (use-package saveplace
-  :init (setq-default save-place t))
+  :config (setq-default save-place t))
 
 (use-package w3m
   :ensure t
@@ -435,9 +435,8 @@
 (use-package outshine
   :ensure t
   :commands outshine-hook-function
-  :init
-  (setq outshine-use-speed-commands t)
-  (add-hook 'outline-minor-mode-hook 'outshine-hook-function))
+  :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+  :config (setq outshine-use-speed-commands t))
 
 (use-package outline
   :disabled t
@@ -447,7 +446,7 @@
 (use-package irfc
   :ensure t
   :commands irfc-mode
-  :init
+  :config
   (setq irfc-directory "~/Documents/rfc/rfc")
   (setq irfc-assoc-mode t))
 
@@ -456,7 +455,9 @@
 
 (use-package org
   :bind ("C-c l" . org-store-link)
-  :init
+  :init (add-hook 'org-mode-hook (lambda ()
+                                   (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
+  :config
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
@@ -470,9 +471,6 @@
   (defun kd/avy-goto-org-heading ()
     (interactive)
     (avy--generic-jump org-heading-regexp nil 'at))
-  (add-hook 'org-mode-hook (lambda ()
-                             (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
-  :config
   (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
@@ -505,7 +503,7 @@
 
 (use-package ispell
   :defer t
-  :init (setq ispell-program-name "aspell"))
+  :config (setq ispell-program-name "aspell"))
 
 (use-package flyspell
   :commands flyspell-mode
@@ -517,20 +515,19 @@
 (use-package ggtags
   :ensure t
   :commands (ggtags-after-save-function)
-  :bind (("M-[" . ggtags-find-definition)
-         ("M-]" . ggtags-find-reference))
-  :init
+  :init (add-hook 'after-save-hook #'ggtags-after-save-function nil t)
+  :config
   (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
   (setq ggtags-sort-by-nearness t)
   (setq ggtags-highlight-tag nil)
-  (setq ggtags-enable-navigation-keys nil)
-  (add-hook 'after-save-hook #'ggtags-after-save-function nil t))
+  (setq ggtags-enable-navigation-keys nil))
 
 (use-package counsel-gtags
   :ensure t
   :after ggtags
-  :bind (("C-," . counsel-gtags-find-definition)
+  :bind (("M-[" . counsel-gtags-find-definition)
+         ("M-]" . counsel-gtags-find-reference)
          ("C-<" . counsel-gtags-go-backward)))
 
 (use-package imenu-list
@@ -545,11 +542,10 @@
   :ensure t
   :diminish company-mode
   :commands (company-mode global-company-mode)
-  :init
+  :init (add-hook 'after-init-hook #'global-company-mode)
+  :config
   (setq company-minimum-prefix-length 2)
   (setq tab-always-indent 'complete)
-  (add-hook 'after-init-hook #'global-company-mode)
-  :config
   (defun kd/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
     (set (make-local-variable 'company-backends)
@@ -566,24 +562,22 @@
   :after company
   :bind (:map company-active-map
               ("M-d" . company-quickhelp-manual-begin))
-  :init
-  (setq company-quickhelp-delay nil)
-  (add-hook 'company-mode-hook #'company-quickhelp-mode))
+  :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
+  :config (setq company-quickhelp-delay nil))
 
-
-(use-package paredit
-  :ensure t
-  :commands paredit-mode
-  :diminish paredit-mode
-  :init (add-hook 'emacs-lisp-mode-hook #'paredit-mode))
 
 (use-package smartparens
   :ensure t
   :diminish smartparens-mode
-  :commands smartparens-global-mode
+  :commands (smartparens-global-strict-mode show-smartparens-global-mode)
+  :bind (:map smartparens-mode-map
+              ("C-s-]" . sp-unwrap-sexp)
+              ("C-)" . sp-slurp-hybrid-sexp))
   :init
-  (add-hook 'after-init-hook #'smartparens-global-mode)
-  (add-hook 'python-mode-hook (lambda () (require 'smartparens-python))))
+  (add-hook 'after-init-hook #'smartparens-global-strict-mode)
+  (add-hook 'after-init-hook #'show-smartparens-global-mode)
+  :config
+  (use-package smartparens-config))
 
 (use-package csv-mode
   :ensure t
@@ -620,9 +614,8 @@
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
   :commands (markdown-mode gfm-mode)
-  :init
-  (setq markdown-command "multimarkdown")
-  (add-hook 'markdown-mode-hook #'orgtbl-mode))
+  :init (add-hook 'markdown-mode-hook #'orgtbl-mode)
+  :config (setq markdown-command "multimarkdown"))
 
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
@@ -661,9 +654,8 @@
   :ensure t
   :commands flycheck-mode
   :diminish flycheck-mode
-  :init
-  (setq flycheck-check-syntax-automatically '(save))
-  (add-hook 'prog-mode-hook #'flycheck-mode))
+  :init (add-hook 'prog-mode-hook #'flycheck-mode)
+  :config (setq flycheck-check-syntax-automatically '(save)))
 
 (use-package which-func
   :commands which-function-mode
@@ -704,11 +696,11 @@
 (use-package jedi-core
   :ensure t
   :commands jedi:setup
-  :init
+  :init (add-hook 'python-mode-hook #'jedi:setup)
+  :config
   (setq jedi:use-shortcuts t)
   (setq jedi:tooltip-method nil)
-  (setq jedi:complete-on-dot t)
-  (add-hook 'python-mode-hook #'jedi:setup))
+  (setq jedi:complete-on-dot t))
 
 (use-package company-jedi
   :ensure t
@@ -730,9 +722,12 @@
         ("M-C-." . godef-jump-other-window)
         ("M-k" . godoc-at-point))
   :init
-  (add-hook 'before-save-hook 'gofmt-before-save)
-  (setq gofmt-command "goimports")
-  (setq-local flycheck-disabled-checkers '(go-golint)))
+  (defun kd/go-mode-hook-function ()
+    (setq-local flycheck-disabled-checkers '(go-golint))
+    (add-hook 'before-save-hook #'gofmt-before-save nil t))
+  (add-hook 'go-mode-hook #'kd/go-mode-hook-function)
+  :config
+  (setq gofmt-command "goimports"))
 
 (use-package go-eldoc
   :ensure t
