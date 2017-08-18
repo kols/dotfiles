@@ -3,13 +3,15 @@
   (expand-file-name d kd/emacs-directory))
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
-(defvar kd/toggle-map nil)
-(define-prefix-command 'kd/toggle-map)
-(global-set-key (kbd "s-t") 'kd/toggle-map)
+(defun kd/make-prefix-command (key command)
+  "Bind key for a prefix command"
+  (define-prefix-command command)
+  (global-set-key key command))
 
+(defvar kd/toggle-map nil)
+(kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
 (defvar kd/pop-map nil)
-(define-prefix-command 'kd/pop-map)
-(global-set-key (kbd "s-o") 'kd/pop-map)
+(kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
 
 
 ;;; Customization
@@ -509,26 +511,31 @@
   :commands flyspell-mode
   :init (add-hook 'org-mode-hook #'flyspell-mode))
 
+(use-package plantuml-mode
+  :ensure t
+  :commands plantuml-mode
+  :config (setq plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar"))
+
+(use-package flycheck-plantuml
+  :ensure t
+  :commands flycheck-plantuml-setup
+  :init (add-hook 'plantuml-mode-hook #'flycheck-plantuml-setup))
+
 
 ;;; Tags
 
 (use-package ggtags
   :ensure t
-  :commands (ggtags-after-save-function)
-  :init (add-hook 'after-save-hook #'ggtags-after-save-function nil t)
+  :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
+  :bind (("M-[" . ggtags-find-definition)
+         ("M-]" . ggtags-find-reference))
+  :init (add-hook 'prog-mode-hook #'ggtags-mode)
   :config
   (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
   (setq ggtags-sort-by-nearness t)
   (setq ggtags-highlight-tag nil)
   (setq ggtags-enable-navigation-keys nil))
-
-(use-package counsel-gtags
-  :ensure t
-  :after ggtags
-  :bind (("M-[" . counsel-gtags-find-definition)
-         ("M-]" . counsel-gtags-find-reference)
-         ("C-<" . counsel-gtags-go-backward)))
 
 (use-package imenu-list
   :ensure t
@@ -671,12 +678,13 @@
 (use-package python
   :commands python-mode
   :init
-  (defun kd/python-mode-defaults ()
+  (defun kd/python-mode-hook-function ()
     (defun kd/avy-goto-py-declaration ()
       (interactive)
       (avy--generic-jump python-nav-beginning-of-defun-regexp nil 'pre))
-    (key-chord-define-local "jd" #'kd/avy-goto-py-declaration))
-  (add-hook 'python-mode-hook #'kd/python-mode-defaults))
+    (key-chord-define-local "jd" #'kd/avy-goto-py-declaration)
+    (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+  (add-hook 'python-mode-hook #'kd/python-mode-hook-function))
 
 (use-package subword
   :diminish subword-mode
