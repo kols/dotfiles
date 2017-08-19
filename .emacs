@@ -12,6 +12,8 @@
 (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
 (defvar kd/pop-map nil)
 (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
+(defvar kd/org-map nil)
+(kd/make-prefix-command (kbd "s-r") 'kd/org-map)
 
 
 ;;; Customization
@@ -127,12 +129,12 @@
       (setq mac-mouse-wheel-smooth-scroll nil)))
 
 (use-package osx-lib
-  :if '(eq system-type 'darwin)
+  :if (eq system-type 'darwin)
   :defer t
   :ensure t)
 
 (use-package osx-dictionary
-  :if '(eq system-type 'darwin)
+  :if (eq system-type 'darwin)
   :ensure t
   :bind ("C-c f" . osx-dictionary-search-word-at-point))
 
@@ -356,16 +358,36 @@
 
 (use-package hydra
   :ensure t
+  :bind (("s-z" . hydra-goto/body)
+         ("C-c w" . hydra-winner/body)
+         ("<f2>" . hydra-zoom/body)
+         ("C-M-o" . hydra-window-size/body))
   :config
-  (defhydra hydra-winner (global-map "C-c w")
+  (defun kd/last-captured-org-note ()
+    "Move to the end of penultimate line of the last org capture note."
+    (interactive)
+    (find-file org-default-notes-file)
+    (end-of-buffer)
+    (forward-line -2)
+    (org-end-of-line))
+  (defhydra hydra-goto (:color blue :hint nil)
+    "
+  goto   file
+         ---------------------------
+         ._e_macs
+         _c_ap.org: last note
+    "
+    ("e" (find-file "~/.dotfiles/.emacs"))
+    ("c" kd/last-captured-org-note))
+  (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
     ("l" winner-redo "redo"))
-  (defhydra hydra-zoom (global-map "<f2>")
+  (defhydra hydra-zoom ()
     "zoom"
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out"))
-  (defhydra hydra-window-size (global-map "C-M-o")
+  (defhydra hydra-window-size ()
     "window size"
     ("h" shrink-window-horizontally "shrink horizontal")
     ("j" enlarge-window "enlarge vertical")
@@ -456,14 +478,18 @@
 ;;; Org-mode
 
 (use-package org
-  :bind ("C-c l" . org-store-link)
-  :init (add-hook 'org-mode-hook (lambda ()
-                                   (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
-  :config
+  :bind (:map kd/org-map
+              ("l" . org-store-link)
+              ("a" . org-agenda)
+              ("c" . org-capture))
+  :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
-        '(("c" "cap" entry (file "") "* %?\n  %U")))
+        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
+  (add-hook 'org-mode-hook (lambda ()
+                             (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
+  :config
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
   ;; babel
@@ -478,6 +504,21 @@
                                '((ipython . t)
                                  (sh . t)
                                  (emacs-lisp . t))))
+
+(use-package org-mac-link
+  :ensure t
+  :if (eq system-type 'darwin)
+  :after org
+  :bind (:map kd/org-map
+              ("g" . org-mac-grab-link)
+              ("v" . kd/quick-url-note))
+  :config
+  (defun kd/quick-url-note ()
+    "Fastest way to capture a web page link"
+    (interactive)
+    (org-capture nil "n")
+    (org-mac-safari-insert-frontmost-url)
+    (org-capture-finalize)))
 
 (use-package org-download
   :ensure t
