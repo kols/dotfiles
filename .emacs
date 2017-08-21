@@ -316,6 +316,8 @@
 
 (use-package avy
   :ensure t
+  :bind (:map kd/org-map
+              ("w" . avy-org-refile-as-child))
   :chords (("jw" . avy-goto-word-1)
            ("jc" . avy-goto-char-timer)
            ("js" . avy-goto-symbol-1)
@@ -363,7 +365,7 @@
          ("<f2>" . hydra-zoom/body)
          ("C-M-o" . hydra-window-size/body))
   :config
-  (defun kd/last-captured-org-note ()
+  (defun kd/default-captured-org-note ()
     "Move to the end of penultimate line of the last org capture note."
     (interactive)
     (find-file org-default-notes-file)
@@ -373,12 +375,14 @@
   (defhydra hydra-goto (:color blue :hint nil)
     "
   goto   file
-         ---------------------------
+         -----------------------
          ._e_macs
-         _c_ap.org: last note
+         _c_ap.org: default note
+         _j_apan_trip.org
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
-    ("c" kd/last-captured-org-note))
+    ("c" kd/default-captured-org-note)
+    ("j" (find-file (concat org-directory "/japan_trip.org"))))
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
@@ -486,7 +490,8 @@
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
-        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
+        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")
+          ("j" "japan trip" entry (file+datetree (concat org-directory "/japan_trip.org")) "* %?\n  %U\n  %i")))
   (add-hook 'org-mode-hook (lambda ()
                              (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
   :config
@@ -510,14 +515,22 @@
   :if (eq system-type 'darwin)
   :after org
   :bind (:map kd/org-map
-              ("g" . org-mac-grab-link)
-              ("v" . kd/quick-url-note))
+              ("g m" . org-mac-grab-link)
+              ("g g" . kd/quick-url-note)
+              ("g j" . kd/japan-trip-url-note))
   :config
   (defun kd/quick-url-note ()
     "Fastest way to capture a web page link"
     (interactive)
     (org-capture nil "n")
     (org-mac-safari-insert-frontmost-url)
+    (org-capture-finalize))
+
+  (defun kd/japan-trip-url-note ()
+    (interactive)
+    (org-capture nil "j")
+    (org-mac-safari-insert-frontmost-url)
+    (org-set-tags)
     (org-capture-finalize)))
 
 (use-package org-download
