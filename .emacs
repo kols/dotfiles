@@ -410,6 +410,9 @@
 
 ;;; Ivy, Swiper & Counsel
 
+(use-package flx
+  :ensure t)
+
 (use-package ivy
   :ensure t
   :commands ivy-switch-buffer
@@ -419,6 +422,10 @@
   :diminish ivy-mode
   :init (add-hook 'after-init-hook 'ivy-mode)
   :config
+  (setq ivy-re-builders-alist
+        '((swiper . ivy--regex-plus)
+          (t . ivy--regex-fuzzy)))
+  (setq ivy-initial-inputs-alist nil)
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
   (setq ivy-count-format "%d/%d ")
