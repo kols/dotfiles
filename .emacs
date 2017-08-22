@@ -380,10 +380,12 @@
          ._e_macs
          _c_ap.org: default note
          _j_apan_trip.org
+         o_r_g files
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("c" kd/default-captured-org-note)
-    ("j" (find-file (concat org-directory "/japan_trip.org"))))
+    ("j" (find-file (concat org-directory "/japan_trip.org")))
+    ("r" (dired org-directory)))
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
