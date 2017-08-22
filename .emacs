@@ -361,6 +361,7 @@
 
 (use-package hydra
   :ensure t
+  :after ivy
   :bind (("s-z" . hydra-goto/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
@@ -385,7 +386,7 @@
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
-    ("r" (dired org-directory)))
+    ("r" (counsel-file-jump nil org-directory)))
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
