@@ -301,12 +301,13 @@
   :bind ("s-p" . projectile-find-file)
   :init
   (add-hook 'after-init-hook #'projectile-mode)
+  (add-hook 'projectile-mode-hook (lambda ()
+                                    (remove-hook 'find-file-hook #'projectile-find-file-hook-function)))
   :config
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name))))
-  (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
+  (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name)))))
 
 (use-package counsel-projectile
   :ensure t
