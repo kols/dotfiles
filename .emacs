@@ -382,11 +382,13 @@
          _c_ap.org: default note
          _j_apan_trip.org
          o_r_g files
+         _p_rojectile
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
-    ("r" (counsel-file-jump nil org-directory)))
+    ("r" (counsel-file-jump nil org-directory))
+    ("p" projectile-switch-project))
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
@@ -728,10 +730,6 @@
   :diminish flycheck-mode
   :init (add-hook 'prog-mode-hook #'flycheck-mode)
   :config (setq flycheck-check-syntax-automatically '(save)))
-
-(use-package which-func
-  :commands which-function-mode
-  :init (add-hook 'prog-mode-hook #'which-function-mode))
 
 (use-package realgud
   :ensure t
