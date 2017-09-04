@@ -178,6 +178,10 @@
   (define-auto-insert 'python-mode '(nil
                                      "# encoding: utf-8\n")))
 
+(use-package highlight-symbol
+  :ensure t
+  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
+
 ;; Window
 
 (use-package windmove
