@@ -72,8 +72,9 @@
 
 ;; GUI
 (when (window-system)
-  (use-package zenburn-theme
-    :ensure t)
+  (use-package sublime-themes
+    :ensure t
+    :config (load-theme 'dorsey t))
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -180,6 +181,7 @@
 
 (use-package highlight-symbol
   :ensure t
+  :diminish highlight-symbol-mode
   :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
 
 ;; Window
@@ -597,6 +599,7 @@
 
 (use-package ggtags
   :ensure t
+  :diminish ggtags-mode
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
   :bind (("M-[" . ggtags-find-definition)
          ("M-]" . ggtags-find-reference))
