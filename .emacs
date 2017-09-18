@@ -574,7 +574,9 @@
 (use-package browse-at-remote
   :ensure t
   :commands browse-at-remote
-  :config (add-to-list 'browse-at-remote-remote-type-domains '("gitlab.xiaohongshu.com" . "gitlab")))
+  :config (dolist (elt '(("gitlab.xiaohongshu.com" . "gitlab")
+                         ("code.devops.xiaohongshu.com" . "gitlab")))
+            (add-to-list 'browse-at-remote-remote-type-domains elt)))
 
 (use-package ispell
   :defer t
