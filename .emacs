@@ -4,7 +4,7 @@
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
 (defun kd/make-prefix-command (key command)
-  "Bind key for a prefix command"
+  "Bind KEY for a prefix COMMAND."
   (define-prefix-command command)
   (global-set-key key command))
 
@@ -72,9 +72,9 @@
 
 ;; GUI
 (when (window-system)
-  (use-package sublime-themes
+  (use-package cyberpunk-theme
     :ensure t
-    :config (load-theme 'dorsey t))
+    :config (load-theme 'cyberpunk t))
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -310,6 +310,7 @@
   (add-hook 'projectile-mode-hook (lambda ()
                                     (remove-hook 'find-file-hook #'projectile-find-file-hook-function)))
   :config
+  (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
@@ -380,6 +381,23 @@
     (end-of-buffer)
     (forward-line -2)
     (org-end-of-line))
+  (defun kd/jump-to-src (&optional initial-input)
+    (interactive)
+    (ivy-read "repo: "
+              (split-string
+               (shell-command-to-string
+                (concat "ghq list -p")) "\n" t)
+              :initial-input initial-input
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-src))
+  (defun kd/jump-to-reference (&optional initial-input)
+    (interactive)
+    (ivy-read "ref: "
+              '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
+                "~/Documents/rfc")
+              :initial-input initial-input
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-reference))
   (defhydra hydra-goto (:color blue :hint nil)
     "
   goto   file
@@ -389,12 +407,16 @@
          _j_apan_trip.org
          o_r_g files
          _p_rojectile
+         _s_rc
+         re_f_erence
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
     ("r" (counsel-file-jump nil org-directory))
-    ("p" projectile-switch-project))
+    ("s" (kd/jump-to-src))
+    ("p" projectile-switch-project)
+    ("f" (kd/jump-to-reference)))
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
@@ -445,9 +467,14 @@
   :after ivy
   :commands swiper)
 
+;; cache for M-x
+(use-package smex
+  :ensure t
+  :defer t)
+
 (use-package counsel
   :ensure t
-  :after (ivy swiper)
+  :after (ivy swiper smex)
   :bind
   (("C-s" . counsel-grep-or-swiper)
    ("M-x" . counsel-M-x)
@@ -456,9 +483,10 @@
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
+  :commands (exec-path-from-shell-initialize)
   :ensure t
   :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
-  :config (setq exec-path-from-shell-arguments '("-l")))
+  :config (setq exec-path-from-shell-check-startup-files nil))
 
 (use-package saveplace
   :config (setq-default save-place t))
@@ -493,9 +521,11 @@
 (use-package irfc
   :ensure t
   :commands irfc-mode
+  :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
+  :init
+  (setq irfc-assoc-mode 1)
   :config
-  (setq irfc-directory "~/Documents/rfc/rfc")
-  (setq irfc-assoc-mode t))
+  (setq irfc-directory "~/Documents/rfc/rfc"))
 
 
 ;;; Org-mode
@@ -571,9 +601,14 @@
 
 ;;; Integration
 
+(use-package browse-url
+  :bind (:map kd/pop-map
+              ("u" . browse-url-at-point)))
+
 (use-package browse-at-remote
   :ensure t
-  :commands browse-at-remote
+  :bind (:map kd/pop-map
+              ("r" . browse-at-remote))
   :config (dolist (elt '(("gitlab.xiaohongshu.com" . "gitlab")
                          ("code.devops.xiaohongshu.com" . "gitlab")))
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
