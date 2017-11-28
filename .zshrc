@@ -246,4 +246,7 @@ function install_pypkg {
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
+# rbenv
+eval "$(rbenv init -)"
+
 # vim:ft=zsh
