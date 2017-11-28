@@ -161,7 +161,9 @@
 
 (use-package visual-fill-column
   :ensure t
-  :commands visual-fill-column-mode)
+  :commands visual-fill-column-mode
+  :bind (:map kd/toggle-map
+              ("v" . visual-fill-column-mode)))
 
 (use-package which-key
   :ensure t
@@ -177,7 +179,7 @@
   :init (add-hook 'after-init-hook #'auto-insert-mode)
   :config
   (define-auto-insert 'python-mode '(nil
-                                     "# encoding: utf-8\n")))
+                                     "# coding: utf-8\n")))
 
 (use-package highlight-symbol
   :ensure t
@@ -531,6 +533,7 @@
 ;;; Org-mode
 
 (use-package org
+  :commands (orgtbl-mode)
   :bind (:map kd/org-map
               ("l" . org-store-link)
               ("a" . org-agenda)
@@ -539,8 +542,7 @@
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
-        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")
-          ("j" "japan trip" entry (file+datetree (concat org-directory "/japan_trip.org")) "* %?\n  %U\n  %i")))
+        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
   (add-hook 'org-mode-hook (lambda ()
                              (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
   :config
@@ -566,7 +568,7 @@
   :bind (:map kd/org-map
               ("g m" . org-mac-grab-link)
               ("g g" . kd/quick-url-note)
-              ("g j" . kd/japan-trip-url-note))
+              ("g f" . kd/quick-file-pos-note))
   :config
   (defun kd/quick-url-note ()
     "Fastest way to capture a web page link"
@@ -574,12 +576,12 @@
     (org-capture nil "n")
     (org-mac-safari-insert-frontmost-url)
     (org-capture-finalize))
-
-  (defun kd/japan-trip-url-note ()
+  (defun kd/quick-file-pos-note ()
+    "Store a org link to a file position"
     (interactive)
-    (org-capture nil "j")
-    (org-mac-safari-insert-frontmost-url)
-    (org-set-tags)
+    (org-store-link nil)
+    (org-capture nil "n")
+    (org-insert-link)
     (org-capture-finalize)))
 
 (use-package org-download
@@ -696,6 +698,19 @@
   (add-hook 'after-init-hook #'show-smartparens-global-mode)
   :config
   (use-package smartparens-config))
+
+(use-package js2-mode
+  :ensure t
+  :mode ("\\.js\\'" . js2-mode)
+  :interpreter ("node" . js2-mode))
+
+(use-package json-mode
+  :ensure t
+  :defer t)
+
+(use-package swift-mode
+  :ensure t
+  :defer t)
 
 (use-package csv-mode
   :ensure t
@@ -824,6 +839,10 @@
   :init
   (add-hook 'python-mode-hook (lambda ()
                                 (kd/local-push-company-backend #'company-jedi))))
+
+(use-package ein
+  :ensure t
+  :defer t)
 
 
 ;;; Golang

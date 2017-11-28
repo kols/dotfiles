@@ -1,5 +1,5 @@
 Pygments
-ansible>=2.1.0.0,<2.2.0.0
+ansible
 ansible-lint
 coursera-dl
 flake8
@@ -11,7 +11,7 @@ ipython<6.0.0
 jedi
 jupyter
 matplotlib
-mitmproxy
+mitmproxy==0.18.2
 pip-autoremove
 pylint
 pudb
