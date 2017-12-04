@@ -383,6 +383,12 @@
     (end-of-buffer)
     (forward-line -2)
     (org-end-of-line))
+  (defun kd/goto-programming-logbook ()
+    (interactive)
+    (find-file (concat org-directory "/logbook.org"))
+    (end-of-buffer)
+    (forward-line -2)
+    (org-end-of-line))
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
     (ivy-read "repo: "
@@ -406,7 +412,7 @@
          -----------------------
          ._e_macs
          _c_ap.org: default note
-         _j_apan_trip.org
+         _l_ogbook
          o_r_g files
          _p_rojectile
          _s_rc
@@ -415,6 +421,7 @@
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
+    ("l" (kd/goto-programming-logbook))
     ("r" (counsel-file-jump nil org-directory))
     ("s" (kd/jump-to-src))
     ("p" projectile-switch-project)
@@ -542,7 +549,8 @@
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
-        '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
+        '(("n" "note" entry (file+olp+datetree "") "* %?\n  %U\n  %i")
+          ("l" "log" entry (file+olp+datetree "logbook.org") "* %?\n  %U\n  %i")))
   (add-hook 'org-mode-hook (lambda ()
                              (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
   :config
