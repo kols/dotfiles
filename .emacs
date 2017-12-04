@@ -623,6 +623,10 @@
   :commands flyspell-mode
   :init (add-hook 'org-mode-hook #'flyspell-mode))
 
+(use-package graphql-mode
+  :ensure t
+  :defer t)
+
 (use-package plantuml-mode
   :ensure t
   :commands plantuml-mode
