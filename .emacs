@@ -209,10 +209,9 @@
   (setq aw-ignore-current t)
   (global-unset-key (kbd "C-x o")))
 
-(use-package zoom-window
+(use-package zygospore
   :ensure t
-  :bind (:map kd/toggle-map
-              ("z" . zoom-window-zoom)))
+  :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
 (use-package eyebrowse
   :ensure t
@@ -242,6 +241,7 @@
   :init
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
   :config
+  (setq dired-dwim-target t)
   (setq dired-listing-switches "-lahF")
   (setq dired-isearch-filenames t)
   (setq dired-ls-F-marks-symlinks t))
@@ -476,7 +476,6 @@
 
 (use-package counsel
   :ensure t
-  :after (ivy swiper smex)
   :bind
   (("C-s" . counsel-grep-or-swiper)
    ("M-x" . counsel-M-x)
@@ -824,8 +823,7 @@
 
 (use-package pyenv-mode-auto
   :ensure t
-  :commands pyenv-mode-auto-hook
-  :after pyenv-mode)
+  :commands pyenv-mode-auto-hook)
 
 (use-package jedi-core
   :ensure t
@@ -838,7 +836,6 @@
 
 (use-package company-jedi
   :ensure t
-  :after (company jedi-core)
   :commands company-jedi
   :init
   (add-hook 'python-mode-hook (lambda ()
@@ -862,7 +859,8 @@
   :init
   (defun kd/go-mode-hook-function ()
     (setq-local flycheck-disabled-checkers '(go-golint))
-    (add-hook 'before-save-hook #'gofmt-before-save nil t))
+    (add-hook 'before-save-hook #'gofmt-before-save nil t)
+    (ggtags-mode -1))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-function)
   :config
   (setq gofmt-command "goimports"))
@@ -875,9 +873,8 @@
 
 (use-package company-go
   :ensure t
-  :after company
   :commands company-go
-  :config
+  :init
   (add-hook 'go-mode-hook (lambda ()
                             (kd/local-push-company-backend #'company-go))))
 
