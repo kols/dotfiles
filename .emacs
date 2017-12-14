@@ -798,6 +798,50 @@
   :commands (realgud:trepan2))
 
 
+;;; C/C++
+
+(use-package function-args
+  :commands (turn-on-function-args-mode fa-config-default)
+  :init
+  (fa-config-default))
+
+(use-package company-c-headers
+  :commands company-c-headers)
+
+(use-package semantic
+  :commands (semantic-mode
+             global-semanticdb-minor-mode
+             semantic-idle-scheduler-mode
+             semantic-stickyfunc-mode)
+  :init
+  (set-default 'semantic-case-fold t))
+
+(use-package ede
+  :commands ede-minor-mode)
+
+(use-package cc-mode
+  :defer t
+  :init
+  (defun kd/cc-mode-hook-func ()
+    ; semantic
+    (semantic-mode 1)
+    (global-semanticdb-minor-mode 1)
+    (semantic-idle-scheduler-mode 1)
+    (semantic-stickyfunc-mode 1)
+
+    ; ede
+    (ede-minor-mode 1)
+
+    ; company
+    (kd/local-push-company-backend #'company-c-headers)
+
+    ; function-args
+    (fa-config-default))
+  (add-hook 'c-mode-common-hook #'kd/cc-mode-hook-func)
+  (add-hook 'c-mode-hook #'kd/cc-mode-hook-func)
+  (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func))
+
+
 ;;; Python
 
 (use-package python
