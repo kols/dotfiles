@@ -801,6 +801,7 @@
 ;;; C/C++
 
 (use-package function-args
+  :ensure t
   :commands (turn-on-function-args-mode fa-config-default)
   :init
   (fa-config-default))
