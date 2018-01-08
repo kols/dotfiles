@@ -127,6 +127,7 @@
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super)
     (when (memq window-system '(mac ns))
+      (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil)
       (setq mac-mouse-wheel-smooth-scroll nil)))
 
 (use-package osx-lib
