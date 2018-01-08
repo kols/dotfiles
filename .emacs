@@ -799,11 +799,6 @@
 
 ;;; C/C++
 
-(use-package function-args
-  :ensure t
-  :diminish function-args-mode
-  :commands (turn-on-function-args-mode))
-
 (use-package company-c-headers
   :ensure t
   :commands company-c-headers)
@@ -869,11 +864,7 @@
     (company-irony-setup-begin-commands)
 
     ; flycheck
-    (flycheck-select-checker 'irony)
-
-    ; function-args
-    (turn-on-function-args-mode)
-    (fa-config-default))
+    (flycheck-select-checker 'irony))
 
   (add-hook 'c-mode-hook #'kd/cc-mode-hook-func)
   (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func))
@@ -885,11 +876,18 @@
   :commands python-mode
   :init
   (defun kd/python-mode-hook-function ()
-    (defun kd/avy-goto-py-declaration ()
-      (interactive)
-      (avy--generic-jump python-nav-beginning-of-defun-regexp nil 'pre))
-    (key-chord-define-local "jd" #'kd/avy-goto-py-declaration)
+    (when (bound-and-true-p semantic-mode)
+      (semantic-mode -1))
+
+    ; jedi
+    (jedi:setup)
+
+    ; imenu
+    (setq imenu-create-index-function #'python-imenu-create-index)
+
+    ; trim whitespace
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function))
 
 (use-package subword
@@ -909,7 +907,6 @@
 (use-package jedi-core
   :ensure t
   :commands jedi:setup
-  :init (add-hook 'python-mode-hook #'jedi:setup)
   :config
   (setq jedi:use-shortcuts t)
   (setq jedi:tooltip-method nil)
