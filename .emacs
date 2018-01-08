@@ -789,7 +789,6 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
-  :diminish flycheck-mode
   :init (add-hook 'prog-mode-hook #'flycheck-mode)
   :config (setq flycheck-check-syntax-automatically '(save)))
 
@@ -802,43 +801,80 @@
 
 (use-package function-args
   :ensure t
-  :commands (turn-on-function-args-mode fa-config-default)
-  :init
-  (fa-config-default))
+  :diminish function-args-mode
+  :commands (turn-on-function-args-mode))
 
 (use-package company-c-headers
+  :ensure t
   :commands company-c-headers)
 
-(use-package semantic
-  :commands (semantic-mode
-             global-semanticdb-minor-mode
-             semantic-idle-scheduler-mode
-             semantic-stickyfunc-mode)
+(use-package irony
+  :ensure t
+  :commands irony-mode
   :init
-  (set-default 'semantic-case-fold t))
+  (add-hook 'irony-mode-hook #'irony-cdb-autosetup-compile-options)
+  (add-hook 'irony-mode-hook #'irony-eldoc))
 
-(use-package ede
-  :commands ede-minor-mode)
+(use-package irony-eldoc
+  :ensure t
+  :commands irony-eldoc)
+
+(use-package company-irony
+  :ensure t
+  :commands (company-irony company-irony-setup-begin-commands))
+
+(use-package flycheck-irony
+  :ensure t
+  :commands flycheck-irony-setup
+  :init
+  (add-hook 'irony-mode-hook #'flycheck-irony-setup))
+
+(use-package semantic
+  :commands (semantic-mode)
+  :init
+  (setq semantic-default-submodes nil)
+  (set-default 'semantic-case-fold t)
+  :config
+  (semanticdb-enable-gnu-global-databases 'c-mode)
+  (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+(use-package rtags
+  :ensure t
+  :commands rtags-start-process-unless-running
+  :init
+  (setq rtags-completions-enabled t)
+  (setq rtags-autostart-diagnostics t))
 
 (use-package cc-mode
   :defer t
   :init
+  (setq c-basic-offset 4)
   (defun kd/cc-mode-hook-func ()
     ; semantic
     (semantic-mode 1)
-    (global-semanticdb-minor-mode 1)
     (semantic-idle-scheduler-mode 1)
     (semantic-stickyfunc-mode 1)
+    (global-semanticdb-minor-mode)
 
-    ; ede
-    (ede-minor-mode 1)
+    ; rtags
+    (rtags-start-process-unless-running)
+
+    ; irony
+    (irony-mode 1)
 
     ; company
+    (setq company-backends (delete 'company-semantic company-backends))
     (kd/local-push-company-backend #'company-c-headers)
+    (kd/local-push-company-backend #'company-irony)
+    (company-irony-setup-begin-commands)
+
+    ; flycheck
+    (flycheck-select-checker 'irony)
 
     ; function-args
+    (turn-on-function-args-mode)
     (fa-config-default))
-  (add-hook 'c-mode-common-hook #'kd/cc-mode-hook-func)
+
   (add-hook 'c-mode-hook #'kd/cc-mode-hook-func)
   (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func))
 
