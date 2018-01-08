@@ -29,4 +29,7 @@ export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 # rust
 export PATH=$PATH:$HOME/.cargo/bin
 
+# brew
+export HOMEBREW_AUTO_UPDATE_SECS=86400
+
 # vim:ft=zsh
