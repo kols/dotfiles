@@ -646,11 +646,15 @@
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
   :bind (("M-[" . ggtags-find-definition)
          ("M-]" . ggtags-find-reference))
-  :init (add-hook 'prog-mode-hook #'ggtags-mode)
+  :init
+  (add-hook 'prog-mode-hook #'ggtags-mode)
+  (add-hook 'ggtags-global-mode-hook (lambda ()
+                                       (local-set-key (kbd "n") #'next-error-no-select)
+                                       (local-set-key (kbd "p") #'previous-error-no-select)))
   :config
   (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
-  (setq ggtags-sort-by-nearness t)
+  (setq ggtags-sort-by-nearness nil)
   (setq ggtags-highlight-tag nil)
   (setq ggtags-enable-navigation-keys nil))
 
@@ -797,6 +801,13 @@
   :ensure t
   :commands (realgud:trepan2))
 
+(use-package makefile-executor
+  :ensure t
+  :commands (makefile-executor-mode
+             makefile-executor-execute-target
+             makefile-executor-execute-project-target
+             makefile-executor-execute-last))
+
 
 ;;; C/C++
 
@@ -868,7 +879,9 @@
     (flycheck-select-checker 'irony))
 
   (add-hook 'c-mode-hook #'kd/cc-mode-hook-func)
-  (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func))
+  (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func)
+  :config
+  (setq c-auto-newline nil))
 
 
 ;;; Python
@@ -939,7 +952,9 @@
   (defun kd/go-mode-hook-function ()
     (setq-local flycheck-disabled-checkers '(go-golint))
     (add-hook 'before-save-hook #'gofmt-before-save nil t)
-    (ggtags-mode -1))
+    (when (bound-and-true-p ggtags-mode)
+      (ggtags-mode -1))
+    (go-eldoc-setup))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-function)
   :config
   (setq gofmt-command "goimports"))
@@ -947,8 +962,7 @@
 (use-package go-eldoc
   :ensure t
   :after (go-mode eldoc)
-  :commands go-eldoc-setup
-  :init (add-hook 'go-mode-hook #'go-eldoc-setup))
+  :commands go-eldoc-setup)
 
 (use-package company-go
   :ensure t
