@@ -14,6 +14,8 @@
 (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
 (defvar kd/org-map nil)
 (kd/make-prefix-command (kbd "s-r") 'kd/org-map)
+(defvar kd/compile-map nil)
+(kd/make-prefix-command (kbd "s-c") 'kd/compile-map)
 
 
 ;;; Customization
@@ -418,7 +420,7 @@
     ("j" (find-file (concat org-directory "/japan_trip.org")))
     ("r" (counsel-file-jump nil org-directory))
     ("s" (kd/jump-to-src))
-    ("p" projectile-switch-project)
+    ("p" (projectile-switch-project t))
     ("f" (kd/jump-to-reference)))
   (defhydra hydra-winner ()
     "winner mode"
@@ -803,10 +805,11 @@
 
 (use-package makefile-executor
   :ensure t
-  :commands (makefile-executor-mode
-             makefile-executor-execute-target
-             makefile-executor-execute-project-target
-             makefile-executor-execute-last))
+  :bind (:map kd/compile-map
+              ("t" . makefile-executor-execute-target)
+              ("p" . makefile-executor-execute-project-target)
+              ("c" . makefile-executor-execute-last))
+  :commands (makefile-executor-mode))
 
 
 ;;; C/C++
