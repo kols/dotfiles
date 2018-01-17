@@ -84,7 +84,7 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
-  (set-face-attribute 'default nil :font "-apple-luculent 14-regular-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+  (custom-set-faces '(default ((t :font "-apple-hack-regular-normal-normal-*-18-*-*-*-m-0-iso10646-1"))))
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -542,30 +542,27 @@
               ("l" . org-store-link)
               ("a" . org-agenda)
               ("c" . org-capture))
-  :init
+  :config
+  ;; face
+  (custom-set-faces '(org-document-title ((t :height 1.1 :weight semi-bold))))
+  (dolist (face org-level-faces)
+    (custom-set-faces `(,face ((t :height 1.0 :weight semi-bold)))))
+
+(unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
         '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
-  (add-hook 'org-mode-hook (lambda ()
-                             (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
-  :config
-  (dolist (face (append '(org-document-title) org-level-faces))
-    (face-spec-set face '((t :height 1.0))))
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
+
   ;; babel
-  (setq org-confirm-babel-evaluate nil)
-  (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append)
-  ;; avy
-  (defun kd/avy-goto-org-heading ()
-    (interactive)
-    (avy--generic-jump org-heading-regexp nil 'at))
-  (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
                                  (sh . t)
-                                 (emacs-lisp . t))))
+                                 (emacs-lisp . t)))
+  (setq org-confirm-babel-evaluate nil)
+  (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package org-mac-link
   :ensure t
@@ -1009,6 +1006,13 @@
   :ensure t
   :bind ("C-;" . iedit-mode))
 
+(use-package deft
+  :ensure t
+  :commands (deft deft-find-file)
+  :config
+  (setq deft-org-mode-title-prefix t)
+  (setq deft-use-filter-string-for-filename t)
+  (setq deft-directory (expand-file-name "~/Dropbox/nvALT")))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
