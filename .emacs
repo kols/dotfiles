@@ -408,6 +408,7 @@
   goto   file
          -----------------------
          ._e_macs
+         _d_eft
          _c_ap.org: default note
          _j_apan_trip.org
          o_r_g files
@@ -416,6 +417,7 @@
          re_f_erence
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
+    ("d" deft-find-file)
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
     ("r" (counsel-file-jump nil org-directory))
@@ -548,6 +550,8 @@
   (add-hook 'org-mode-hook (lambda ()
                              (key-chord-define-local "jh" #'kd/avy-goto-org-heading)))
   :config
+  (dolist (face (append '(org-document-title) org-level-faces))
+    (face-spec-set face '((t :height 1.0))))
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
   ;; babel
