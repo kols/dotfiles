@@ -74,9 +74,18 @@
 
 ;; GUI
 (when (window-system)
+  ;; theme
+  (add-to-list 'custom-theme-load-path (kd/emacs-subdirectory "elisp"))
+
+  (use-package default-black-theme
+    :config (load-theme 'default-black t))
+
   (use-package cyberpunk-theme
+    :disabled t
     :ensure t
     :config (load-theme 'cyberpunk t))
+
+  ;; ui
   (tool-bar-mode 0)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
@@ -84,7 +93,10 @@
   (column-number-mode 1)
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
   (tooltip-mode -1)
+
+  ;; font
   (custom-set-faces '(default ((t :font "-apple-hack-regular-normal-normal-*-18-*-*-*-m-0-iso10646-1"))))
+
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -95,29 +107,6 @@
   :commands global-visual-line-mode
   :init (add-hook 'after-init-hook #'global-visual-line-mode))
 
-;; Theme
-(use-package cyberpunk-theme
-  :disabled t
-  :ensure t)
-
-(use-package shackle
-  :ensure t
-  :commands shackle-mode
-  :init
-  (add-hook 'after-init-hook #'shackle-mode)
-  :config
-  (setq shackle-default-alignment 'below
-        shackle-default-size 0.25
-        shackle-rules
-        '(("*info*" :size 0.5 :select t :align t)
-          ("*Backtrace*" :size 20 :select nil :align t)
-          ("*Warnings*"  :size 8  :select nil :align t)
-          ("*Messages*"  :size 12 :select nil :align t)
-          ("*Help*" :align t :select t)
-          (magit-status-mode :autoclose t :align t :size 0.4)
-          ("^\*magit" :regexp :select nil :align 'right)
-          ("^\\*"  :regexp t :select nil :align t)
-          ("^ \\*" :regexp t :select nil :align t))))
 
 ;;; macOS
 
