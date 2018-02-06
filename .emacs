@@ -18,19 +18,12 @@
 (kd/make-prefix-command (kbd "s-c") 'kd/compile-map)
 
 
-;;; Customization
-
-(setq custom-file (kd/emacs-subdirectory "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
-
-
 ;;; Package
-
 (require 'package)
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
+(setq load-prefer-newer t)
 
 ;; use-package
 (unless (package-installed-p 'use-package)
@@ -43,6 +36,23 @@
 (use-package use-package-chords
   :ensure t
   :config (key-chord-mode 1))
+
+;; auto-compile
+(use-package auto-compile
+  :ensure t
+  :init
+  (setq auto-compile-display-buffer nil)
+  (setq auto-compile-mode-line-counter t)
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
+
+
+;;; Customization
+
+(setq custom-file (kd/emacs-subdirectory "custom.el"))
+(when (file-exists-p custom-file)
+  (load custom-file))
 
 
 ;;; Daemon
@@ -78,12 +88,17 @@
   (add-to-list 'custom-theme-load-path (kd/emacs-subdirectory "elisp"))
 
   (use-package default-black-theme
+    :disabled t
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
     :disabled t
     :ensure t
     :config (load-theme 'cyberpunk t))
+
+  (use-package zenburn-theme
+    :ensure t
+    :config (load-theme 'zenburn t))
 
   ;; ui
   (tool-bar-mode 0)
@@ -175,6 +190,7 @@
 
 (use-package highlight-symbol
   :ensure t
+  :commands (highlight-symbol-mode)
   :diminish highlight-symbol-mode
   :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
 
@@ -304,11 +320,12 @@
   (add-hook 'projectile-mode-hook (lambda ()
                                     (remove-hook 'find-file-hook #'projectile-find-file-hook-function)))
   :config
+  (setq projectile-track-known-projects-automatically nil)
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-mode-line '(:eval (format " Proj[%s]" (projectile-project-name)))))
+  (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
 
 (use-package counsel-projectile
   :ensure t
@@ -347,7 +364,9 @@
   :ensure t
   :commands global-git-gutter-mode
   :diminish git-gutter-mode
-  :init (add-hook 'after-init-hook #'global-git-gutter-mode))
+  :init
+  (setq git-gutter:disabled-modes '(org-mode))
+  (add-hook 'after-init-hook #'global-git-gutter-mode))
 
 
 (use-package expand-region
@@ -362,7 +381,6 @@
 
 (use-package hydra
   :ensure t
-  :after ivy
   :bind (("s-z" . hydra-goto/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
@@ -397,7 +415,8 @@
   goto   file
          -----------------------
          ._e_macs
-         _d_eft
+         _d_eft files
+         _D_eft
          _c_ap.org: default note
          _j_apan_trip.org
          o_r_g files
@@ -407,6 +426,7 @@
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("d" deft-find-file)
+    ("D" deft)
     ("c" kd/default-captured-org-note)
     ("j" (find-file (concat org-directory "/japan_trip.org")))
     ("r" (counsel-file-jump nil org-directory))
@@ -471,10 +491,38 @@
 (use-package counsel
   :ensure t
   :bind
-  (("C-s" . counsel-grep-or-swiper)
+  (("C-S-s" . counsel-grep-or-swiper)
    ("M-x" . counsel-M-x)
    ("C-x C-f" . counsel-find-file)
    ("C-." . counsel-imenu)))
+
+(use-package bookmark+
+  :defer t
+  :ensure t)
+
+(use-package isearch+
+  :ensure t)
+
+(use-package dired+
+  :defer t
+  :ensure t)
+
+(use-package info+
+  :defer t
+  :ensure t)
+
+(use-package help+
+  :defer t
+  :ensure t)
+
+(use-package help-fns+
+  :defer t
+  :ensure t)
+
+(use-package helpful
+  :ensure t
+  :bind (("C-h f" . helpful-callable)
+         ("C-h v" . helpful-variable)))
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
@@ -484,11 +532,8 @@
   :config (setq exec-path-from-shell-check-startup-files nil))
 
 (use-package saveplace
-  :config (setq-default save-place t))
-
-(use-package w3m
-  :ensure t
-  :commands w3m)
+  :commands save-place-mode
+  :init (add-hook 'after-init-hook #'save-place-mode))
 
 (use-package restclient
   :ensure t
@@ -527,18 +572,22 @@
 
 (use-package org
   :commands (orgtbl-mode)
-  :bind (:map kd/org-map
-              ("l" . org-store-link)
-              ("a" . org-agenda)
-              ("c" . org-capture))
+  :bind (("C-M-<return>" . org-insert-subheading)
+         (:map kd/org-map
+               ("l" . org-store-link)
+               ("a" . org-agenda)
+               ("c" . org-capture)))
+  :custom-face
+  (org-document-title ((t (:height 1.1 :wight semi-bold))))
+  :init
+  (setq org-directory "~/Dropbox/org")
+  (add-hook 'org-mode-hook #'org-bullets-mode)
   :config
   ;; face
-  (custom-set-faces '(org-document-title ((t :height 1.1 :weight semi-bold))))
   (dolist (face org-level-faces)
-    (custom-set-faces `(,face ((t :height 1.0 :weight semi-bold)))))
+    (custom-set-faces `(,face ((t (:height 1.0 :weight semi-bold))))))
 
-(unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
-  (setq org-directory "~/Dropbox/org")
+  (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
   (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
         '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
@@ -552,6 +601,10 @@
                                  (emacs-lisp . t)))
   (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
+
+(use-package org-bullets
+  :ensure t
+  :commands org-bullets-mode)
 
 (use-package org-mac-link
   :ensure t
@@ -579,18 +632,16 @@
 (use-package org-download
   :ensure t
   :after org
-  :commands org-download-yank)
+  :bind (:map kd/org-map
+              ("d" . org-download-yank)))
 
 (use-package ob-ipython
   :ensure t
-  :defer t
   :after org)
 
 (use-package ob-async
   :ensure t
-  :after org
-  :commands ob-async-org-babel-execute-src-block
-  :init (add-hook 'org-ctrl-c-ctrl-c-hook #'ob-async-org-babel-execute-src-block))
+  :after org)
 
 
 ;;; Integration
@@ -668,8 +719,7 @@
   (setq tab-always-indent 'complete)
   (defun kd/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
-    (set (make-local-variable 'company-backends)
-         (add-to-list 'company-backends backend))))
+    (setq-local company-backends (add-to-list 'company-backends backend))))
 
 (use-package company-flx
   :ensure t
@@ -763,9 +813,13 @@
 
 (use-package yasnippet
   :ensure t
-  :commands yas-global-mode
+  :commands (yas-global-mode yas-expand)
   :diminish yas-minor-mode
   :init (add-hook 'after-init-hook #'yas-global-mode))
+
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
 
 (use-package undo-tree
   :ensure t
@@ -830,13 +884,20 @@
   (add-hook 'irony-mode-hook #'flycheck-irony-setup))
 
 (use-package semantic
+  :disabled t
   :commands (semantic-mode)
   :init
+  (setq semantic-inhibit-functions '((lambda ()
+                                       (equal major-mode 'python-mode))))
   (setq semantic-default-submodes nil)
   (set-default 'semantic-case-fold t)
   :config
   (semanticdb-enable-gnu-global-databases 'c-mode)
   (semanticdb-enable-gnu-global-databases 'c++-mode))
+
+(use-package stickyfunc-enhance
+  :ensure t
+  :after semantic)
 
 (use-package rtags
   :ensure t
@@ -850,12 +911,6 @@
   :init
   (setq c-basic-offset 4)
   (defun kd/cc-mode-hook-func ()
-    ; semantic
-    (semantic-mode 1)
-    (semantic-idle-scheduler-mode 1)
-    (semantic-stickyfunc-mode 1)
-    (global-semanticdb-minor-mode)
-
     ; rtags
     (rtags-start-process-unless-running)
 
@@ -883,9 +938,6 @@
   :commands python-mode
   :init
   (defun kd/python-mode-hook-function ()
-    (when (bound-and-true-p semantic-mode)
-      (semantic-mode -1))
-
     ; jedi
     (jedi:setup)
 
@@ -943,7 +995,8 @@
         ("M-k" . godoc-at-point))
   :init
   (defun kd/go-mode-hook-function ()
-    (setq-local flycheck-disabled-checkers '(go-golint))
+    (flycheck-gometalinter-setup)
+    (setq-local flycheck-checker 'go-build)
     (add-hook 'before-save-hook #'gofmt-before-save nil t)
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
@@ -951,6 +1004,15 @@
   (add-hook 'go-mode-hook #'kd/go-mode-hook-function)
   :config
   (setq gofmt-command "goimports"))
+
+(use-package flycheck-gometalinter
+  :ensure t
+  :commands (flycheck-gometalinter-setup)
+  :after go-mode
+  :config
+  (setq flycheck-gometalinter-vendor t)
+  (setq flycheck-gometalinter-errors-only t)
+  (setq flycheck-gometalinter-fast t))
 
 (use-package go-eldoc
   :ensure t
@@ -968,6 +1030,17 @@
   :ensure t
   :commands go-guru-hl-identifier-mode
   :init (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+
+(use-package gotest
+  :after go-mode
+  :ensure t)
+
+(use-package go-playground
+  :ensure t
+  :bind (:map go-playground-mode-map
+              ("C-c C-c" . go-playground-exec)
+              ("C-c C-k" . go-playground-rm))
+  :commands go-playground)
 
 
 ;;; Elisp
