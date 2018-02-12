@@ -1,45 +1,34 @@
-(defconst kd/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
-(defun kd/emacs-subdirectory (d)
-  (expand-file-name d kd/emacs-directory))
-(add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
+;;; .emacs --- Emacs init file
 
-(defun kd/make-prefix-command (key command)
-  "Bind KEY for a prefix COMMAND."
-  (define-prefix-command command)
-  (global-set-key key command))
+;;; Commentary:
+;;;   Emacs init file
 
-(defvar kd/toggle-map nil)
-(kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
-(defvar kd/pop-map nil)
-(kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
-(defvar kd/org-map nil)
-(kd/make-prefix-command (kbd "s-r") 'kd/org-map)
-(defvar kd/compile-map nil)
-(kd/make-prefix-command (kbd "s-c") 'kd/compile-map)
-
+;;; Code:
 
 ;;; Package
 (require 'package)
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
-(setq load-prefer-newer t)
 
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;;;; quelpa
+(unless (require 'quelpa nil t)
+  (load "quelpa-bootstrap.el"))
+(quelpa '(quelpa-use-package
+          :fetcher github
+          :repo "quelpa/quelpa-use-package"))
+
+;;;; use-package
+(setq use-package-expand-minimally t)
 (require 'use-package)
-;; You can turn this on to see when exactly a package get's configured
-(setq use-package-verbose t)
-
+(require 'quelpa-use-package)
 (use-package use-package-chords
-  :ensure t
+  :quelpa
   :config (key-chord-mode 1))
 
-;; auto-compile
+;;;; auto-compile
 (use-package auto-compile
-  :ensure t
+  :disabled t
+  :quelpa
   :init
   (setq auto-compile-display-buffer nil)
   (setq auto-compile-mode-line-counter t)
@@ -47,57 +36,91 @@
   (auto-compile-on-load-mode)
   (auto-compile-on-save-mode))
 
+;;; Settings
+(use-package kd-settings
+  :init
+  (defun kd/emacs-subdirectory (d)
+    "Make dir path inside Emacs user dir for D."
+    (expand-file-name d user-emacs-directory))
 
-;;; Customization
+  (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
-(setq custom-file (kd/emacs-subdirectory "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
+  (fset 'yes-or-no-p 'y-or-n-p)
 
+  (setq-default default-tab-width 4)
+
+  (setq confirm-kill-emacs 'y-or-n-p
+        load-prefer-newer t
+        gc-cons-threshold 50000000
+        scroll-conservatively 10000
+        scroll-preserve-screen-position t
+        vc-follow-symlinks t)
+
+;;;; customization
+  (setq custom-file (kd/emacs-subdirectory "custom.el"))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+
+;;;; ui
+  (unless noninteractive
+    (advice-add #'display-startup-echo-area-message :override #'ignore)
+    (setq inhibit-startup-message t
+          inhibit-startup-echo-area-message user-login-name
+          inhibit-default-init t
+          initial-major-mode 'fundamental-mode
+          initial-scratch-message nil
+          mode-line-format nil))
+
+  (setq visible-bell t)
+
+  (provide 'kd-settings))
+
+;;; Keybinding
+(use-package bind-key
+  :quelpa
+  :init
+  (defun kd/make-prefix-command (key command)
+    "Bind KEY for a prefix COMMAND."
+    (define-prefix-command command)
+    (global-set-key key command))
+  (defvar kd/toggle-map nil)
+  (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
+  (defvar kd/pop-map nil)
+  (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
+  (defvar kd/org-map nil)
+  (kd/make-prefix-command (kbd "s-r") 'kd/org-map)
+  (defvar kd/compile-map nil)
+  (kd/make-prefix-command (kbd "s-c") 'kd/compile-map))
 
 ;;; Daemon
-
 (use-package server
   :init
   (add-hook 'after-init-hook (lambda ()
                                (unless (server-running-p)
                                  (server-start)))))
 
-
-;;; General
-
 (use-package better-defaults
-  :ensure t)
+  :quelpa)
 
-(setq gc-cons-threshold 50000000)
-(setq scroll-conservatively 10000
-      scroll-preserve-screen-position t)
-(setq vc-follow-symlinks t)
-(setq-default default-tab-width 4)
+(use-package desktop
+  :init (add-hook 'after-init-hook #'desktop-save-mode))
 
 
 ;;; Interface
 
-(setq initial-scratch-message "")
-(setq visible-bell t)
-(fset 'yes-or-no-p 'y-or-n-p)
-
 ;; GUI
 (when (window-system)
-  ;; theme
-  (add-to-list 'custom-theme-load-path (kd/emacs-subdirectory "elisp"))
-
   (use-package default-black-theme
     :disabled t
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
     :disabled t
-    :ensure t
+    :quelpa
     :config (load-theme 'cyberpunk t))
 
   (use-package zenburn-theme
-    :ensure t
+    :quelpa
     :config (load-theme 'zenburn t))
 
   ;; ui
@@ -110,12 +133,15 @@
   (tooltip-mode -1)
 
   ;; font
-  (custom-set-faces '(default ((t :font "-apple-hack-regular-normal-normal-*-18-*-*-*-m-0-iso10646-1"))))
+  (custom-set-faces '(default ((t (:font "-apple-hack-regular-normal-normal-*-17-*-*-*-m-0-iso10646-1")))))
 
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
-  (setq mouse-wheel-follow-mouse 't))
+  (setq mouse-wheel-follow-mouse 't)
+
+  ;; maximize
+  (add-hook 'after-init-hook #'toggle-frame-maximized))
 
 (use-package simple
   :diminish visual-line-mode
@@ -124,27 +150,35 @@
 
 
 ;;; macOS
+(use-package kd-macOS
+  :defines IS-MAC
+  :functions kd/lock-screen
+  :init
+  (defconst IS-MAC (eq system-type 'darwin))
+  (provide 'kd-macOS)
+  :config
+  (defun kd/lock-screen ()
+    (interactive)
+    (cond (IS-MAC
+           (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))))
+  (key-chord-define-global "lk" #'kd/lock-screen)
 
-(when (eq system-type 'darwin)
-    (defun kd/osx-lock-screen ()
-      (interactive)
-      (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))
-    (key-chord-define-global "lk" #'kd/osx-lock-screen)
+  (when IS-MAC
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super)
     (when (memq window-system '(mac ns))
-      (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil)
+      (when (fboundp 'mac-set-frame-tab-group-property)
+        (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
       (setq mac-mouse-wheel-smooth-scroll nil)))
 
-(use-package osx-lib
-  :if (eq system-type 'darwin)
-  :defer t
-  :ensure t)
+  (use-package osx-lib
+    :if IS-MAC
+    :ensure t)
 
-(use-package osx-dictionary
-  :if (eq system-type 'darwin)
-  :ensure t
-  :bind ("C-c f" . osx-dictionary-search-word-at-point))
+  (use-package osx-dictionary
+    :if IS-MAC
+    :ensure t
+    :bind ("C-c f" . osx-dictionary-search-word-at-point)))
 
 
 (use-package whitespace
@@ -246,6 +280,7 @@
   :defer t
   :commands dired
   :diminish dired-mode
+  :defines dired-isearch-filenames
   :init
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
   :config
@@ -356,17 +391,15 @@
   :bind (("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
+  :defines magit-status-expand-stashes
   :config
   (setq magit-git-executable "/usr/local/bin/git")
   (setq magit-status-expand-stashes nil))
 
-(use-package git-gutter
+(use-package diff-hl
   :ensure t
-  :commands global-git-gutter-mode
-  :diminish git-gutter-mode
-  :init
-  (setq git-gutter:disabled-modes '(org-mode))
-  (add-hook 'after-init-hook #'global-git-gutter-mode))
+  :commands turn-on-diff-hl-mode
+  :init (add-hook 'prog-mode-hook #'turn-on-diff-hl-mode))
 
 
 (use-package expand-region
@@ -384,7 +417,8 @@
   :bind (("s-z" . hydra-goto/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
-         ("C-M-o" . hydra-window-size/body))
+         ("C-M-o" . hydra-window-size/body)
+         ("s-m" . hydra-mc/body))
   :config
   (defun kd/default-captured-org-note ()
     "Move to the end of penultimate line of the last org capture note."
@@ -447,7 +481,13 @@
     ("j" enlarge-window "enlarge vertical")
     ("k" shrink-window "shrink vertical")
     ("l" enlarge-window-horizontally "enlarge horizontal")
-    ("=" balance-windows "balance")))
+    ("=" balance-windows "balance"))
+  (defhydra hydra-mc ()
+    "multiple cursor"
+    ("n" mc/mark-next-like-this "mark next")
+    ("p" mc/mark-previous-like-this "mark previous")
+    ("A" mc/mark-all-like-this "mark all")
+    ("e" mc/edit-lines "edit lines")))
 
 (use-package edit-indirect
   :ensure t
@@ -507,9 +547,12 @@
   :defer t
   :ensure t)
 
+(use-package info
+  :commands info)
+
 (use-package info+
-  :defer t
-  :ensure t)
+  :ensure t
+  :after info)
 
 (use-package help+
   :defer t
@@ -549,12 +592,12 @@
 
 (use-package outshine
   :ensure t
+  :after outline
   :commands outshine-hook-function
   :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   :config (setq outshine-use-speed-commands t))
 
 (use-package outline
-  :disabled t
   :commands outline-minor-mode
   :init (add-hook 'prog-mode-hook 'outline-minor-mode))
 
@@ -572,6 +615,7 @@
 
 (use-package org
   :commands (orgtbl-mode)
+  :defines (org-capture-templates org-imenu-depth org-default-notes-file)
   :bind (("C-M-<return>" . org-insert-subheading)
          (:map kd/org-map
                ("l" . org-store-link)
@@ -593,6 +637,15 @@
         '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
+
+  ;; link type
+  (org-add-link-type
+   "gmail"
+   (lambda (link)
+     (browse-url
+      ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
+      ;; for html-browser
+      (concat "https://mail.google.com/mail/?shva=1#all/" link))))
 
   ;; babel
   (org-babel-do-load-languages 'org-babel-load-languages
@@ -781,11 +834,13 @@
 
 (use-package ansible
   :ensure t
-  :commands ansible)
+  :commands (ansible ansible-doc)
+  :mode (("\\(playbook\\|site\\|main\\|local\\)\\.ya?ml\\'" . ansible)
+         ("/\\(tasks\\|roles\\|handlers\\)/.*\\.ya?ml\\'" . ansible)
+         ("/\\(group\\|host\\)_vars/". ansible)))
 
 (use-package company-ansible
   :ensure t
-  :after (company ansible)
   :commands company-ansible
   :init
   (add-hook 'ansible::hook (lambda ()
@@ -1043,6 +1098,15 @@
   :commands go-playground)
 
 
+;;; Java
+
+(use-package jdee
+  :ensure t
+  :defer t
+  :init
+  (setq jdee-server-dir "/Users/kane/.ghq/github.com/jdee-emacs/jdee-server/target"))
+
+
 ;;; Elisp
 
 (use-package elisp-slime-nav
@@ -1062,7 +1126,10 @@
 
 (use-package multiple-cursors
   :ensure t
-  :commands mc/edit-lines)
+  :commands (mc/mark-next-like-this
+             mc/mark-previous-like-this
+             mc/mark-all-like-this
+             mc/edit-lines))
 
 (use-package iedit
   :ensure t
