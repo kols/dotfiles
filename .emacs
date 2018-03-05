@@ -7,7 +7,8 @@
 
 ;;; Package
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
 (package-initialize)
 
 ;;;; quelpa
@@ -18,8 +19,8 @@
           :repo "quelpa/quelpa-use-package"))
 
 ;;;; use-package
-(setq use-package-expand-minimally t)
 (require 'use-package)
+(setq use-package-expand-minimally t)
 (require 'quelpa-use-package)
 (use-package use-package-chords
   :quelpa
@@ -39,6 +40,8 @@
 ;;; Settings
 (use-package kd-settings
   :init
+  (use-package better-defaults :quelpa)
+
   (defun kd/emacs-subdirectory (d)
     "Make dir path inside Emacs user dir for D."
     (expand-file-name d user-emacs-directory))
@@ -47,14 +50,18 @@
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
-  (setq-default default-tab-width 4)
+  (setq-default
+   default-tab-width 4
+   tab-width 4
+   indent-tabs-mode nil)
 
-  (setq confirm-kill-emacs 'y-or-n-p
-        load-prefer-newer t
-        gc-cons-threshold 50000000
-        scroll-conservatively 10000
-        scroll-preserve-screen-position t
-        vc-follow-symlinks t)
+  (setq
+   confirm-kill-emacs 'y-or-n-p
+   load-prefer-newer t
+   gc-cons-threshold 50000000
+   scroll-conservatively 10000
+   scroll-preserve-screen-position t
+   vc-follow-symlinks t)
 
 ;;;; customization
   (setq custom-file (kd/emacs-subdirectory "custom.el"))
@@ -64,12 +71,13 @@
 ;;;; ui
   (unless noninteractive
     (advice-add #'display-startup-echo-area-message :override #'ignore)
-    (setq inhibit-startup-message t
-          inhibit-startup-echo-area-message user-login-name
-          inhibit-default-init t
-          initial-major-mode 'fundamental-mode
-          initial-scratch-message nil
-          mode-line-format nil))
+    (setq
+     inhibit-startup-message t
+     inhibit-startup-echo-area-message user-login-name
+     inhibit-default-init t
+     initial-major-mode 'fundamental-mode
+     initial-scratch-message nil
+     mode-line-format nil))
 
   (setq visible-bell t)
 
@@ -83,6 +91,7 @@
     "Bind KEY for a prefix COMMAND."
     (define-prefix-command command)
     (global-set-key key command))
+
   (defvar kd/toggle-map nil)
   (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
   (defvar kd/pop-map nil)
@@ -92,15 +101,13 @@
   (defvar kd/compile-map nil)
   (kd/make-prefix-command (kbd "s-c") 'kd/compile-map))
 
-;;; Daemon
+;;; Startup
+;;;; daemon
 (use-package server
   :init
   (add-hook 'after-init-hook (lambda ()
                                (unless (server-running-p)
                                  (server-start)))))
-
-(use-package better-defaults
-  :quelpa)
 
 (use-package desktop
   :init (add-hook 'after-init-hook #'desktop-save-mode))
@@ -419,7 +426,7 @@
          ("<f2>" . hydra-zoom/body)
          ("C-M-o" . hydra-window-size/body)
          ("s-m" . hydra-mc/body))
-  :config
+  :init
   (defun kd/default-captured-org-note ()
     "Move to the end of penultimate line of the last org capture note."
     (interactive)
@@ -427,6 +434,7 @@
     (end-of-buffer)
     (forward-line -2)
     (org-end-of-line))
+
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
     (ivy-read "repo: "
@@ -436,45 +444,60 @@
               :initial-input initial-input
               :action (lambda (d) (dired d))
               :caller 'kd/jump-to-src))
+
   (defun kd/jump-to-reference (&optional initial-input)
     (interactive)
     (ivy-read "ref: "
               '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
                 "~/Documents/rfc")
-              :initial-input initial-input
               :action (lambda (d) (dired d))
               :caller 'kd/jump-to-reference))
+
+  (defun kd/find-org-file (&optional directory)
+    (interactive)
+    (let ((default-directory (or directory org-directory)))
+      (ivy-read "org file: "
+                (split-string (shell-command-to-string "fd -e org") "\n" t)
+                :action (lambda (x)
+                          (with-ivy-window
+                            (find-file (expand-file-name x ivy--directory))))
+                :require-match 'confirm-after-completion
+                :history 'file-name-history
+                :caller 'kd/find-org-file)))
+
+  :config
   (defhydra hydra-goto (:color blue :hint nil)
     "
   goto   file
          -----------------------
          ._e_macs
-         _d_eft files
          _D_eft
          _c_ap.org: default note
-         _j_apan_trip.org
          o_r_g files
          _p_rojectile
          _s_rc
+         code snippe_t_s
          re_f_erence
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
-    ("d" deft-find-file)
     ("D" deft)
     ("c" kd/default-captured-org-note)
-    ("j" (find-file (concat org-directory "/japan_trip.org")))
-    ("r" (counsel-file-jump nil org-directory))
+    ("r" (kd/find-org-file org-directory))
     ("s" (kd/jump-to-src))
+    ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
     ("p" (projectile-switch-project t))
     ("f" (kd/jump-to-reference)))
+
   (defhydra hydra-winner ()
     "winner mode"
     ("h" winner-undo "undo")
     ("l" winner-redo "redo"))
+
   (defhydra hydra-zoom ()
     "zoom"
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out"))
+
   (defhydra hydra-window-size ()
     "window size"
     ("h" shrink-window-horizontally "shrink horizontal")
@@ -482,6 +505,7 @@
     ("k" shrink-window "shrink vertical")
     ("l" enlarge-window-horizontally "enlarge horizontal")
     ("=" balance-windows "balance"))
+
   (defhydra hydra-mc ()
     "multiple cursor"
     ("n" mc/mark-next-like-this "mark next")
@@ -501,7 +525,7 @@
 
 (use-package ivy
   :ensure t
-  :commands ivy-switch-buffer
+  :commands (ivy-switch-buffer ivy-read)
   :bind (:map ivy-mode-map
               ("s-x" . ivy-switch-buffer)
               ("C-c C-r" . ivy-resume))
@@ -614,8 +638,13 @@
 ;;; Org-mode
 
 (use-package org
+  :ensure t
   :commands (orgtbl-mode)
-  :defines (org-capture-templates org-imenu-depth org-default-notes-file)
+  :defines
+  (org-directory
+   org-capture-templates
+   org-imenu-depth
+   org-default-notes-file)
   :bind (("C-M-<return>" . org-insert-subheading)
          (:map kd/org-map
                ("l" . org-store-link)
@@ -625,6 +654,7 @@
   (org-document-title ((t (:height 1.1 :wight semi-bold))))
   :init
   (setq org-directory "~/Dropbox/org")
+  (setq org-default-notes-file (concat org-directory "/cap.org"))
   (add-hook 'org-mode-hook #'org-bullets-mode)
   :config
   ;; face
@@ -632,13 +662,19 @@
     (custom-set-faces `(,face ((t (:height 1.0 :weight semi-bold))))))
 
   (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
-  (setq org-default-notes-file (concat org-directory "/cap.org"))
   (setq org-capture-templates
         '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
 
-  ;; link type
+  ;; gmail link type
+  (org-add-link-type
+   "gmail"
+   (lambda (link)
+     (browse-url
+      ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
+      ;; for html-browser
+      (concat "https://mail.google.com/mail/?shva=1#all/" link))))
   (org-add-link-type
    "gmail"
    (lambda (link)
@@ -654,6 +690,16 @@
                                  (emacs-lisp . t)))
   (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
+
+(use-package ox-reveal
+  :ensure t
+  :config
+  (setq org-reveal-root "file:///Users/kane/src/reveal.js"))
+
+(use-package org-noter
+  :quelpa t
+  :config
+  (setq org-noter-auto-save-last-location t))
 
 (use-package org-bullets
   :ensure t
@@ -717,7 +763,8 @@
 
 (use-package flyspell
   :commands flyspell-mode
-  :init (add-hook 'org-mode-hook #'flyspell-mode))
+  :init (add-hook 'org-mode-hook #'flyspell-mode)
+  :config (define-key flyspell-mode-map [remap flyspell-auto-correct-word] nil))
 
 (use-package graphql-mode
   :ensure t
@@ -910,6 +957,13 @@
               ("c" . makefile-executor-execute-last))
   :commands (makefile-executor-mode))
 
+(use-package pdf-tools
+  :quelpa t
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :commands pdf-view-mode
+  :config
+  (pdf-tools-install))
+
 
 ;;; C/C++
 
@@ -964,7 +1018,7 @@
 (use-package cc-mode
   :defer t
   :init
-  (setq c-basic-offset 4)
+  (setq-default c-basic-offset 4)
   (defun kd/cc-mode-hook-func ()
     ; rtags
     (rtags-start-process-unless-running)
