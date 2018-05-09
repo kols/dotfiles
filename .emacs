@@ -17,25 +17,17 @@
                          ("org" . "https://orgmode.org/elpa/")))
 (package-initialize)
 
-;;;; quelpa
-(unless (require 'quelpa nil t)
-  (load "quelpa-bootstrap.el"))
-(quelpa '(quelpa-use-package
-          :fetcher github
-          :repo "quelpa/quelpa-use-package"))
-
 ;;;; use-package
 (require 'use-package)
 (setq use-package-expand-minimally t)
-(require 'quelpa-use-package)
 (use-package use-package-chords
-  :quelpa
+  :ensure t
   :config (key-chord-mode 1))
 
 ;;;; auto-compile
 (use-package auto-compile
   :disabled t
-  :quelpa
+  :ensure t
   :init
   (setq auto-compile-display-buffer nil)
   (setq auto-compile-mode-line-counter t)
@@ -46,7 +38,8 @@
 ;;; Settings
 (use-package kd-settings
   :init
-  (use-package better-defaults :quelpa)
+  (use-package better-defaults
+    :ensure t)
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -85,7 +78,7 @@
 
 ;;; Keybinding
 (use-package bind-key
-  :quelpa
+  :ensure t
   :init
   (defun kd/make-prefix-command (key command)
     "Bind KEY for a prefix COMMAND."
@@ -124,12 +117,12 @@
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
-    :quelpa
+    :ensure t
     :config (load-theme 'cyberpunk t))
 
   (use-package zenburn-theme
     :disabled t
-    :quelpa
+    :ensure t
     :config (load-theme 'zenburn t))
 
   ;; ui
@@ -694,7 +687,7 @@
   (setq org-reveal-root "file:///Users/kane/src/reveal.js"))
 
 (use-package org-noter
-  :quelpa t
+  :ensure t
   :config
   (setq org-noter-auto-save-last-location t))
 
@@ -952,7 +945,7 @@
   :commands (makefile-executor-mode))
 
 (use-package pdf-tools
-  :quelpa t
+  :ensure t
   :mode ("\\.pdf\\'" . pdf-view-mode)
   :commands pdf-view-mode
   :config
