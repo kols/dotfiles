@@ -16,10 +16,18 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")))
 (package-initialize)
+(setq load-prefer-newer t)
 
-;;;; use-package
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (require 'use-package)
-(setq use-package-expand-minimally t)
+;; You can turn this on to see when exactly a package get's configured
+(setq use-package-verbose t
+      use-package-expand-minimally t)
+
 (use-package use-package-chords
   :ensure t
   :config (key-chord-mode 1))
