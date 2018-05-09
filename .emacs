@@ -5,6 +5,12 @@
 
 ;;; Code:
 
+(defun kd/emacs-subdirectory (d)
+  "Make dir path inside Emacs user dir for D."
+  (expand-file-name d user-emacs-directory))
+
+(add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
+
 ;;; Package
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -41,12 +47,6 @@
 (use-package kd-settings
   :init
   (use-package better-defaults :quelpa)
-
-  (defun kd/emacs-subdirectory (d)
-    "Make dir path inside Emacs user dir for D."
-    (expand-file-name d user-emacs-directory))
-
-  (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -110,7 +110,9 @@
                                  (server-start)))))
 
 (use-package desktop
-  :init (add-hook 'after-init-hook #'desktop-save-mode))
+  :commands desktop-save-mode
+  :init (add-hook 'after-init-hook #'desktop-save-mode)
+  :config (setq desktop-dirname user-emacs-directory))
 
 
 ;;; Interface
@@ -122,11 +124,11 @@
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
-    :disabled t
     :quelpa
     :config (load-theme 'cyberpunk t))
 
   (use-package zenburn-theme
+    :disabled t
     :quelpa
     :config (load-theme 'zenburn t))
 
@@ -140,7 +142,7 @@
   (tooltip-mode -1)
 
   ;; font
-  (custom-set-faces '(default ((t (:font "-apple-hack-regular-normal-normal-*-17-*-*-*-m-0-iso10646-1")))))
+  (custom-set-faces '(default ((t (:font "-apple-fira mono-regular-*-*-*-16-*-*-*-m-*-iso10646-1")))))
 
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
@@ -381,7 +383,6 @@
               ("w" . avy-org-refile-as-child))
   :chords (("jw" . avy-goto-word-1)
            ("jc" . avy-goto-char-timer)
-           ("js" . avy-goto-symbol-1)
            ("jl" . avy-goto-line))
   :config (setq avy-background t))
 
@@ -667,26 +668,22 @@
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
 
-  ;; gmail link type
-  (org-add-link-type
-   "gmail"
-   (lambda (link)
-     (browse-url
-      ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
-      ;; for html-browser
-      (concat "https://mail.google.com/mail/?shva=1#all/" link))))
-  (org-add-link-type
-   "gmail"
-   (lambda (link)
-     (browse-url
-      ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
-      ;; for html-browser
-      (concat "https://mail.google.com/mail/?shva=1#all/" link))))
+  (org-link-set-parameters "devonthink"
+                           :follow
+                           (lambda (id)
+                             (osx-open-url-at-point (concat "x-devonthink-item://" id))))
+  (org-link-set-parameters "gmail"
+                           :follow
+                           (lambda (id)
+                             (browse-url
+                              ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
+                              ;; for html-browser
+                              (concat "https://mail.google.com/mail/?shva=1#all/" id))))
 
   ;; babel
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
-                                 (sh . t)
+                                 (shell . t)
                                  (emacs-lisp . t)))
   (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
@@ -843,11 +840,8 @@
   :bind (:map smartparens-mode-map
               ("C-s-]" . sp-unwrap-sexp)
               ("C-)" . sp-slurp-hybrid-sexp))
-  :init
-  (add-hook 'after-init-hook #'smartparens-global-strict-mode)
-  (add-hook 'after-init-hook #'show-smartparens-global-mode)
-  :config
-  (use-package smartparens-config))
+  :init (add-hook 'after-init-hook #'smartparens-global-strict-mode)
+  :config (use-package smartparens-config))
 
 (use-package js2-mode
   :ensure t
@@ -971,26 +965,9 @@
   :ensure t
   :commands company-c-headers)
 
-(use-package irony
+(use-package google-c-style
   :ensure t
-  :commands irony-mode
-  :init
-  (add-hook 'irony-mode-hook #'irony-cdb-autosetup-compile-options)
-  (add-hook 'irony-mode-hook #'irony-eldoc))
-
-(use-package irony-eldoc
-  :ensure t
-  :commands irony-eldoc)
-
-(use-package company-irony
-  :ensure t
-  :commands (company-irony company-irony-setup-begin-commands))
-
-(use-package flycheck-irony
-  :ensure t
-  :commands flycheck-irony-setup
-  :init
-  (add-hook 'irony-mode-hook #'flycheck-irony-setup))
+  :commands (google-set-c-style google-make-newline-indent))
 
 (use-package semantic
   :disabled t
@@ -1005,6 +982,7 @@
   (semanticdb-enable-gnu-global-databases 'c++-mode))
 
 (use-package stickyfunc-enhance
+  :disabled t
   :ensure t
   :after semantic)
 
@@ -1016,29 +994,70 @@
   (setq rtags-autostart-diagnostics t))
 
 (use-package cc-mode
-  :defer t
+  :commands (c-mode c++-mode)
   :init
-  (setq-default c-basic-offset 4)
-  (defun kd/cc-mode-hook-func ()
-    ; rtags
+  (defun kd/c-mode-common-hook-func ()
+    ;; style
+    (google-set-c-style)
+    (google-make-newline-indent))
+
+  (add-hook 'c-mode-common-hook #'kd/c-mode-common-hook-func)
+
+  (defun kd/c-mode-hook-func ()
+    ;; rtags
     (rtags-start-process-unless-running)
 
-    ; irony
+    ;; irony
     (irony-mode 1)
 
-    ; company
+    ;; company
     (setq company-backends (delete 'company-semantic company-backends))
     (kd/local-push-company-backend #'company-c-headers)
-    (kd/local-push-company-backend #'company-irony)
-    (company-irony-setup-begin-commands)
+    )
 
-    ; flycheck
-    (flycheck-select-checker 'irony))
-
-  (add-hook 'c-mode-hook #'kd/cc-mode-hook-func)
-  (add-hook 'c++-mode-hook #'kd/cc-mode-hook-func)
+  (add-hook 'c-mode-hook #'kd/c-mode-hook-func)
+  (add-hook 'c++-mode-hook #'kd/c-mode-hook-func)
   :config
+  (setq c-basic-offset 4)
   (setq c-auto-newline nil))
+
+;; Irony
+
+(use-package irony
+  :ensure t
+  :commands irony-mode
+  :init
+  (defun kd/irony-mode-hook-func ()
+    (irony-cdb-autosetup-compile-options)
+    (irony-eldoc)
+
+    ;; company
+    (company-irony-setup-begin-commands)
+    (kd/local-push-company-backend #'company-irony)
+
+    ;; flycheck
+    (flycheck-irony-setup))
+  (add-hook 'irony-mode-hook #'kd/irony-mode-hook-func))
+
+(use-package irony-cdb
+  :after irony
+  :commands irony-cdb-autosetup-compile-options)
+
+(use-package irony-eldoc
+  :after irony
+  :ensure t
+  :commands irony-eldoc)
+
+(use-package company-irony
+  :after irony
+  :ensure t
+  :commands (company-irony company-irony-setup-begin-commands)
+  :config (setq company-irony-ignore-case 'smart))
+
+(use-package flycheck-irony
+  :after irony
+  :ensure t
+  :commands flycheck-irony-setup)
 
 
 ;;; Python
@@ -1103,14 +1122,14 @@
         ("M-C-." . godef-jump-other-window)
         ("M-k" . godoc-at-point))
   :init
-  (defun kd/go-mode-hook-function ()
+  (defun kd/go-mode-hook-func ()
     (flycheck-gometalinter-setup)
     (setq-local flycheck-checker 'go-build)
     (add-hook 'before-save-hook #'gofmt-before-save nil t)
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
     (go-eldoc-setup))
-  (add-hook 'go-mode-hook #'kd/go-mode-hook-function)
+  (add-hook 'go-mode-hook #'kd/go-mode-hook-func)
   :config
   (setq gofmt-command "goimports"))
 
@@ -1125,7 +1144,7 @@
 
 (use-package go-eldoc
   :ensure t
-  :after (go-mode eldoc)
+  :after go-mode
   :commands go-eldoc-setup)
 
 (use-package company-go
@@ -1154,11 +1173,22 @@
 
 ;;; Java
 
-(use-package jdee
+(use-package autodisass-java-bytecode
   :ensure t
-  :defer t
+  :mode ("\\.class\\'" . ad-javap-mode))
+
+(use-package meghanada
+  :ensure t
+  :commands meghanada-mode
   :init
-  (setq jdee-server-dir "/Users/kane/.ghq/github.com/jdee-emacs/jdee-server/target"))
+  (defun kd/java-mode-hook-func ()
+    (meghanada-mode t)
+    (setq c-basic-offset 4)
+    (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
+  (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
+  :config
+  (setq meghanada-java-path "java")
+  (setq meghanada-maven-path "mvn"))
 
 
 ;;; Elisp
