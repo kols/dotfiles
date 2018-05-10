@@ -893,8 +893,23 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
-  :commands (markdown-mode gfm-mode)
-  :init (add-hook 'markdown-mode-hook #'orgtbl-mode)
+  :commands (markdown-mode markdown-view-mode gfm-mode)
+  :init
+  (defun kd/markdown-mode-common-hook-func ()
+    (setq-local fill-column 100)
+    (visual-fill-column-mode 1))
+
+  (defun kd/markdown-mode-hook-func ()
+    (kd/markdown-mode-common-hook-func)
+    (orgtbl-mode 1))
+
+  (defun kd/markdown-view-mode-hook-func ()
+    (kd/markdown-mode-common-hook-func)
+    (setq buffer-face-mode-face '(:family "Verdana" :height 180))
+    (buffer-face-mode 1))
+
+  (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
+  (add-hook 'markdown-view-mode-hook #'kd/markdown-view-mode-hook-func)
   :config (setq markdown-command "multimarkdown"))
 
 (use-package conf-mode
