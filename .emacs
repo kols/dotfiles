@@ -12,16 +12,22 @@
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
 
 ;;; Package
-(require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")))
-(package-initialize)
-(setq load-prefer-newer t)
 
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+;; straight.el bootstrap
+(require 'package)
+(let ((bootstrap-file (concat user-emacs-directory "straight/repos/straight.el/bootstrap.el"))
+      (bootstrap-version 3))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
 (require 'use-package)
 ;; You can turn this on to see when exactly a package get's configured
@@ -29,13 +35,11 @@
       use-package-expand-minimally t)
 
 (use-package use-package-chords
-  :ensure t
-  :config (key-chord-mode 1))
+    :config (key-chord-mode 1))
 
 ;;;; auto-compile
 (use-package auto-compile
   :disabled t
-  :ensure t
   :init
   (setq auto-compile-display-buffer nil)
   (setq auto-compile-mode-line-counter t)
@@ -45,9 +49,9 @@
 
 ;;; Settings
 (use-package kd-settings
+  :straight nil
   :init
-  (use-package better-defaults
-    :ensure t)
+  (use-package better-defaults)
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -86,7 +90,6 @@
 
 ;;; Keybinding
 (use-package bind-key
-  :ensure t
   :init
   (defun kd/make-prefix-command (key command)
     "Bind KEY for a prefix COMMAND."
@@ -125,13 +128,11 @@
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
-    :ensure t
-    :config (load-theme 'cyberpunk t))
+        :config (load-theme 'cyberpunk t))
 
   (use-package zenburn-theme
     :disabled t
-    :ensure t
-    :config (load-theme 'zenburn t))
+        :config (load-theme 'zenburn t))
 
   ;; ui
   (tool-bar-mode 0)
@@ -154,6 +155,7 @@
   (add-hook 'after-init-hook #'toggle-frame-maximized))
 
 (use-package simple
+  :straight nil
   :diminish visual-line-mode
   :commands global-visual-line-mode
   :init (add-hook 'after-init-hook #'global-visual-line-mode))
@@ -161,6 +163,7 @@
 
 ;;; macOS
 (use-package kd-macOS
+  :straight nil
   :defines IS-MAC
   :functions kd/lock-screen
   :init
@@ -182,16 +185,15 @@
       (setq mac-mouse-wheel-smooth-scroll nil)))
 
   (use-package osx-lib
-    :if IS-MAC
-    :ensure t)
+    :if IS-MAC)
 
   (use-package osx-dictionary
     :if IS-MAC
-    :ensure t
-    :bind ("C-c f" . osx-dictionary-search-word-at-point)))
+        :bind ("C-c f" . osx-dictionary-search-word-at-point)))
 
 
 (use-package whitespace
+  :straight nil
   :diminish whitespace-mode
   :commands whitespace-mode
   :bind (:map kd/toggle-map
@@ -206,26 +208,27 @@
   (set-face-attribute 'whitespace-indentation nil :foreground "#666666" :background nil))
 
 (use-package fill
+  :straight nil
   :diminish auto-fill-mode
   :bind (:map kd/toggle-map
               ("f" . auto-fill-mode)))
 
 (use-package visual-fill-column
-  :ensure t
   :commands visual-fill-column-mode
   :bind (:map kd/toggle-map
               ("v" . visual-fill-column-mode)))
 
 (use-package which-key
-  :ensure t
+  :straight nil
   :diminish which-key-mode
   :init (add-hook 'after-init-hook #'which-key-mode))
 
 (use-package wgrep
-  :ensure t
+  :straight nil
   :commands wgrep-change-to-wgrep-mode)
 
 (use-package autoinsert
+  :straight nil
   :commands auto-insert-mode
   :init (add-hook 'after-init-hook #'auto-insert-mode)
   :config
@@ -233,7 +236,6 @@
                                      "# coding: utf-8\n")))
 
 (use-package highlight-symbol
-  :ensure t
   :commands (highlight-symbol-mode)
   :diminish highlight-symbol-mode
   :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
@@ -241,19 +243,20 @@
 ;; Window
 
 (use-package windmove
+  :straight nil
   :bind (("C-s-h" . windmove-left)
          ("C-s-j" . windmove-down)
          ("C-s-k" . windmove-up)
          ("C-s-l" . windmove-right)))
 
 (use-package winner
+  :straight nil
   :commands winner-mode
   :init
   (setq winner-dont-bind-my-keys t)
   (add-hook 'after-init-hook #'winner-mode))
 
 (use-package ace-window
-  :ensure t
   :bind ("s-j" . ace-window)
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -262,11 +265,9 @@
   (global-unset-key (kbd "C-x o")))
 
 (use-package zygospore
-  :ensure t
   :bind ("C-x 1" . zygospore-toggle-delete-other-windows))
 
 (use-package eyebrowse
-  :ensure t
   :bind (("C-c C--" . eyebrowse-next-window-config)
          ("C-c C-=" . eyebrowse-prev-window-config)
          ("s-w" . eyebrowse-close-window-config)
@@ -287,6 +288,7 @@
 ;;; Dired
 
 (use-package dired
+  :straight nil
   :defer t
   :commands dired
   :diminish dired-mode
@@ -300,6 +302,7 @@
   (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired-x
+  :straight nil
   :commands dired-omit-mode
   :init (add-hook 'dired-mode-hook #'dired-omit-mode))
 
@@ -307,7 +310,6 @@
 ;;; neotree
 
 (use-package neotree
-  :ensure t
   :bind (:map kd/pop-map
               ("n" . neotree-toggle)
               ("N" . neotree-find))
@@ -320,7 +322,6 @@
 ;;; ido
 
 (use-package ido
-  :ensure t
   :commands ido-mode
   :init
   (defun kd/ido-after-init-hook-function ()
@@ -335,28 +336,23 @@
   (setq ido-use-faces nil))
 
 (use-package flx-ido
-  :ensure t
   :after ido
   :commands flx-ido-mode)
 
 (use-package ido-vertical-mode
-  :ensure t
   :after ido
   :commands ido-vertical-mode
   :config (setq ido-vertical-define-keys 'C-n-and-C-p-only))
 
 (use-package ido-at-point
-  :ensure t
   :after ido
   :commands ido-at-point-mode)
 
 
 (use-package find-file-in-project
-  :ensure t
   :bind ("C-c o" . find-file-in-project))
 
 (use-package projectile
-  :ensure t
   :diminish projectile-mode
   :commands projectile-mode
   :bind ("s-p" . projectile-find-file)
@@ -373,13 +369,11 @@
   (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
 
 (use-package counsel-projectile
-  :ensure t
   :bind (:map projectile-command-map
               ("p" . counsel-projectile-switch-project)
               ("r" . counsel-projectile-rg)))
 
 (use-package avy
-  :ensure t
   :bind (:map kd/org-map
               ("w" . avy-org-refile-as-child))
   :chords (("jw" . avy-goto-word-1)
@@ -388,7 +382,6 @@
   :config (setq avy-background t))
 
 (use-package rg
-  :ensure t
   :bind (("C-c a" . rg-dwim)
          ("C-c C-a" . rg-project)))
 
@@ -396,7 +389,6 @@
 ;;; Git
 
 (use-package magit
-  :ensure t
   :bind (("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
@@ -406,23 +398,19 @@
   (setq magit-status-expand-stashes nil))
 
 (use-package diff-hl
-  :ensure t
   :commands turn-on-diff-hl-mode
   :init (add-hook 'prog-mode-hook #'turn-on-diff-hl-mode))
 
 
 (use-package expand-region
-  :ensure t
   :bind ("C-=" . er/expand-region))
 
 (use-package smartscan
-  :ensure t
   :commands global-smartscan-mode
   :init (add-hook 'after-init-hook #'global-smartscan-mode)
   :config (setq smartscan-symbol-selector "symbol"))
 
 (use-package hydra
-  :ensure t
   :bind (("s-z" . hydra-goto/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
@@ -469,17 +457,14 @@
     ("=" balance-windows "balance")))
 
 (use-package edit-indirect
-  :ensure t
-  :bind ("C-c '" . edit-indirect-region))
+    :bind ("C-c '" . edit-indirect-region))
 
 
 ;;; Ivy, Swiper & Counsel
 
-(use-package flx
-  :ensure t)
+(use-package flx)
 
 (use-package ivy
-  :ensure t
   :commands (ivy-switch-buffer ivy-read)
   :bind (:map ivy-mode-map
               ("s-x" . ivy-switch-buffer)
@@ -517,17 +502,14 @@
   (global-unset-key (kbd "C-x b")))
 
 (use-package swiper
-  :ensure t
   :after ivy
   :commands swiper)
 
 ;; cache for M-x
 (use-package smex
-  :ensure t
   :defer t)
 
 (use-package counsel
-  :ensure t
   :bind
   (("C-S-s" . counsel-grep-or-swiper)
    ("M-x" . counsel-M-x)
@@ -535,53 +517,46 @@
    ("C-." . counsel-imenu)))
 
 (use-package bookmark+
-  :defer t
-  :ensure t)
+  :defer t)
 
 (use-package isearch+
-  :ensure t)
+  :disabled t)
 
 (use-package dired+
-  :defer t
-  :ensure t)
+  :defer t)
 
 (use-package info
+  :straight nil
   :commands info)
 
 (use-package info+
-  :ensure t
   :after info)
 
 (use-package help+
-  :defer t
-  :ensure t)
+  :defer t)
 
 (use-package help-fns+
-  :defer t
-  :ensure t)
+  :defer t)
 
 (use-package helpful
-  :ensure t
   :bind (("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)))
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
   :commands (exec-path-from-shell-initialize)
-  :ensure t
-  :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
+    :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
   :config (setq exec-path-from-shell-check-startup-files nil))
 
 (use-package saveplace
+  :straight nil
   :commands save-place-mode
   :init (add-hook 'after-init-hook #'save-place-mode))
 
 (use-package restclient
-  :ensure t
   :commands restclient-mode)
 
 (use-package company-restclient
-  :ensure t
   :after company
   :commands company-restclient
   :init
@@ -589,18 +564,17 @@
                                     (kd/local-push-company-backend #'company-restclient))))
 
 (use-package outshine
-  :ensure t
   :after outline
   :commands outshine-hook-function
   :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   :config (setq outshine-use-speed-commands t))
 
 (use-package outline
+  :straight nil
   :commands outline-minor-mode
   :init (add-hook 'prog-mode-hook 'outline-minor-mode))
 
 (use-package irfc
-  :ensure t
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
   :init
@@ -612,7 +586,7 @@
 ;;; Org-mode
 
 (use-package org
-  :ensure t
+  :straight (:host github :repo "emacsmirror/org" :branch "release_9.1.12")
   :commands (orgtbl-mode)
   :defines (org-directory
             org-capture-templates
@@ -683,21 +657,17 @@
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package ox-reveal
-  :ensure t
   :config
   (setq org-reveal-root "file:///Users/kane/src/reveal.js"))
 
 (use-package org-noter
-  :ensure t
   :config
   (setq org-noter-auto-save-last-location t))
 
 (use-package org-bullets
-  :ensure t
   :commands org-bullets-mode)
 
 (use-package org-mac-link
-  :ensure t
   :if (eq system-type 'darwin)
   :after org
   :bind (:map kd/org-map
@@ -720,28 +690,61 @@
     (org-capture-finalize)))
 
 (use-package org-download
-  :ensure t
   :after org
   :bind (:map kd/org-map
               ("d" . org-download-yank)))
 
 (use-package ob-ipython
-  :ensure t
   :after org)
 
 (use-package ob-async
-  :ensure t
   :after org)
+
+
+;;; Term
+
+(use-package xterm-color
+  :commands xterm-color-filter
+  :config
+  (setq comint-output-filter-functions
+        (remove 'ansi-color-process-output comint-output-filter-functions)))
+
+(use-package shell
+  :straight nil
+  :commands shell
+  :init
+  (defun kd/shell-mode-hook-func ()
+    (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t)
+    (make-local-variable 'process-environment)
+    (setenv "TERM" "xterm-256color"))
+  ;; (add-hook 'shell-mode-hook #'kd/shell-mode-hook-func))
+
+(use-package eterm-256color
+  :commands eterm-256color-mode)
+
+(use-package term
+  :straight nil
+  :commands (term ansi-term)
+  :init
+  (defun kd/term-mode-hook-func ()
+    (make-local-variable 'process-environment)
+    (setenv "TERM" "eterm-256color")
+    (eterm-256color-mode 1))
+  ;; (add-hook 'term-mode-hook #'kd/term-mode-hook-func))
+
+(use-package multi-term
+  :commands (multi-term multi-term-dedicated-open multi-term-dedicated-toggle)
+  :config (setq multi-term-program "/usr/local/bin/zsh"))
 
 
 ;;; Integration
 
 (use-package browse-url
+  :straight nil
   :bind (:map kd/pop-map
               ("u" . browse-url-at-point)))
 
 (use-package browse-at-remote
-  :ensure t
   :bind (:map kd/pop-map
               ("r" . browse-at-remote))
   :config (dolist (elt '(("gitlab.xiaohongshu.com" . "gitlab")
@@ -749,25 +752,24 @@
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
 
 (use-package ispell
+  :straight nil
   :defer t
   :config (setq ispell-program-name "aspell"))
 
 (use-package flyspell
+  :straight nil
   :commands flyspell-mode
   :init (add-hook 'org-mode-hook #'flyspell-mode)
   :config (define-key flyspell-mode-map [remap flyspell-auto-correct-word] nil))
 
 (use-package graphql-mode
-  :ensure t
-  :defer t)
+  :commands graphql-mode)
 
 (use-package plantuml-mode
-  :ensure t
   :commands plantuml-mode
   :config (setq plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar"))
 
 (use-package flycheck-plantuml
-  :ensure t
   :commands flycheck-plantuml-setup
   :init (add-hook 'plantuml-mode-hook #'flycheck-plantuml-setup))
 
@@ -775,7 +777,6 @@
 ;;; Tags
 
 (use-package ggtags
-  :ensure t
   :diminish ggtags-mode
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
   :bind (("M-[" . ggtags-find-definition)
@@ -793,7 +794,6 @@
   (setq ggtags-enable-navigation-keys nil))
 
 (use-package imenu-list
-  :ensure t
   :bind (:map kd/pop-map
               ("'" . imenu-list-smart-toggle)))
 
@@ -801,7 +801,6 @@
 ;;; Completion
 
 (use-package company
-  :ensure t
   :diminish company-mode
   :commands (company-mode global-company-mode)
   :init (add-hook 'after-init-hook #'global-company-mode)
@@ -813,13 +812,11 @@
     (setq-local company-backends (add-to-list 'company-backends backend))))
 
 (use-package company-flx
-  :ensure t
   :after company
   :commands company-flx-mode
   :init (add-hook 'company-mode-hook #'company-flx-mode))
 
 (use-package company-quickhelp
-  :ensure t
   :after company
   :bind (:map company-active-map
               ("M-d" . company-quickhelp-manual-begin))
@@ -828,7 +825,6 @@
 
 
 (use-package smartparens
-  :ensure t
   :diminish smartparens-mode
   :commands (smartparens-global-strict-mode show-smartparens-global-mode)
   :bind (:map smartparens-mode-map
@@ -838,52 +834,42 @@
   :config (use-package smartparens-config))
 
 (use-package js2-mode
-  :ensure t
   :mode ("\\.js\\'" . js2-mode)
   :interpreter ("node" . js2-mode))
 
 (use-package json-mode
-  :ensure t
   :defer t)
 
 (use-package swift-mode
-  :ensure t
   :defer t)
 
 (use-package csv-mode
-  :ensure t
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
-  :ensure t
-  :mode ("Dockerfile.*\\'" . dockerfile-mode))
+    :mode ("Dockerfile.*\\'" . dockerfile-mode))
 
 (use-package salt-mode
-  :ensure t
-  :mode ("\\.sls\\'" . salt-mode))
+    :mode ("\\.sls\\'" . salt-mode))
 
 (use-package apib-mode
-  :ensure t
-  :commands apib-mode
+    :commands apib-mode
   :mode ("\\.apib\\'" . apib-mode))
 
 (use-package ansible
-  :ensure t
-  :commands (ansible ansible-doc)
+    :commands (ansible ansible-doc)
   :mode (("\\(playbook\\|site\\|main\\|local\\)\\.ya?ml\\'" . ansible)
          ("/\\(tasks\\|roles\\|handlers\\)/.*\\.ya?ml\\'" . ansible)
          ("/\\(group\\|host\\)_vars/". ansible)))
 
 (use-package company-ansible
-  :ensure t
-  :commands company-ansible
+    :commands company-ansible
   :init
   (add-hook 'ansible::hook (lambda ()
                              (kd/local-push-company-backend #'company-ansible))))
 
 (use-package markdown-mode
-  :ensure t
-  :mode (("README\\.md\\'" . gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
   :commands (markdown-mode markdown-view-mode gfm-mode)
@@ -909,26 +895,22 @@
   :mode ("rc$" . conf-mode))
 
 (use-package lua-mode
-  :ensure t
-  :mode ("\\.lua$" . lua-mode)
+    :mode ("\\.lua$" . lua-mode)
   :interpreter ("lua" . lua-mode))
 
 (use-package thrift-mode
   :mode ("\\.thrift\\'" . thrift-mode))
 
 (use-package yasnippet
-  :ensure t
-  :commands (yas-global-mode yas-expand)
+    :commands (yas-global-mode yas-expand)
   :diminish yas-minor-mode
   :init (add-hook 'after-init-hook #'yas-global-mode))
 
 (use-package yasnippet-snippets
-  :ensure t
-  :after yasnippet)
+    :after yasnippet)
 
 (use-package undo-tree
-  :ensure t
-  :commands (global-undo-tree-mode undo-tree-mode)
+    :commands (global-undo-tree-mode undo-tree-mode)
   :diminish undo-tree-mode
   :init (add-hook 'after-init-hook #'global-undo-tree-mode))
 
@@ -943,26 +925,22 @@
   :init (add-hook 'after-init-hook #'global-auto-revert-mode))
 
 (use-package flycheck
-  :ensure t
-  :commands flycheck-mode
+    :commands flycheck-mode
   :init (add-hook 'prog-mode-hook #'flycheck-mode)
   :config (setq flycheck-check-syntax-automatically '(save)))
 
 (use-package realgud
-  :ensure t
-  :commands (realgud:trepan2))
+    :commands (realgud:trepan2))
 
 (use-package makefile-executor
-  :ensure t
-  :bind (:map kd/compile-map
+    :bind (:map kd/compile-map
               ("t" . makefile-executor-execute-target)
               ("p" . makefile-executor-execute-project-target)
               ("c" . makefile-executor-execute-last))
   :commands (makefile-executor-mode))
 
 (use-package pdf-tools
-  :ensure t
-  :mode ("\\.pdf\\'" . pdf-view-mode)
+    :mode ("\\.pdf\\'" . pdf-view-mode)
   :commands pdf-view-mode
   :config
   (pdf-tools-install))
@@ -971,12 +949,10 @@
 ;;; C/C++
 
 (use-package company-c-headers
-  :ensure t
-  :commands company-c-headers)
+    :commands company-c-headers)
 
 (use-package google-c-style
-  :ensure t
-  :commands (google-set-c-style google-make-newline-indent))
+    :commands (google-set-c-style google-make-newline-indent))
 
 (use-package semantic
   :disabled t
@@ -992,12 +968,10 @@
 
 (use-package stickyfunc-enhance
   :disabled t
-  :ensure t
-  :after semantic)
+    :after semantic)
 
 (use-package rtags
-  :ensure t
-  :commands rtags-start-process-unless-running
+    :commands rtags-start-process-unless-running
   :init
   (setq rtags-completions-enabled t)
   (setq rtags-autostart-diagnostics t))
@@ -1033,8 +1007,7 @@
 ;; Irony
 
 (use-package irony
-  :ensure t
-  :commands irony-mode
+    :commands irony-mode
   :init
   (defun kd/irony-mode-hook-func ()
     (irony-cdb-autosetup-compile-options)
@@ -1054,19 +1027,16 @@
 
 (use-package irony-eldoc
   :after irony
-  :ensure t
-  :commands irony-eldoc)
+    :commands irony-eldoc)
 
 (use-package company-irony
   :after irony
-  :ensure t
-  :commands (company-irony company-irony-setup-begin-commands)
+    :commands (company-irony company-irony-setup-begin-commands)
   :config (setq company-irony-ignore-case 'smart))
 
 (use-package flycheck-irony
   :after irony
-  :ensure t
-  :commands flycheck-irony-setup)
+    :commands flycheck-irony-setup)
 
 
 ;;; Python
@@ -1092,39 +1062,33 @@
   :init (add-hook 'python-mode-hook #'subword-mode))
 
 (use-package pyenv-mode
-  :ensure t
-  :commands pyenv-mode
+    :commands pyenv-mode
   :init (add-hook 'python-mode-hook #'pyenv-mode))
 
 (use-package pyenv-mode-auto
-  :ensure t
-  :commands pyenv-mode-auto-hook)
+    :commands pyenv-mode-auto-hook)
 
 (use-package jedi-core
-  :ensure t
-  :commands jedi:setup
+    :commands jedi:setup
   :config
   (setq jedi:use-shortcuts t)
   (setq jedi:tooltip-method nil)
   (setq jedi:complete-on-dot t))
 
 (use-package company-jedi
-  :ensure t
-  :commands company-jedi
+    :commands company-jedi
   :init
   (add-hook 'python-mode-hook (lambda ()
                                 (kd/local-push-company-backend #'company-jedi))))
 
 (use-package ein
-  :ensure t
-  :defer t)
+    :defer t)
 
 
 ;;; Golang
 
 (use-package go-mode
-  :ensure t
-  :commands go-mode
+    :commands go-mode
   :bind
   (:map go-mode-map
         ("M-." . godef-jump)
@@ -1143,8 +1107,7 @@
   (setq gofmt-command "goimports"))
 
 (use-package flycheck-gometalinter
-  :ensure t
-  :commands (flycheck-gometalinter-setup)
+    :commands (flycheck-gometalinter-setup)
   :after go-mode
   :config
   (setq flycheck-gometalinter-vendor t)
@@ -1152,29 +1115,24 @@
   (setq flycheck-gometalinter-fast t))
 
 (use-package go-eldoc
-  :ensure t
-  :after go-mode
+    :after go-mode
   :commands go-eldoc-setup)
 
 (use-package company-go
-  :ensure t
-  :commands company-go
+    :commands company-go
   :init
   (add-hook 'go-mode-hook (lambda ()
                             (kd/local-push-company-backend #'company-go))))
 
 (use-package go-guru
-  :ensure t
-  :commands go-guru-hl-identifier-mode
+    :commands go-guru-hl-identifier-mode
   :init (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
 
 (use-package gotest
-  :after go-mode
-  :ensure t)
+  :after go-mode)
 
 (use-package go-playground
-  :ensure t
-  :bind (:map go-playground-mode-map
+    :bind (:map go-playground-mode-map
               ("C-c C-c" . go-playground-exec)
               ("C-c C-k" . go-playground-rm))
   :commands go-playground)
@@ -1183,12 +1141,10 @@
 ;;; Java
 
 (use-package autodisass-java-bytecode
-  :ensure t
-  :mode ("\\.class\\'" . ad-javap-mode))
+    :mode ("\\.class\\'" . ad-javap-mode))
 
 (use-package meghanada
-  :ensure t
-  :commands meghanada-mode
+    :commands meghanada-mode
   :init
   (defun kd/java-mode-hook-func ()
     (meghanada-mode t)
@@ -1203,34 +1159,25 @@
 ;;; Elisp
 
 (use-package elisp-slime-nav
-  :ensure t
-  :diminish elisp-slime-nav-mode
+    :diminish elisp-slime-nav-mode
   :commands turn-on-elisp-slime-nav-mode
   :init (add-hook 'emacs-lisp-mode-hook #'turn-on-elisp-slime-nav-mode))
 
 
 (use-package tldr
-  :ensure t
-  :commands tldr)
-
-(use-package multi-term
-  :ensure t
-  :commands multi-term)
+    :commands tldr)
 
 (use-package multiple-cursors
-  :ensure t
-  :commands (mc/mark-next-like-this
+    :commands (mc/mark-next-like-this
              mc/mark-previous-like-this
              mc/mark-all-like-this
              mc/edit-lines))
 
 (use-package iedit
-  :ensure t
-  :bind ("C-;" . iedit-mode))
+    :bind ("C-;" . iedit-mode))
 
 (use-package deft
-  :ensure t
-  :commands (deft deft-find-file)
+    :commands (deft deft-find-file)
   :config
   (setq deft-org-mode-title-prefix t)
   (setq deft-use-filter-string-for-filename t)
