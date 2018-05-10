@@ -426,47 +426,7 @@
   :bind (("s-z" . hydra-goto/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
-         ("C-M-o" . hydra-window-size/body)
-         ("s-m" . hydra-mc/body))
-  :init
-  (defun kd/default-captured-org-note ()
-    "Move to the end of penultimate line of the last org capture note."
-    (interactive)
-    (find-file org-default-notes-file)
-    (end-of-buffer)
-    (forward-line -2)
-    (org-end-of-line))
-
-  (defun kd/jump-to-src (&optional initial-input)
-    (interactive)
-    (ivy-read "repo: "
-              (split-string
-               (shell-command-to-string
-                (concat "ghq list -p")) "\n" t)
-              :initial-input initial-input
-              :action (lambda (d) (dired d))
-              :caller 'kd/jump-to-src))
-
-  (defun kd/jump-to-reference (&optional initial-input)
-    (interactive)
-    (ivy-read "ref: "
-              '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
-                "~/Documents/rfc")
-              :action (lambda (d) (dired d))
-              :caller 'kd/jump-to-reference))
-
-  (defun kd/find-org-file (&optional directory)
-    (interactive)
-    (let ((default-directory (or directory org-directory)))
-      (ivy-read "org file: "
-                (split-string (shell-command-to-string "fd -e org") "\n" t)
-                :action (lambda (x)
-                          (with-ivy-window
-                            (find-file (expand-file-name x ivy--directory))))
-                :require-match 'confirm-after-completion
-                :history 'file-name-history
-                :caller 'kd/find-org-file)))
-
+         ("C-M-o" . hydra-window-size/body))
   :config
   (defhydra hydra-goto (:color blue :hint nil)
     "
@@ -484,11 +444,11 @@
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("D" deft)
     ("c" kd/default-captured-org-note)
-    ("r" (kd/find-org-file org-directory))
-    ("s" (kd/jump-to-src))
+    ("r" kd/find-org-file)
+    ("s" kd/jump-to-src)
     ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
     ("p" (projectile-switch-project t))
-    ("f" (kd/jump-to-reference)))
+    ("f" kd/jump-to-reference))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -506,14 +466,7 @@
     ("j" enlarge-window "enlarge vertical")
     ("k" shrink-window "shrink vertical")
     ("l" enlarge-window-horizontally "enlarge horizontal")
-    ("=" balance-windows "balance"))
-
-  (defhydra hydra-mc ()
-    "multiple cursor"
-    ("n" mc/mark-next-like-this "mark next")
-    ("p" mc/mark-previous-like-this "mark previous")
-    ("A" mc/mark-all-like-this "mark all")
-    ("e" mc/edit-lines "edit lines")))
+    ("=" balance-windows "balance")))
 
 (use-package edit-indirect
   :ensure t
@@ -532,7 +485,26 @@
               ("s-x" . ivy-switch-buffer)
               ("C-c C-r" . ivy-resume))
   :diminish ivy-mode
-  :init (add-hook 'after-init-hook 'ivy-mode)
+  :init
+  (defun kd/jump-to-src (&optional initial-input)
+    (interactive)
+    (ivy-read "repo: "
+              (split-string
+               (shell-command-to-string
+                (concat "ghq list -p")) "\n" t)
+              :initial-input initial-input
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-src))
+
+  (defun kd/jump-to-reference (&optional initial-input)
+    (interactive)
+    (ivy-read "ref: "
+              '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
+                "~/Documents/rfc")
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-reference))
+
+  (add-hook 'after-init-hook 'ivy-mode)
   :config
   (setq ivy-re-builders-alist
         '((swiper . ivy--regex-plus)
@@ -642,11 +614,10 @@
 (use-package org
   :ensure t
   :commands (orgtbl-mode)
-  :defines
-  (org-directory
-   org-capture-templates
-   org-imenu-depth
-   org-default-notes-file)
+  :defines (org-directory
+            org-capture-templates
+            org-imenu-depth
+            org-default-notes-file)
   :bind (("C-M-<return>" . org-insert-subheading)
          (:map kd/org-map
                ("l" . org-store-link)
@@ -657,6 +628,27 @@
   :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
+
+  (defun kd/find-org-file (&optional directory)
+    (interactive)
+    (let ((default-directory (or directory org-directory)))
+      (ivy-read "org file: "
+                (split-string (shell-command-to-string "fd -e org") "\n" t)
+                :action (lambda (x)
+                          (with-ivy-window
+                            (find-file (expand-file-name x ivy--directory))))
+                :require-match 'confirm-after-completion
+                :history 'file-name-history
+                :caller 'kd/find-org-file)))
+
+  (defun kd/default-captured-org-note ()
+    "Move to the end of penultimate line of the last org capture note."
+    (interactive)
+    (find-file org-default-notes-file)
+    (goto-char (point-max))
+    (forward-line -2)
+    (org-end-of-line))
+
   (add-hook 'org-mode-hook #'org-bullets-mode)
   :config
   ;; face
@@ -669,6 +661,7 @@
   (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
 
+  ;; link
   (org-link-set-parameters "devonthink"
                            :follow
                            (lambda (id)
@@ -682,11 +675,11 @@
                               (concat "https://mail.google.com/mail/?shva=1#all/" id))))
 
   ;; babel
+  (setq org-confirm-babel-evaluate nil)
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
                                  (shell . t)
                                  (emacs-lisp . t)))
-  (setq org-confirm-babel-evaluate nil)
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package ox-reveal
