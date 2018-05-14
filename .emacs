@@ -155,7 +155,7 @@
 
 (use-package simple
   :diminish visual-line-mode
-  :commands global-visual-line-mode
+  :commands (global-visual-line-mode turn-on-visual-line-mode)
   :init (add-hook 'after-init-hook #'global-visual-line-mode))
 
 
@@ -1235,6 +1235,15 @@
   (setq deft-org-mode-title-prefix t)
   (setq deft-use-filter-string-for-filename t)
   (setq deft-directory (expand-file-name "~/Dropbox/nvALT")))
+
+(use-package eww
+  :commands eww
+  :init
+  (defun kd/eww-mode-hook-func ()
+    (setq-local shr-use-colors nil)
+    (turn-on-visual-line-mode))
+
+  (add-hook 'eww-mode-hook #'kd/eww-mode-hook-func))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
