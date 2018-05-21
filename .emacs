@@ -208,7 +208,12 @@
   (use-package osx-dictionary
     :if IS-MAC
     :ensure t
-    :bind ("C-c f" . osx-dictionary-search-word-at-point)))
+    :bind ("C-c f" . osx-dictionary-search-word-at-point)
+    :init
+    (defun kd/osx-dictionary-mode-hook-func ()
+      (setq buffer-face-mode-face '(:family "Verdana" :height 180))
+      (buffer-face-mode 1))
+    (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func)))
 
 
 (use-package whitespace
