@@ -158,8 +158,28 @@
   :commands (global-visual-line-mode turn-on-visual-line-mode)
   :init (add-hook 'after-init-hook #'global-visual-line-mode))
 
+(use-package shackle
+  :ensure t
+  :init
+  (add-hook 'after-init-hook #'shackle-mode)
+  :config
+  (setq shackle-lighter "")
+  (setq shackle-select-reused-windows nil) ; default nil
+  (setq shackle-default-alignment 'below) ; default below
+  (setq shackle-default-size 0.4) ; default 0.5
+
+  (setq shackle-rules
+        ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
+        '(("*osx-dictionary*"            :select t                          :size 0.3 :align below  :popup t)
+          ("*info*"                      :select t                          :align right            :popup t)
+          ("*Help*"                      :select t                          :align right            :popup t)
+          (helpful-mode                  :select t                          :align right            :popup t)
+          (magit-status-mode             :select t                          :align right            :popup t)
+          (magit-log-mode                :select t                          :align right            :popup t))))
+
 
 ;;; macOS
+
 (use-package kd-macOS
   :defines IS-MAC
   :functions kd/lock-screen
