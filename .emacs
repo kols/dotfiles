@@ -759,6 +759,43 @@
   :after org)
 
 
+;;; Term
+
+;; (use-package xterm-color
+;;   :ensure t
+;;   :commands xterm-color-filter
+;;   :config
+;;   (setq comint-output-filter-functions
+;;         (remove 'ansi-color-process-output comint-output-filter-functions)))
+
+;; (use-package shell
+;;   :commands shell
+;;   :init
+;;   (defun kd/shell-mode-hook-func ()
+;;     (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t)
+;;     (setenv "TERM" "xterm-256color"))
+;;   (add-hook 'shell-mode-hook #'kd/shell-mode-hook-func))
+
+;; (use-package eterm-256color
+;;   :ensure t
+;;   :commands eterm-256color-mode
+;;   :config (setenv "TERM" "eterm-256color"))
+
+;; (use-package term
+;;   :commands (term ansi-term)
+;;   :init
+;;   (defun kd/term-mode-hook-func ()
+;;     (eterm-256color-mode 1))
+;;   (add-hook 'term-mode-hook #'kd/term-mode-hook-func))
+
+(use-package multi-term
+  :ensure t
+  :commands (multi-term multi-term-dedicated-open multi-term-dedicated-toggle)
+  :config
+  (setq multi-term-program "/usr/local/bin/zsh")
+  (setenv "TERM" "eterm-color"))
+
+
 ;;; Integration
 
 (use-package browse-url
@@ -1237,10 +1274,6 @@
 (use-package tldr
   :ensure t
   :commands tldr)
-
-(use-package multi-term
-  :ensure t
-  :commands multi-term)
 
 (use-package multiple-cursors
   :ensure t
