@@ -64,12 +64,12 @@
    scroll-preserve-screen-position t
    vc-follow-symlinks t)
 
-;;;; customization
+  ;; customization
   (setq custom-file (kd/emacs-subdirectory "custom.el"))
   (when (file-exists-p custom-file)
     (load custom-file))
 
-;;;; ui
+  ;; ui
   (unless noninteractive
     (advice-add #'display-startup-echo-area-message :override #'ignore)
     (setq
@@ -80,7 +80,7 @@
      initial-scratch-message nil
      mode-line-format nil))
 
-  (setq visible-bell t)
+  (setq visible-bell nil)
 
   (provide 'kd-settings))
 
@@ -134,7 +134,10 @@
     :config (load-theme 'zenburn t))
 
   ;; ui
-  (tool-bar-mode 0)
+  (setq default-frame-alist '((fullscreen . maximized)
+                              (ns-appearance . dark)))
+  (menu-bar-mode 1)
+  (tool-bar-mode -1)
   (when (fboundp 'horizontal-scroll-bar-mode)
     (horizontal-scroll-bar-mode -1))
   (scroll-bar-mode -1)
@@ -148,10 +151,7 @@
   ;; mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
-  (setq mouse-wheel-follow-mouse 't)
-
-  ;; maximize
-  (add-hook 'after-init-hook #'toggle-frame-maximized))
+  (setq mouse-wheel-follow-mouse 't))
 
 (use-package simple
   :diminish visual-line-mode
@@ -211,7 +211,7 @@
     :bind ("C-c f" . osx-dictionary-search-word-at-point)
     :init
     (defun kd/osx-dictionary-mode-hook-func ()
-      (setq buffer-face-mode-face '(:family "Verdana" :height 180))
+      (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 180))
       (buffer-face-mode 1))
     (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func)))
 
@@ -266,10 +266,10 @@
 ;; Window
 
 (use-package windmove
-  :bind (("C-s-h" . windmove-left)
-         ("C-s-j" . windmove-down)
-         ("C-s-k" . windmove-up)
-         ("C-s-l" . windmove-right)))
+  :bind (("<C-s-268632072>" . windmove-left)
+         ("<C-s-268632074>" . windmove-down)
+         ("<C-s-268632075>" . windmove-up)
+         ("<C-s-268632076>" . windmove-right)))
 
 (use-package winner
   :commands winner-mode
@@ -422,7 +422,8 @@
 
 (use-package magit
   :ensure t
-  :bind (("s-g s" . magit-status)
+  :bind (("s-g" . nil)
+         ("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
   :defines magit-status-expand-stashes
@@ -894,7 +895,7 @@
   :diminish smartparens-mode
   :commands (smartparens-global-strict-mode show-smartparens-global-mode)
   :bind (:map smartparens-mode-map
-              ("C-s-]" . sp-unwrap-sexp)
+              ("<C-s-268632093>" . sp-unwrap-sexp)
               ("C-)" . sp-slurp-hybrid-sexp))
   :init (add-hook 'after-init-hook #'smartparens-global-strict-mode)
   :config (use-package smartparens-config))
@@ -960,7 +961,7 @@
 
   (defun kd/markdown-view-mode-hook-func ()
     (kd/markdown-mode-common-hook-func)
-    (setq buffer-face-mode-face '(:family "Verdana" :height 180))
+    (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 180))
     (buffer-face-mode 1))
 
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
