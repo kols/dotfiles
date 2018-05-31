@@ -979,6 +979,9 @@
 (use-package thrift-mode
   :mode ("\\.thrift\\'" . thrift-mode))
 
+(use-package protobuf-mode
+  :ensure t)
+
 (use-package yasnippet
   :ensure t
   :commands (yas-global-mode yas-expand)
@@ -1270,6 +1273,13 @@
   :diminish elisp-slime-nav-mode
   :commands turn-on-elisp-slime-nav-mode
   :init (add-hook 'emacs-lisp-mode-hook #'turn-on-elisp-slime-nav-mode))
+
+;;; Rust
+
+(use-package rust-mode
+  :ensure t
+  :mode ("\\.rs\\'" . rust-mode)
+  :commands rust-mode)
 
 
 (use-package tldr
