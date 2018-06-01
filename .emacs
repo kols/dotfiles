@@ -344,40 +344,7 @@
   (setq neo-confirm-change-root 'off-p))
 
 
-;;; ido
-
-(use-package ido
-  :disabled t
-  :ensure t
-  :commands ido-mode
-  :init
-  (defun kd/ido-after-init-hook-function ()
-    ;; disable ido faces to see flx highlights.
-    (ido-mode 1)
-    (ido-everywhere 1)
-    (flx-ido-mode 1)
-    (ido-vertical-mode 1)
-    (ido-at-point-mode 1))
-  (add-hook 'after-init-hook #'kd/ido-after-init-hook-function)
-  :config
-  (setq ido-use-faces nil))
-
-(use-package flx-ido
-  :ensure t
-  :after ido
-  :commands flx-ido-mode)
-
-(use-package ido-vertical-mode
-  :ensure t
-  :after ido
-  :commands ido-vertical-mode
-  :config (setq ido-vertical-define-keys 'C-n-and-C-p-only))
-
-(use-package ido-at-point
-  :ensure t
-  :after ido
-  :commands ido-at-point-mode)
-
+;; ---
 
 (use-package find-file-in-project
   :ensure t
@@ -398,15 +365,6 @@
   (setq projectile-completion-system 'helm)
   (setq projectile-tags-backend 'ggtags)
   (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
-
-(use-package avy
-  :ensure t
-  :bind (:map kd/org-map
-              ("w" . avy-org-refile-as-child))
-  :chords (("jw" . avy-goto-word-1)
-           ("jc" . avy-goto-char-timer)
-           ("jl" . avy-goto-line))
-  :config (setq avy-background t))
 
 (use-package rg
   :ensure t
@@ -495,39 +453,11 @@
   :bind ("C-c '" . edit-indirect-region))
 
 
-;;; Ivy & Swiper
-
-(use-package ivy
-  :disabled t
-  :ensure t
-  :commands (ivy-switch-buffer ivy-read)
-  :bind (:map ivy-mode-map
-              ("C-c C-r" . ivy-resume))
-  :diminish ivy-mode
-  :init
-  (add-hook 'after-init-hook 'ivy-mode)
-  :config
-  (setq ivy-re-builders-alist
-        '((swiper . ivy--regex-plus)
-          (t . ivy--regex-fuzzy)))
-  (setq ivy-initial-inputs-alist nil)
-  (setq ivy-use-virtual-buffers t)
-  (setq enable-recursive-minibuffers t)
-  (setq ivy-count-format "%d/%d ")
-  (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
-  (global-unset-key (kbd "C-x b")))
-
-(use-package swiper
-  :disabled t
-  :ensure t
-  :after ivy
-  :commands swiper)
-
-
 ;;; Helm
 
 (use-package helm
   :ensure t
+  :diminish helm-mode
   :bind (("s-x" . helm-mini)
          ("M-y" . helm-show-kill-ring)
          ("C-." . helm-imenu)
