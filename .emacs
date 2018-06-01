@@ -168,11 +168,13 @@
   (setq shackle-default-alignment 'below) ; default below
   (setq shackle-default-size 0.4) ; default 0.5
 
+  ;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el
   (setq shackle-rules
         ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
         '(("*osx-dictionary*"            :select t                          :size 0.3 :align below  :popup t)
           ("*info*"                      :select t                          :align right            :popup t)
           ("*Help*"                      :select t                          :align right            :popup t)
+          ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
           (helpful-mode                  :select t                          :align right            :popup t)
           (magit-status-mode             :select t                          :align right            :popup t)
           (magit-log-mode                :select t                          :align right            :popup t))))
@@ -345,6 +347,7 @@
 ;;; ido
 
 (use-package ido
+  :disabled t
   :ensure t
   :commands ido-mode
   :init
@@ -384,7 +387,6 @@
   :ensure t
   :diminish projectile-mode
   :commands projectile-mode
-  :bind ("s-p" . projectile-find-file)
   :init
   (add-hook 'after-init-hook #'projectile-mode)
   (add-hook 'projectile-mode-hook (lambda ()
@@ -393,15 +395,9 @@
   (setq projectile-track-known-projects-automatically nil)
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
-  (setq projectile-completion-system 'ivy)
+  (setq projectile-completion-system 'helm)
   (setq projectile-tags-backend 'ggtags)
   (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
-
-(use-package counsel-projectile
-  :ensure t
-  :bind (:map projectile-command-map
-              ("p" . counsel-projectile-switch-project)
-              ("r" . counsel-projectile-rg)))
 
 (use-package avy
   :ensure t
@@ -473,7 +469,7 @@
     ("r" kd/find-org-file)
     ("s" kd/jump-to-src)
     ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
-    ("p" (projectile-switch-project t))
+    ("p" (helm-projectile-switch-project t))
     ("f" kd/jump-to-reference))
 
   (defhydra hydra-winner ()
@@ -499,37 +495,16 @@
   :bind ("C-c '" . edit-indirect-region))
 
 
-;;; Ivy, Swiper & Counsel
-
-(use-package flx
-  :ensure t)
+;;; Ivy & Swiper
 
 (use-package ivy
+  :disabled t
   :ensure t
   :commands (ivy-switch-buffer ivy-read)
   :bind (:map ivy-mode-map
-              ("s-x" . ivy-switch-buffer)
               ("C-c C-r" . ivy-resume))
   :diminish ivy-mode
   :init
-  (defun kd/jump-to-src (&optional initial-input)
-    (interactive)
-    (ivy-read "repo: "
-              (split-string
-               (shell-command-to-string
-                (concat "ghq list -p")) "\n" t)
-              :initial-input initial-input
-              :action (lambda (d) (dired d))
-              :caller 'kd/jump-to-src))
-
-  (defun kd/jump-to-reference (&optional initial-input)
-    (interactive)
-    (ivy-read "ref: "
-              '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
-                "~/Documents/rfc")
-              :action (lambda (d) (dired d))
-              :caller 'kd/jump-to-reference))
-
   (add-hook 'after-init-hook 'ivy-mode)
   :config
   (setq ivy-re-builders-alist
@@ -543,22 +518,128 @@
   (global-unset-key (kbd "C-x b")))
 
 (use-package swiper
+  :disabled t
   :ensure t
   :after ivy
   :commands swiper)
 
-;; cache for M-x
-(use-package smex
-  :ensure t
-  :defer t)
 
-(use-package counsel
+;;; Helm
+
+(use-package helm
   :ensure t
-  :bind
-  (("C-S-s" . counsel-grep-or-swiper)
-   ("M-x" . counsel-M-x)
-   ("C-x C-f" . counsel-find-file)
-   ("C-." . counsel-imenu)))
+  :bind (("s-x" . helm-mini)
+         ("M-y" . helm-show-kill-ring)
+         ("C-." . helm-imenu)
+         ("C-x C-f" . helm-find-files)
+         ("C-S-s" . helm-occur)
+         (:map isearch-mode-map
+               ("M-s o" . helm-occur-from-isearch)))
+  :config
+  (setq helm-mode-fuzzy-match t
+        helm-completion-in-region-fuzzy-match t)
+
+  (setq helm-move-to-line-cycle-in-source t
+        helm-ff-search-library-in-sexp t
+        helm-scroll-amount 8
+        helm-ff-file-name-history-use-recentf t
+        helm-echo-input-in-header-line t
+        helm-display-header-line nil)
+  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 35)
+  (helm-autoresize-mode 1)
+
+  (defun kd/jump-to-src (&optional initial-input)
+    (interactive)
+    (helm :sources (helm-build-sync-source "Jump to repo"
+                     :candidates
+                     (split-string
+                      (shell-command-to-string "ghq list -p") "\n" t)
+                     :action (lambda (d) (dired d)))))
+
+  (defun kd/jump-to-reference (&optional initial-input)
+    (interactive)
+    (helm :sources (helm-build-sync-source "Jump to reference"
+                     :candidates
+                     '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
+                       "~/Documents/rfc")
+                     :action (lambda (d) (dired d)))))
+
+  (require 'helm-config)
+  (helm-mode 1))
+
+(use-package flx
+  :ensure t)
+
+(use-package helm-flx
+  :ensure t
+  :after helm
+  :config (helm-flx-mode 1))
+
+(use-package helm-fuzzier
+  :ensure t
+  :after helm
+  :config (helm-fuzzier-mode 1))
+
+(use-package helm-swoop
+  :ensure t
+  :after helm
+  :commands (helm-swoop helm-multi-swoop-projectile helm-multi-swoop)
+  :bind ((:map isearch-mode-map
+               ("M-i" . helm-swoop-from-isearch))
+         (:map helm-swoop-map
+               ("M-i" . helm-multi-swoop-all-from-helm-swoop)))
+  :config
+  (setq helm-multi-swoop-edit-save t)
+  (setq helm-swoop-speed-or-color nil)
+  (setq helm-swoop-move-to-line-cycle t)
+  (setq helm-swoop-use-line-number-face t)
+  (setq helm-swoop-use-fuzzy-match t))
+
+(use-package helm-smex
+  :ensure t
+  :bind (("M-X" . helm-smex-major-mode-commands)
+         ([remap execute-extended-command] . helm-smex)))
+
+(use-package helm-descbinds
+  :ensure t
+  :bind (("C-h b" . helm-descbinds)))
+
+(use-package helm-projectile
+  :ensure t
+  :bind (("s-p" . helm-projectile-find-file)
+         (:map projectile-command-map
+               ("p" . helm-projectile-switch-project)
+               ("r" . helm-projectile-rg))))
+
+(use-package helm-rg
+  :ensure t
+  :bind ("C-c a" . helm-rg)
+  :config (setq helm-rg-default-directory 'git-root))
+
+(use-package helm-xref
+  :ensure t
+  :commands helm-xref-show-xrefs
+  :config (setq xref-show-xrefs-function 'helm-xref-show-xrefs))
+
+(use-package helm-gtags
+  :ensure t
+  :diminish helm-gtags-mode
+  :bind ((:map helm-gtags-mode-map
+               ("C-]" . helm-gtags-find-tag)
+               ("C-}" . helm-gtags-find-rtag)
+               ("C-t" . helm-gtags-pop-stack)))
+  :init (add-hook 'prog-mode-hook #'helm-gtags-mode)
+  :config
+  (custom-set-variables
+   '(helm-gtags-path-style 'relative)
+   '(helm-gtags-ignore-case t)
+   '(helm-gtags-auto-update t)))
+
+
+;; ---
 
 (use-package bookmark+
   :defer t
@@ -658,14 +739,13 @@
   (defun kd/find-org-file (&optional directory)
     (interactive)
     (let ((default-directory (or directory org-directory)))
-      (ivy-read "org file: "
-                (split-string (shell-command-to-string "fd -e org") "\n" t)
-                :action (lambda (x)
-                          (with-ivy-window
-                            (find-file (expand-file-name x ivy--directory))))
-                :require-match 'confirm-after-completion
-                :history 'file-name-history
-                :caller 'kd/find-org-file)))
+      (helm :sources (helm-build-sync-source "Org file"
+                       :candidates
+                       (split-string
+                        (shell-command-to-string "fd -e org") "\n" t)
+                       :action (lambda (x)
+                                 (find-file
+                                  (expand-file-name x default-directory)))))))
 
   (defun kd/default-captured-org-note ()
     "Move to the end of penultimate line of the last org capture note."
@@ -841,8 +921,6 @@
   :ensure t
   :diminish ggtags-mode
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
-  :bind (("M-[" . ggtags-find-definition)
-         ("M-]" . ggtags-find-reference))
   :init
   (add-hook 'prog-mode-hook #'ggtags-mode)
   (add-hook 'ggtags-global-mode-hook (lambda ()
