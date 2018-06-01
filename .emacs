@@ -465,22 +465,7 @@
          ("C-S-s" . helm-occur)
          (:map isearch-mode-map
                ("M-s o" . helm-occur-from-isearch)))
-  :config
-  (setq helm-mode-fuzzy-match t
-        helm-completion-in-region-fuzzy-match t)
-
-  (setq helm-move-to-line-cycle-in-source t
-        helm-ff-search-library-in-sexp t
-        helm-scroll-amount 8
-        helm-ff-file-name-history-use-recentf t
-        helm-echo-input-in-header-line t
-        helm-display-header-line nil)
-  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-
-  (setq helm-autoresize-max-height 0)
-  (setq helm-autoresize-min-height 35)
-  (helm-autoresize-mode 1)
-
+  :init
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
     (helm :sources (helm-build-sync-source "Jump to repo"
@@ -496,6 +481,21 @@
                      '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
                        "~/Documents/rfc")
                      :action (lambda (d) (dired d)))))
+  :config
+  (setq helm-mode-fuzzy-match t
+        helm-completion-in-region-fuzzy-match t)
+
+  (setq helm-move-to-line-cycle-in-source t
+        helm-ff-search-library-in-sexp t
+        helm-scroll-amount 8
+        helm-ff-file-name-history-use-recentf t
+        helm-echo-input-in-header-line t
+        helm-display-header-line nil)
+  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+
+  (setq helm-autoresize-max-height 0)
+  (setq helm-autoresize-min-height 35)
+  (helm-autoresize-mode 1)
 
   (require 'helm-config)
   (helm-mode 1))
