@@ -477,6 +477,22 @@
                      '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
                        "~/Documents/rfc")
                      :action (lambda (d) (dired d)))))
+
+  (defun kd/toggle-http-proxy ()
+    (interactive)
+    (helm :sources (helm-build-sync-source "Select proxy"
+                     :candidates
+                     '("127.0.0.1:1087")
+                     :action (lambda (x)
+                               (if url-proxy-services
+                                   (progn
+                                     (setq url-proxy-services nil)
+                                     (message "Proxy turned off"))
+                                 (setq url-proxy-services
+                                       `(("no_proxy" . "^\\(localhost\\|10.*\\)")
+                                         ("http" . ,x)
+                                         ("https" . ,x)))
+                                 (message "Proxy turned on: %s" x))))))
   :config
   (setq helm-mode-fuzzy-match t
         helm-completion-in-region-fuzzy-match t)
