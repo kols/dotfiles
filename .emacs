@@ -346,10 +346,6 @@
 
 ;; ---
 
-(use-package find-file-in-project
-  :ensure t
-  :bind ("C-c o" . find-file-in-project))
-
 (use-package projectile
   :ensure t
   :diminish projectile-mode
