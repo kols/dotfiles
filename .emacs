@@ -51,18 +51,17 @@
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
-  (setq-default
-   default-tab-width 4
-   tab-width 4
-   indent-tabs-mode nil)
+  (setq-default default-tab-width 4
+                tab-width 4
+                indent-tabs-mode nil
+                history-length 200)
 
-  (setq
-   confirm-kill-emacs 'y-or-n-p
-   load-prefer-newer t
-   gc-cons-threshold 50000000
-   scroll-conservatively 10000
-   scroll-preserve-screen-position t
-   vc-follow-symlinks t)
+  (setq confirm-kill-emacs 'y-or-n-p
+        load-prefer-newer t
+        gc-cons-threshold 50000000
+        scroll-conservatively 10000
+        scroll-preserve-screen-position t
+        vc-follow-symlinks t)
 
   ;; customization
   (setq custom-file (kd/emacs-subdirectory "custom.el"))
@@ -72,13 +71,12 @@
   ;; ui
   (unless noninteractive
     (advice-add #'display-startup-echo-area-message :override #'ignore)
-    (setq
-     inhibit-startup-message t
-     inhibit-startup-echo-area-message user-login-name
-     inhibit-default-init t
-     initial-major-mode 'fundamental-mode
-     initial-scratch-message nil
-     mode-line-format nil))
+    (setq inhibit-startup-message t
+          inhibit-startup-echo-area-message user-login-name
+          inhibit-default-init t
+          initial-major-mode 'fundamental-mode
+          initial-scratch-message nil
+          mode-line-format nil))
 
   (setq visible-bell nil)
 
@@ -111,9 +109,9 @@
                                  (server-start)))))
 
 (use-package desktop
-  :commands desktop-save-mode
-  :init (add-hook 'after-init-hook #'desktop-save-mode)
-  :config (setq desktop-dirname user-emacs-directory))
+  :config
+  (setq desktop-dirname user-emacs-directory)
+  (desktop-save-mode 1))
 
 
 ;;; Interface
@@ -176,8 +174,8 @@
           ("*Help*"                      :select t                          :align right            :popup t)
           ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
           (helpful-mode                  :select t                          :align right            :popup t)
-          (magit-status-mode             :select t                          :align right            :popup t)
-          (magit-log-mode                :select t                          :align right            :popup t))))
+          (magit-status-mode             :select t                          :align below            :popup t)
+          (magit-log-mode                :select t                          :align below            :popup t))))
 
 
 ;;; macOS
@@ -266,6 +264,9 @@
   :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
 
 ;; Window
+
+(use-package window
+  :bind (("C-x =" . balance-windows)))
 
 (use-package windmove
   :bind (("<C-s-268632072>" . windmove-left)
@@ -377,6 +378,7 @@
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
   :defines magit-status-expand-stashes
+  :init (add-hook 'magit-process-mode-hook #'goto-address-mode)
   :config
   (setq magit-git-executable "/usr/local/bin/git")
   (setq magit-status-expand-stashes nil))
@@ -588,6 +590,7 @@
   :ensure t)
 
 (use-package isearch+
+  :disabled t
   :ensure t)
 
 (use-package dired+
@@ -613,6 +616,10 @@
   :ensure t
   :bind (("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)))
+
+(use-package eldoc
+  :defer t
+  :diminish eldoc-mode)
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
@@ -697,7 +704,10 @@
     (forward-line -2)
     (org-end-of-line))
 
-  (add-hook 'org-mode-hook #'org-bullets-mode)
+  (defun kd/org-mode-hook-func ()
+    (org-bullets-mode 1))
+
+  (add-hook 'org-mode-hook #'kd/org-mode-hook-func)
   :config
   ;; face
   (dolist (face org-level-faces)
@@ -729,6 +739,10 @@
                                  (shell . t)
                                  (emacs-lisp . t)))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
+
+(use-package htmlize
+  :ensure t
+  :commands htmlize-file)
 
 (use-package ox-reveal
   :ensure t
@@ -775,7 +789,12 @@
 
 (use-package ob-ipython
   :ensure t
-  :after org)
+  :after org
+  :init
+  (defun kd/ob-ipython-hook-func ()
+    (kd/local-push-company-backend #'company-ob-ipython))
+  (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
+  (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
 
 (use-package ob-async
   :ensure t
@@ -822,8 +841,10 @@
 ;;; Integration
 
 (use-package browse-url
+  :commands browse-url-generic
   :bind (:map kd/pop-map
-              ("u" . browse-url-at-point)))
+              ("u" . browse-url-at-point))
+  :config (setq browse-url-generic-program "open"))
 
 (use-package browse-at-remote
   :ensure t
@@ -832,6 +853,10 @@
   :config (dolist (elt '(("gitlab.xiaohongshu.com" . "gitlab")
                          ("code.devops.xiaohongshu.com" . "gitlab")))
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
+
+(use-package goto-addr
+  :diminish goto-address-mode
+  :commands goto-address-mode)
 
 (use-package ispell
   :defer t
@@ -1160,6 +1185,8 @@
 (use-package python
   :commands python-mode
   :init
+  (setenv "PYTHONIOENCODING" "UTF-8")
+
   (defun kd/python-mode-hook-function ()
     ; jedi
     (jedi:setup)
