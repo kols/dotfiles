@@ -936,6 +936,7 @@
   :commands (company-mode global-company-mode)
   :init (add-hook 'after-init-hook #'global-company-mode)
   :config
+  (setq company-tooltip-align-annotations t)
   (setq company-minimum-prefix-length 2)
   (setq tab-always-indent 'complete)
   (defun kd/local-push-company-backend (backend)
@@ -945,8 +946,7 @@
 (use-package company-flx
   :ensure t
   :after company
-  :commands company-flx-mode
-  :init (add-hook 'company-mode-hook #'company-flx-mode))
+  :config (company-flx-mode 1))
 
 (use-package company-quickhelp
   :ensure t
@@ -1200,6 +1200,7 @@
   (defun kd/python-mode-hook-function ()
     ; jedi
     (jedi:setup)
+    (kd/local-push-company-backend #'company-jedi)
 
     ; imenu
     (setq imenu-create-index-function #'python-imenu-create-index)
@@ -1233,10 +1234,7 @@
 
 (use-package company-jedi
   :ensure t
-  :commands company-jedi
-  :init
-  (add-hook 'python-mode-hook (lambda ()
-                                (kd/local-push-company-backend #'company-jedi))))
+  :commands company-jedi)
 
 (use-package ein
   :ensure t
@@ -1296,7 +1294,8 @@
 (use-package company-go
   :ensure t
   :after go-mode
-  :commands company-go)
+  :commands company-go
+  :config (setq company-go-show-annotation t))
 
 (use-package go-guru
   :ensure t
