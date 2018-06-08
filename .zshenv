@@ -23,8 +23,8 @@ eval "$(pyenv virtualenv-init -)"
 
 # go
 export GOROOT=/usr/local/opt/go/libexec
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+export GOPATH=$HOME/go:$HOME/.ghq
+export PATH=$PATH:$HOME/go/bin:$GOROOT/bin
 
 # rust
 export PATH=$PATH:$HOME/.cargo/bin

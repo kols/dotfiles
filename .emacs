@@ -625,7 +625,7 @@
 
 (use-package exec-path-from-shell
   :if (memq window-system '(mac ns))
-  :commands (exec-path-from-shell-initialize)
+  :commands (exec-path-from-shell-initialize exec-path-from-shell-copy-env)
   :ensure t
   :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
   :config (setq exec-path-from-shell-check-startup-files nil))
@@ -1246,15 +1246,29 @@
         ("M-C-." . godef-jump-other-window)
         ("M-k" . godoc-at-point))
   :init
+  (load "go-mode-autoloads")
   (defun kd/go-mode-hook-func ()
+    (add-hook 'before-save-hook #'gofmt-before-save nil t)
+
+    ;; company
+    (kd/local-push-company-backend #'company-go)
+
+    ;; flycheck
     (flycheck-gometalinter-setup)
     (setq-local flycheck-checker 'go-build)
-    (add-hook 'before-save-hook #'gofmt-before-save nil t)
+
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
-    (go-eldoc-setup))
+
+    (go-eldoc-setup)
+
+    ;; highlight identifier
+    (highlight-symbol-mode -1)
+    (go-guru-hl-identifier-mode 1))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-func)
   :config
+  (when IS-MAC
+    (exec-path-from-shell-copy-env "GOPATH"))
   (setq gofmt-command "goimports"))
 
 (use-package flycheck-gometalinter
@@ -1273,10 +1287,8 @@
 
 (use-package company-go
   :ensure t
-  :commands company-go
-  :init
-  (add-hook 'go-mode-hook (lambda ()
-                            (kd/local-push-company-backend #'company-go))))
+  :after go-mode
+  :commands company-go)
 
 (use-package go-guru
   :ensure t
