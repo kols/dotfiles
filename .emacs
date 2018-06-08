@@ -261,7 +261,9 @@
   :ensure t
   :commands (highlight-symbol-mode)
   :diminish highlight-symbol-mode
-  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
+  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode)
+  :config (custom-set-faces
+           '(highlight-symbol-face ((t (:background "darkmagenta"))))))
 
 ;; Window
 
@@ -1278,8 +1280,10 @@
 
 (use-package go-guru
   :ensure t
+  :after go-mode
   :commands go-guru-hl-identifier-mode
-  :init (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode))
+  :config (custom-set-faces
+           '(go-guru-hl-identifier-face ((t (:background "darkmagenta"))))))
 
 (use-package gotest
   :after go-mode
