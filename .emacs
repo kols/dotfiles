@@ -211,7 +211,7 @@
     :bind ("C-c f" . osx-dictionary-search-word-at-point)
     :init
     (defun kd/osx-dictionary-mode-hook-func ()
-      (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 180))
+      (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 200))
       (buffer-face-mode 1))
     (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func)))
 
@@ -281,15 +281,6 @@
   :init
   (setq winner-dont-bind-my-keys t)
   (add-hook 'after-init-hook #'winner-mode))
-
-(use-package ace-window
-  :ensure t
-  :bind ("s-j" . ace-window)
-  :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  (setq aw-scope 'frame)
-  (setq aw-ignore-current t)
-  (global-unset-key (kbd "C-x o")))
 
 (use-package zygospore
   :ensure t
@@ -542,7 +533,7 @@
   (setq helm-swoop-speed-or-color nil)
   (setq helm-swoop-move-to-line-cycle t)
   (setq helm-swoop-use-line-number-face t)
-  (setq helm-swoop-use-fuzzy-match t))
+  (setq helm-swoop-use-fuzzy-match nil))
 
 (use-package helm-smex
   :ensure t
@@ -718,7 +709,6 @@
   (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
   (setq org-capture-templates
         '(("n" "note" entry (file+datetree "") "* %?\n  %U\n  %i")))
-  (setq org-src-fontify-natively t)
   (setq org-imenu-depth 3)
 
   ;; link
@@ -735,11 +725,14 @@
                               (concat "https://mail.google.com/mail/?shva=1#all/" id))))
 
   ;; babel
+  (setq org-src-fontify-natively t)
+  (setq org-src-preserve-indentation t)
   (setq org-confirm-babel-evaluate nil)
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
                                  (shell . t)
-                                 (emacs-lisp . t)))
+                                 (emacs-lisp . t)
+                                 (clojure . t)))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package htmlize
@@ -797,6 +790,10 @@
     (kd/local-push-company-backend #'company-ob-ipython))
   (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
   (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
+
+(use-package ob-clojure
+  :after org
+  :config (setq org-babel-clojure-backend 'cider))
 
 (use-package ob-async
   :ensure t
@@ -1008,7 +1005,7 @@
 
   (defun kd/markdown-view-mode-hook-func ()
     (kd/markdown-mode-common-hook-func)
-    (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 180))
+    (setq buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 200))
     (buffer-face-mode 1))
 
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
@@ -1108,13 +1105,6 @@
   :ensure t
   :after semantic)
 
-(use-package rtags
-  :ensure t
-  :commands rtags-start-process-unless-running
-  :init
-  (setq rtags-completions-enabled t)
-  (setq rtags-autostart-diagnostics t))
-
 (use-package cc-mode
   :commands (c-mode c++-mode)
   :init
@@ -1126,9 +1116,6 @@
   (add-hook 'c-mode-common-hook #'kd/c-mode-common-hook-func)
 
   (defun kd/c-mode-hook-func ()
-    ;; rtags
-    (rtags-start-process-unless-running)
-
     ;; irony
     (irony-mode 1)
 
@@ -1327,6 +1314,16 @@
   :config
   (setq meghanada-java-path "java")
   (setq meghanada-maven-path "mvn"))
+
+
+;;; Clojure
+
+(use-package clojure-mode
+  :ensure t)
+
+(use-package cider
+  :ensure t
+  :commands cider-mode)
 
 
 ;;; Elisp
