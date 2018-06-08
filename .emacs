@@ -642,6 +642,11 @@
   (add-hook 'restclient-mode-hook (lambda ()
                                     (kd/local-push-company-backend #'company-restclient))))
 
+(use-package outline
+  :diminish outline-minor-mode
+  :commands outline-minor-mode
+  :init (add-hook 'prog-mode-hook 'outline-minor-mode))
+
 (use-package outshine
   :ensure t
   :after outline
@@ -649,9 +654,9 @@
   :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   :config (setq outshine-use-speed-commands t))
 
-(use-package outline
-  :commands outline-minor-mode
-  :init (add-hook 'prog-mode-hook 'outline-minor-mode))
+(use-package poporg
+  :ensure t
+  :bind ("C-c \"" . poporg-dwim))
 
 (use-package irfc
   :ensure t
@@ -673,6 +678,7 @@
             org-imenu-depth
             org-default-notes-file)
   :bind (("C-M-<return>" . org-insert-subheading)
+         ("C-c L" . org-insert-link-global)
          (:map kd/org-map
                ("l" . org-store-link)
                ("a" . org-agenda)
@@ -860,7 +866,8 @@
 
 (use-package goto-addr
   :diminish goto-address-mode
-  :commands goto-address-mode)
+  :commands (goto-address-mode goto-address-prog-mode)
+  :init (add-hook 'prog-mode-hook #'goto-address-prog-mode))
 
 (use-package ispell
   :defer t
@@ -891,12 +898,11 @@
 (use-package ggtags
   :ensure t
   :diminish ggtags-mode
+  :bind ((:map ggtags-global-mode-map
+               ("n" . next-error-no-select)
+               ("p" . previous-error-no-select)))
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
-  :init
-  (add-hook 'prog-mode-hook #'ggtags-mode)
-  (add-hook 'ggtags-global-mode-hook (lambda ()
-                                       (local-set-key (kbd "n") #'next-error-no-select)
-                                       (local-set-key (kbd "p") #'previous-error-no-select)))
+  :init (add-hook 'prog-mode-hook #'ggtags-mode)
   :config
   (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
