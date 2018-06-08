@@ -124,7 +124,14 @@
 
   (use-package cyberpunk-theme
     :ensure t
-    :config (load-theme 'cyberpunk t))
+    :config
+    (custom-theme-set-faces
+     'cyberpunk
+     '(highlight-symbol-face
+       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)
+     '(go-guru-hl-identifier-face
+       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t))
+    (load-theme 'cyberpunk t))
 
   (use-package zenburn-theme
     :disabled t
@@ -261,9 +268,7 @@
   :ensure t
   :commands (highlight-symbol-mode)
   :diminish highlight-symbol-mode
-  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode)
-  :config (custom-set-faces
-           '(highlight-symbol-face ((t (:background "darkmagenta"))))))
+  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
 
 ;; Window
 
@@ -1280,9 +1285,7 @@
 (use-package go-guru
   :ensure t
   :after go-mode
-  :commands go-guru-hl-identifier-mode
-  :config (custom-set-faces
-           '(go-guru-hl-identifier-face ((t (:background "darkmagenta"))))))
+  :commands go-guru-hl-identifier-mode)
 
 (use-package gotest
   :after go-mode
