@@ -267,8 +267,7 @@
 (use-package highlight-symbol
   :ensure t
   :commands (highlight-symbol-mode)
-  :diminish highlight-symbol-mode
-  :init (add-hook 'prog-mode-hook 'highlight-symbol-mode))
+  :diminish highlight-symbol-mode)
 
 ;; Window
 
@@ -383,8 +382,7 @@
 
 (use-package diff-hl
   :ensure t
-  :commands turn-on-diff-hl-mode
-  :init (add-hook 'prog-mode-hook #'turn-on-diff-hl-mode))
+  :commands turn-on-diff-hl-mode)
 
 
 (use-package expand-region
@@ -573,7 +571,6 @@
                ("C-]" . helm-gtags-find-tag)
                ("C-}" . helm-gtags-find-rtag)
                ("C-t" . helm-gtags-pop-stack)))
-  :init (add-hook 'prog-mode-hook #'helm-gtags-mode)
   :config
   (custom-set-variables
    '(helm-gtags-path-style 'relative)
@@ -644,8 +641,7 @@
 
 (use-package outline
   :diminish outline-minor-mode
-  :commands outline-minor-mode
-  :init (add-hook 'prog-mode-hook 'outline-minor-mode))
+  :commands outline-minor-mode)
 
 (use-package outshine
   :ensure t
@@ -866,8 +862,7 @@
 
 (use-package goto-addr
   :diminish goto-address-mode
-  :commands (goto-address-mode goto-address-prog-mode)
-  :init (add-hook 'prog-mode-hook #'goto-address-prog-mode))
+  :commands (goto-address-mode goto-address-prog-mode))
 
 (use-package ispell
   :defer t
@@ -893,6 +888,24 @@
   :init (add-hook 'plantuml-mode-hook #'flycheck-plantuml-setup))
 
 
+;;; Programming
+
+(use-package prog-mode
+  :init
+  (defvar kd-prog-mode-minor-modes
+    '(highlight-symbol-mode
+      turn-on-diff-hl-mode
+      helm-gtags-mode
+      outline-minor-mode
+      goto-address-prog-mode
+      abbrev-mode
+      flycheck-mode))
+
+  (dolist (mode kd-prog-mode-minor-modes)
+    (add-hook 'prog-mode-hook mode)))
+
+
+
 ;;; Tags
 
 (use-package ggtags
@@ -902,7 +915,6 @@
                ("n" . next-error-no-select)
                ("p" . previous-error-no-select)))
   :commands (ggtags-mode ggtags-create-tags ggtags-update-tags)
-  :init (add-hook 'prog-mode-hook #'ggtags-mode)
   :config
   (setq ggtags-mode-sticky nil)
   (setq ggtags-use-sqlite3 t)
@@ -1055,8 +1067,7 @@
 
 (use-package abbrev
   :diminish abbrev-mode
-  :commands abbrev-mode
-  :init (add-hook 'prog-mode-hook #'abbrev-mode))
+  :commands abbrev-mode)
 
 (use-package autorevert
   :diminish auto-revert-mode
@@ -1066,7 +1077,6 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
-  :init (add-hook 'prog-mode-hook #'flycheck-mode)
   :config (setq flycheck-check-syntax-automatically '(save)))
 
 (use-package realgud
