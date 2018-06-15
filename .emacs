@@ -1068,6 +1068,8 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
+  :bind ((:map markdown-mode-map
+               ("s-t m" . markdown-toggle-markup-hiding)))
   :commands (markdown-mode markdown-view-mode gfm-mode)
   :init
   (defun kd/markdown-mode-common-hook-func ()
