@@ -112,9 +112,10 @@
 ;;;; daemon
 (use-package server
   :init
-  (add-hook 'after-init-hook #'(lambda ()
-                                 (unless (server-running-p)
-                                   (server-start)))))
+  (defun kd/server-start ()
+    (unless (server-running-p)
+      (server-start)))
+  (add-hook 'after-init-hook #'kd/server-start))
 
 (use-package desktop
   :config
@@ -342,12 +343,18 @@
   :defer t
   :commands (dired dired-hide-details-mode)
   :diminish dired-mode
-  :init (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+  :init
+  (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook #'diff-hl-dired-mode)
   :custom
   (dired-dwim-target t)
   (dired-listing-switches "-lahF")
   (dired-isearch-filenames t)
   (dired-ls-F-marks-symlinks t))
+
+(use-package dired+
+  :defer t
+  :ensure t)
 
 (use-package dired-x
   :commands dired-omit-mode
@@ -398,15 +405,26 @@
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
   :defines magit-status-expand-stashes
-  :init (add-hook 'magit-process-mode-hook #'goto-address-mode)
+  :init
+  (add-hook 'magit-process-mode-hook #'goto-address-mode)
+  (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
   :custom
   (magit-git-executable "/usr/local/bin/git")
   (magit-status-expand-stashes nil))
 
+(use-package git-commit
+  :ensure t
+  :commands (git-commit-setup git-commit-mode global-git-commit-mode)
+  :init (add-hook 'git-commit-setup-hook #'flyspell-mode))
+
 (use-package diff-hl
   :ensure t
-  :commands turn-on-diff-hl-mode)
-
+  :commands
+  (turn-on-diff-hl-mode
+   diff-hl-magit-post-refresh
+   diff-hl-dired-mode)
+  :config
+  (diff-hl-margin-mode 1))
 
 (use-package expand-region
   :ensure t
@@ -612,10 +630,6 @@
   :disabled t
   :ensure t)
 
-(use-package dired+
-  :defer t
-  :ensure t)
-
 (use-package helpful
   :ensure t
   :bind (("C-h f" . helpful-callable)
@@ -652,6 +666,10 @@
   :ensure t
   :after restclient
   :commands helm-restclient)
+
+(use-package outline
+  :diminish outline-minor-mode
+  :commands outline-minor-mode)
 
 (use-package outshine
   :ensure t
@@ -1083,7 +1101,8 @@
   (defun kd/markdown-view-mode-hook-func ()
     (kd/markdown-mode-common-hook-func)
     (customize-set-variable 'buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 200))
-    (buffer-face-mode 1))
+    (buffer-face-mode 1)
+    (markdown-toggle-markup-hiding 1))
 
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
   (add-hook 'markdown-view-mode-hook #'kd/markdown-view-mode-hook-func)
