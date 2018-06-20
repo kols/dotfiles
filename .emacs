@@ -207,7 +207,8 @@
      ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
      (helpful-mode                  :select t                          :align right            :popup t)
      (magit-status-mode             :select t                          :align below            :popup t)
-     (magit-log-mode                :select t                          :align below            :popup t))))
+     (magit-log-mode                :select t                          :align below            :popup t)
+     ("^\\*go-direx:"               :regexp t                          :size 0.3 :align right  :popup t))))
 
 
 ;;;; macOS
@@ -345,7 +346,7 @@
   :diminish dired-mode
   :init
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
-  (add-hook 'dired-mode-hook #'diff-hl-dired-mode)
+  (add-hook 'dired-mode-hook #'diff-hl-dired-mode-unless-remote)
   :custom
   (dired-dwim-target t)
   (dired-listing-switches "-lahF")
@@ -422,9 +423,8 @@
   :commands
   (turn-on-diff-hl-mode
    diff-hl-magit-post-refresh
-   diff-hl-dired-mode)
-  :config
-  (diff-hl-margin-mode 1))
+   diff-hl-dired-mode
+   diff-hl-dired-mode-unless-remote))
 
 (use-package expand-region
   :ensure t
@@ -620,6 +620,11 @@
   :custom ((helm-gtags-path-style 'relative)
            (helm-gtags-ignore-case t)
            (helm-gtags-auto-update t)))
+
+(use-package helm-flycheck
+  :ensure t
+  :bind ((:map flycheck-command-map
+               ("f" . helm-flycheck))))
 
 
 (use-package bookmark+
@@ -957,7 +962,8 @@
 (use-package prog-mode
   :init
   (defvar kd-prog-mode-minor-modes
-    '(highlight-symbol-mode
+    '(display-line-numbers-mode
+      highlight-symbol-mode
       turn-on-diff-hl-mode
       helm-gtags-mode
       outline-minor-mode
@@ -967,7 +973,6 @@
 
   (dolist (mode kd-prog-mode-minor-modes)
     (add-hook 'prog-mode-hook mode)))
-
 
 
 ;;;; Tags
@@ -1020,7 +1025,9 @@
   :bind (:map company-active-map
               ("M-d" . company-quickhelp-manual-begin))
   :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
-  :config (setq company-quickhelp-delay nil))
+  :custom
+  (company-quickhelp-use-propertized-text t)
+  (company-quickhelp-delay 0.5))
 
 
 (use-package smartparens
@@ -1152,7 +1159,12 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
-  :config (setq flycheck-check-syntax-automatically '(save)))
+  :custom (flycheck-check-syntax-automatically '(save)))
+
+(use-package flycheck-pos-tip
+  :ensure t
+  :commands flycheck-pos-tip-mode
+  :init (add-hook 'flycheck-mode #'flycheck-pos-tip-mode))
 
 (use-package realgud
   :ensure t
@@ -1311,6 +1323,13 @@
   :ensure t
   :commands company-jedi)
 
+(use-package jedi-direx
+  :disabled t
+  :ensure t
+  :bind (:map python-mode-map
+              ("s-o '" . jedi-direx:pop-to-buffer))
+  :init (add-hook 'jedi-mode-hook #'jedi-direx:setup))
+
 (use-package ein
   :ensure t
   :defer t)
@@ -1356,10 +1375,12 @@
   :ensure t
   :commands (flycheck-gometalinter-setup)
   :after go-mode
-  :config
-  (setq flycheck-gometalinter-vendor t)
-  (setq flycheck-gometalinter-errors-only t)
-  (setq flycheck-gometalinter-fast t))
+  :custom
+  (flycheck-gometalinter-vendor t)
+  (flycheck-gometalinter-test t)
+  (flycheck-gometalinter-errors-only t)
+  (flycheck-gometalinter-fast t)
+  (flycheck-gometalinter-disable-linters '("gotype" "vet" "vetshadow" "megacheck" "interfacer" "ineffassign")))
 
 (use-package go-eldoc
   :ensure t
@@ -1387,6 +1408,11 @@
               ("C-c C-c" . go-playground-exec)
               ("C-c C-k" . go-playground-rm))
   :commands go-playground)
+
+(use-package go-direx
+  :ensure t
+  :bind (:map go-mode-map
+              ("s-o '" . go-direx-pop-to-buffer)))
 
 
 ;;;; Java
