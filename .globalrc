@@ -7,22 +7,25 @@ ctags:\
 pygments:\
 	:tc=pygments-parser:tc=htags:
 
+# Common settings
 common:\
 	:skip=HTML/,HTML.pub/,tags,TAGS,ID,y.tab.c,y.tab.h,cscope.out,cscope.po.out,cscope.in.out,SCCS/,RCS/,CVS/,CVSROOT/,{arch}/,.svn/,.git/,autom4te.cache/:
 
-#
 # Built-in parsers.
-#
 gtags:\
 	:tc=common:\
 	:tc=builtin-parser:
-builtin-parser:\
-	:langmap=c\:.c.h,yacc\:.y,asm\:.s.S,java\:.java,cpp\:.c++.cc.hh.cpp.cxx.hxx.hpp.C.H,php\:.php.php3.phtml:
 
-#
-# Plug-in parser to use Exuberant Ctags.
-#
-exuberant-ctags|plugin-example|setting to use Exuberant Ctags plug-in parser:\
+builtin-parser:\
+	:langmap=C\:.c.h:\
+    :langmap=yacc\:.y:\
+    :langmap=asm\:.s.S:\
+    :langmap=java\:.java:\
+    :langmap=cpp\:.c++.cc.hh.cpp.cxx.hxx.hpp.C.H:\
+    :langmap=php\:.php.php3.phtml:
+
+# Plug-in parser to use Exuberant Ctags
+exuberant-ctags|setting to use Exuberant Ctags plug-in parser:\
 	:tc=common:\
 	:langmap=Asm\:.asm.ASM.s.S:\
 	:langmap=Asp\:.asp.asa:\
@@ -63,6 +66,8 @@ exuberant-ctags|plugin-example|setting to use Exuberant Ctags plug-in parser:\
 	:langmap=VHDL\:.vhdl.vhd:\
 	:langmap=Vim\:.vim:\
 	:langmap=YACC\:.y:\
+    :langmap=Thrift\:.thrift:\
+	:langmap=Go\:.go:\
 	:gtags_parser=Asm\:/usr/local/lib/gtags/exuberant-ctags.la:\
 	:gtags_parser=Asp\:/usr/local/lib/gtags/exuberant-ctags.la:\
 	:gtags_parser=Awk\:/usr/local/lib/gtags/exuberant-ctags.la:\
@@ -101,8 +106,11 @@ exuberant-ctags|plugin-example|setting to use Exuberant Ctags plug-in parser:\
 	:gtags_parser=Verilog\:/usr/local/lib/gtags/exuberant-ctags.la:\
 	:gtags_parser=VHDL\:/usr/local/lib/gtags/exuberant-ctags.la:\
 	:gtags_parser=Vim\:/usr/local/lib/gtags/exuberant-ctags.la:\
-	:gtags_parser=YACC\:/usr/local/lib/gtags/exuberant-ctags.la:
+	:gtags_parser=YACC\:/usr/local/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=Thrift\:/usr/local/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=Go\:/usr/local/lib/gtags/exuberant-ctags.la:
 
+# Plug-in parser to use Pygments
 pygments-parser|Pygments plug-in parser:\
 	:tc=common:\
 	:langmap=ABAP\:.abap:\
