@@ -74,7 +74,7 @@
     :ensure t)
 
   (fset 'yes-or-no-p 'y-or-n-p)
-  
+
   (unless noninteractive
     (advice-add #'display-startup-echo-area-message :override #'ignore)
     (setq inhibit-startup-message t
@@ -142,6 +142,8 @@
 
   ;;;;; Frame
   (default-frame-alist '((fullscreen . maximized) (ns-appearance . dark)))
+  (show-trailing-whitespace t)
+  (indicate-empty-lines t)
   :config
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
 
@@ -154,22 +156,24 @@
     :disabled t
     :ensure t
     :config
+    (load-theme 'cyberpunk t)
     (custom-theme-set-faces
      'cyberpunk
      '(highlight-symbol-face
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)
      '(go-guru-hl-identifier-face
-       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t))
-    (load-theme 'cyberpunk t))
+       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
   (use-package zenburn-theme
     :ensure t
     :config
+    (load-theme 'zenburn t)
     (custom-theme-set-faces
      'zenburn
      '(highlight-symbol-face
-       ((t (:foreground "#2B2B2B" :background "#8FB28F"))) t))
-    (load-theme 'zenburn t))
+       ((t (:foreground "#2B2B2B" :background "#8FB28F"))) t)
+     '(region
+       ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
 
   (use-package prez-theme
     :disabled t
@@ -237,7 +241,7 @@
 
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
-  
+
   (use-package osx-lib
     :defer t
     :ensure t)
@@ -262,11 +266,7 @@
   (whitespace-line-column nil)
   (whitespace-display-mappings '((space-mark 32 [183] [46])
                                  (newline-mark 10 [9166 10])
-                                 (tab-mark 9 [9654 9] [92 9])))
-  :custom-face
-  (whitespace-space ((t (:foreground "#666666" :background nil))))
-  (whitespace-newline ((t (:foreground "#666666" :background nil))))
-  (whitespace-indentation ((t (:foreground "#666666" :background nil)))))
+                                 (tab-mark 9 [9654 9] [92 9]))))
 
 (use-package fill
   :diminish auto-fill-mode
@@ -296,8 +296,13 @@
 
 (use-package highlight-symbol
   :ensure t
-  :commands (highlight-symbol-mode)
+  :commands highlight-symbol-mode
   :diminish highlight-symbol-mode)
+
+(use-package aggressive-indent
+  :ensure t
+  :diminish aggressive-indent-mode
+  :commands aggressive-indent-mode)
 
 ;;; Window
 
@@ -617,12 +622,14 @@
                ("C-]" . helm-gtags-find-tag)
                ("C-}" . helm-gtags-find-rtag)
                ("C-t" . helm-gtags-pop-stack)))
-  :custom ((helm-gtags-path-style 'relative)
+  :custom ((helm-gtags-use-input-at-cursor t)
+           (helm-gtags-path-style 'relative)
            (helm-gtags-ignore-case t)
            (helm-gtags-auto-update t)))
 
 (use-package helm-flycheck
   :ensure t
+  :after flycheck
   :bind ((:map flycheck-command-map
                ("f" . helm-flycheck))))
 
@@ -750,7 +757,7 @@
     (custom-set-faces `(,face ((t (:height 1.0 :weight semi-bold))))))
 
   (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
-  
+
 
   ;; link
   (org-link-set-parameters "devonthink"
@@ -877,7 +884,7 @@
   (defun kd/shell-mode-hook-func ()
     (bash-completion-setup)
     (kd/local-push-company-backend '(company-shell company-shell-env))
-    
+
     (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t))
   (add-hook 'shell-mode-hook #'kd/shell-mode-hook-func)
   :custom
@@ -1037,7 +1044,9 @@
   :bind (:map smartparens-mode-map
               ("<C-s-268632093>" . sp-unwrap-sexp)
               ("C-)" . sp-slurp-hybrid-sexp))
-  :init (add-hook 'after-init-hook #'smartparens-global-strict-mode)
+  :init
+  (add-hook 'after-init-hook #'smartparens-global-strict-mode)
+  (add-hook 'after-init-hook #'show-smartparens-global-mode)
   :config (require 'smartparens-config))
 
 (use-package js2-mode
@@ -1159,12 +1168,20 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
-  :custom (flycheck-check-syntax-automatically '(save)))
+  :custom
+  (flycheck-check-syntax-automatically '(save))
+  (flycheck-mode-line-prefix "⚠"))
+
+(use-package flycheck-inline
+  :ensure t
+  :commands flycheck-inline-mode
+  :init (add-hook 'flycheck-mode-hook #'flycheck-inline-mode))
 
 (use-package flycheck-pos-tip
+  :disabled t
   :ensure t
   :commands flycheck-pos-tip-mode
-  :init (add-hook 'flycheck-mode #'flycheck-pos-tip-mode))
+  :init (add-hook 'flycheck-mode-hook #'flycheck-pos-tip-mode))
 
 (use-package realgud
   :ensure t
@@ -1219,7 +1236,13 @@
   (defun kd/c-mode-common-hook-func ()
     ;; style
     (google-set-c-style)
-    (google-make-newline-indent))
+    (google-make-newline-indent)
+    (setq-local c-basic-offset 4)
+    (setq c-auto-newline nil)
+
+    ;; whitespace
+    (make-local-variable 'whitespace-style)
+    (customize-set-variable 'whitespace-style '(indentation::tab)))
 
   (add-hook 'c-mode-common-hook #'kd/c-mode-common-hook-func)
 
@@ -1229,24 +1252,24 @@
 
     ;; company
     (setq company-backends (delete 'company-semantic company-backends))
-    (kd/local-push-company-backend #'company-c-headers)
-    )
+    (kd/local-push-company-backend #'company-c-headers))
 
   (add-hook 'c-mode-hook #'kd/c-mode-hook-func)
   (add-hook 'c++-mode-hook #'kd/c-mode-hook-func)
-  :config
-  (setq c-basic-offset 4)
-  (setq c-auto-newline nil))
+  :config (unbind-key "C-c C-a" c-mode-map))
 
 ;;;;; Irony
 
 (use-package irony
   :ensure t
+  :diminish irony-mode
   :commands irony-mode
   :init
   (defun kd/irony-mode-hook-func ()
     (irony-cdb-autosetup-compile-options)
-    (irony-eldoc)
+
+    ;; eldoc
+    (irony-eldoc 1)
 
     ;; company
     (company-irony-setup-begin-commands)
@@ -1285,15 +1308,17 @@
   (setenv "PYTHONIOENCODING" "UTF-8")
 
   (defun kd/python-mode-hook-function ()
-    ; jedi
+    ;; jedi
     (jedi:setup)
     (kd/local-push-company-backend #'company-jedi)
 
-    ; imenu
+    ;; imenu
     (setq imenu-create-index-function #'python-imenu-create-index)
 
-    ; trim whitespace
-    (add-hook 'before-save-hook #'delete-trailing-whitespace nil t))
+    ;; whitespace
+    (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
+    (make-local-variable 'whitespace-style)
+    (customize-set-variable 'whitespace-style '(indentation::tab)))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function))
 
@@ -1355,7 +1380,9 @@
 
     ;; flycheck
     (flycheck-gometalinter-setup)
-    (setq-local flycheck-checker 'go-build)
+    (setq-local flycheck-checker 'go-errcheck)
+    (setq-local flycheck-disabled-checkers '(go-unconvert
+                                             go-megacheck))
 
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
@@ -1364,7 +1391,13 @@
 
     ;; highlight identifier
     (highlight-symbol-mode -1)
-    (go-guru-hl-identifier-mode 1))
+    (go-guru-hl-identifier-mode 1)
+
+    ;; whitespace
+    (setq-local indent-tabs-mode t)
+    (make-local-variable 'whitespace-style)
+    (customize-set-variable 'whitespace-style '(indentation::space))
+    (whitespace-mode 1))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-func)
   :config
   (when IS-MAC
@@ -1378,9 +1411,12 @@
   :custom
   (flycheck-gometalinter-vendor t)
   (flycheck-gometalinter-test t)
-  (flycheck-gometalinter-errors-only t)
-  (flycheck-gometalinter-fast t)
-  (flycheck-gometalinter-disable-linters '("gotype" "vet" "vetshadow" "megacheck" "interfacer" "ineffassign")))
+  (flycheck-gometalinter-errors-only nil)
+  (flycheck-gometalinter-fast nil)
+  (flycheck-gometalinter-concurrency 4)
+  (flycheck-gometalinter-deadline nil)
+  (flycheck-gometalinter-disable-all t)
+  (flycheck-gometalinter-enable-linters '("errcheck")))
 
 (use-package go-eldoc
   :ensure t
@@ -1427,7 +1463,7 @@
   :init
   (defun kd/java-mode-hook-func ()
     (meghanada-mode t)
-    (setq c-basic-offset 4)
+    (setq-local c-basic-offset 4)
     (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
   (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
   :config
@@ -1447,6 +1483,10 @@
 
 
 ;;;; Elisp
+
+(use-package elisp-mode
+  :mode ("\\.el\\'" . emacs-lisp-mode)
+  :init (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
 
 (use-package elisp-slime-nav
   :ensure t
