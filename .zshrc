@@ -242,6 +242,39 @@ function install_pypkg {
     PYENV_VERSION=`pyenv global` pyenv exec pip install -r $HOME/requirements.txt "$1"
 }
 
+function install_gopkg {
+    local pkgs=(
+        # linter
+        github.com/alecthomas/gometalinter
+        github.com/golang/lint/golint
+        github.com/jgautheron/goconst/cmd/goconst
+        github.com/opennota/check/cmd/varcheck
+        github.com/opennota/check/cmd/aligncheck
+        github.com/opennota/check/cmd/structcheck
+        golang.org/x/tools/cmd/gotype
+
+        # auto complete
+        github.com/nsf/gocode
+
+        # formatting
+        golang.org/x/tools/cmd/goimports
+
+        # tagging
+        github.com/jstemmer/gotags
+
+        # analysis
+        golang.org/x/tools/cmd/guru
+        github.com/jstemmer/gotags
+        github.com/juntaki/gogtags
+
+        # dependency
+        github.com/golang/dep/cmd/dep
+    )
+    for p in $pkgs; do
+        go get -v -u $p
+    done
+}
+
 # pyenv
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
