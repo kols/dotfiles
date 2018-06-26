@@ -47,6 +47,10 @@
 (require 'bind-key)
 (require 'diminish)
 
+(use-package use-package-chords
+  :ensure t
+  :config (key-chord-mode 1))
+
 (use-package paradox
   :ensure t
   :functions paradox-enable
@@ -141,7 +145,9 @@
   (mouse-wheel-follow-mouse 't)
 
   ;;;;; Frame
-  (default-frame-alist '((fullscreen . maximized) (ns-appearance . dark)))
+  (default-frame-alist '((fullscreen . maximized)
+                         (ns-transparent-titlebar . t)
+                         (ns-appearance . dark)))
   (show-trailing-whitespace t)
   (indicate-empty-lines t)
   :config
@@ -190,7 +196,8 @@
 (use-package simple
   :diminish visual-line-mode
   :commands (global-visual-line-mode turn-on-visual-line-mode)
-  :init (add-hook 'after-init-hook #'global-visual-line-mode))
+  :init (add-hook 'after-init-hook #'global-visual-line-mode)
+  :custom (set-mark-command-repeat-pop t))
 
 (use-package shackle
   :ensure t
@@ -224,6 +231,7 @@
   (provide 'kd-macOS)
   :defines IS-MAC
   :functions kd/lock-screen
+  :chords ("lk" . kd/lock-screen)
   :custom
   (mac-option-modifier 'meta)
   (mac-command-modifier 'super)
@@ -235,7 +243,6 @@
     (interactive)
     (cond (IS-MAC
            (start-process "lock-screen" nil "/System/Library/CoreServices/Menu Extras/User.menu/Contents/Resources/CGSession" "-suspend"))))
-  (key-chord-define-global "lk" #'kd/lock-screen)
 
   (setq mac-mouse-wheel-smooth-scroll nil)
 
@@ -302,7 +309,21 @@
 (use-package aggressive-indent
   :ensure t
   :diminish aggressive-indent-mode
-  :commands aggressive-indent-mode)
+  :commands aggressive-indent-mode
+  :config
+  (add-to-list
+   'aggressive-indent-dont-indent-if
+   '(and (derived-mode-p 'c-mode)
+         (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
+                             (thing-at-point 'line))))))
+
+
+(use-package avy
+  :ensure t
+  :commands (avy-goto-char-timer avy-goto-line)
+  :chords
+  ("jl" . avy-goto-line)
+  ("jc" . avy-goto-char-timer))
 
 ;;; Window
 
@@ -507,7 +528,8 @@
          (:map isearch-mode-map
                ("M-s o" . helm-occur-from-isearch))
          (:map kd/toggle-map
-               ("p" . kd/toggle-http-proxy)))
+               ("p" . kd/toggle-http-proxy)
+               ("h" . helm-resume)))
   :init
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
@@ -553,6 +575,8 @@
 
   (helm-autoresize-max-height 0)
   (helm-autoresize-min-height 35)
+
+  (helm-follow-mode-persistent t)
   :config
   (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
   (helm-autoresize-mode 1)
@@ -621,7 +645,8 @@
   :bind ((:map helm-gtags-mode-map
                ("C-]" . helm-gtags-find-tag)
                ("C-}" . helm-gtags-find-rtag)
-               ("C-t" . helm-gtags-pop-stack)))
+               ("C-t" . helm-gtags-pop-stack)
+               ("C-S-t" . helm-gtags-show-stack)))
   :custom ((helm-gtags-use-input-at-cursor t)
            (helm-gtags-path-style 'relative)
            (helm-gtags-ignore-case t)
@@ -1241,8 +1266,7 @@
     (setq c-auto-newline nil)
 
     ;; whitespace
-    (make-local-variable 'whitespace-style)
-    (customize-set-variable 'whitespace-style '(indentation::tab)))
+    (setq-local whitespace-style '(face indentation::tab)))
 
   (add-hook 'c-mode-common-hook #'kd/c-mode-common-hook-func)
 
@@ -1292,7 +1316,7 @@
   :after irony
   :ensure t
   :commands (company-irony company-irony-setup-begin-commands)
-  :config (setq company-irony-ignore-case 'smart))
+  :custom (company-irony-ignore-case 'smart))
 
 (use-package flycheck-irony
   :after irony
@@ -1317,8 +1341,7 @@
 
     ;; whitespace
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
-    (make-local-variable 'whitespace-style)
-    (customize-set-variable 'whitespace-style '(indentation::tab)))
+    (setq-local whitespace-style '(face indentation::tab)))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function))
 
@@ -1379,10 +1402,11 @@
     (kd/local-push-company-backend #'company-go)
 
     ;; flycheck
-    (flycheck-gometalinter-setup)
-    (setq-local flycheck-checker 'go-errcheck)
+    (setq-local flycheck-checker 'go-vet)
     (setq-local flycheck-disabled-checkers '(go-unconvert
-                                             go-megacheck))
+                                             go-megacheck
+                                             go-errcheck))
+    (customize-set-variable 'flycheck-go-vet-shadow t)
 
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
@@ -1395,16 +1419,16 @@
 
     ;; whitespace
     (setq-local indent-tabs-mode t)
-    (make-local-variable 'whitespace-style)
-    (customize-set-variable 'whitespace-style '(indentation::space))
-    (whitespace-mode 1))
+    (setq-local whitespace-style '(face indentation::space)))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-func)
+  :custom
+  (gofmt-command "goimports")
   :config
   (when IS-MAC
-    (exec-path-from-shell-copy-env "GOPATH"))
-  (setq gofmt-command "goimports"))
+    (exec-path-from-shell-copy-env "GOPATH")))
 
 (use-package flycheck-gometalinter
+  :disabled t
   :ensure t
   :commands (flycheck-gometalinter-setup)
   :after go-mode
@@ -1447,6 +1471,7 @@
 
 (use-package go-direx
   :ensure t
+  :commands go-direx-pop-to-buffer
   :bind (:map go-mode-map
               ("s-o '" . go-direx-pop-to-buffer)))
 
@@ -1466,9 +1491,9 @@
     (setq-local c-basic-offset 4)
     (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
   (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
-  :config
-  (setq meghanada-java-path "java")
-  (setq meghanada-maven-path "mvn"))
+  :custom
+  (meghanada-java-path "java")
+  (meghanada-maven-path "mvn"))
 
 
 ;;;; Clojure
