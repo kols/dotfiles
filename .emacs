@@ -1181,8 +1181,26 @@
 (use-package undo-tree
   :ensure t
   :commands (global-undo-tree-mode undo-tree-mode)
+  :bind ((:map kd/toggle-map
+               ("u" . undo-tree-visualize)))
   :diminish undo-tree-mode
-  :init (add-hook 'after-init-hook #'global-undo-tree-mode))
+  :init (add-hook 'after-init-hook #'global-undo-tree-mode)
+  :custom
+  (undo-tree-visualizer-timestamps t)
+  (undo-tree-visualizer-diff t)
+  :config
+  ;; Keep region when undoing in region
+  ;; http://whattheemacsd.com/my-misc.el-02.html
+  (defadvice undo-tree-undo (around keep-region activate)
+    (if (use-region-p)
+        (let ((m (set-marker (make-marker) (mark)))
+              (p (set-marker (make-marker) (point))))
+          ad-do-it
+          (goto-char p)
+          (set-mark m)
+          (set-marker p nil)
+          (set-marker m nil))
+      ad-do-it)))
 
 (use-package abbrev
   :diminish abbrev-mode
