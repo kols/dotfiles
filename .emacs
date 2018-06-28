@@ -74,6 +74,7 @@
   (tab-width 4)
   (indent-tabs-mode nil)
   :config
+  (prefer-coding-system 'utf-8)
   (use-package better-defaults
     :ensure t)
 
@@ -86,7 +87,6 @@
           inhibit-default-init t
           initial-major-mode 'fundamental-mode
           initial-scratch-message nil
-          mode-line-format nil
           visible-bell nil))
 
   (when (file-exists-p custom-file)
@@ -127,11 +127,19 @@
   (desktop-save-mode 1))
 
 
-;;; Interface
+;;; User Interface (UI)
 
 (use-package remap-face
   :defines buffer-face-mode-face
   :commands buffer-face-mode)
+
+(use-package smart-mode-line
+  :ensure t
+  :commands sml/setup
+  :init
+  (setq sml/no-confirm-load-theme t
+        sml/theme 'respectful)
+  (add-hook 'after-init-hook #'sml/setup))
 
 ;;;; GUI
 (use-package kd-GUI
@@ -387,6 +395,12 @@
   :commands dired-omit-mode
   :init (add-hook 'dired-mode-hook #'dired-omit-mode))
 
+(use-package peep-dired
+  :ensure t
+  :commands peep-dired
+  :bind ((:map dired-mode-map
+               ("P" . peep-dired))))
+
 (use-package neotree
   :ensure t
   :bind (:map kd/pop-map
@@ -519,7 +533,7 @@
 (use-package helm
   :ensure t
   :diminish helm-mode
-  :commands helm-mode
+  :commands (helm-mode helm-hide-minibuffer-maybe)
   :bind (("s-x" . helm-mini)
          ("M-y" . helm-show-kill-ring)
          ("C-." . helm-imenu)
@@ -562,25 +576,18 @@
                                          ("http" . ,x)
                                          ("https" . ,x)))
                                  (message "Proxy turned on: %s" x))))))
-  :custom
-  (helm-mode-fuzzy-match t)
-  (helm-completion-in-region-fuzzy-match t)
 
-  (helm-move-to-line-cycle-in-source t)
-  (helm-ff-search-library-in-sexp t)
-  (helm-scroll-amount 8)
-  (helm-ff-file-name-history-use-recentf t)
+  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+  :custom
+  (helm-idle-delay 0.0)
+  (helm-input-idle-delay 0.01)
+  (helm-ff-skip-boring-files t)
+
   (helm-echo-input-in-header-line t)
   (helm-display-header-line nil)
 
-  (helm-autoresize-max-height 0)
-  (helm-autoresize-min-height 35)
-
   (helm-follow-mode-persistent t)
   :config
-  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-  (helm-autoresize-mode 1)
-
   (require 'helm-config)
   (helm-mode 1))
 
@@ -593,11 +600,13 @@
   :config (helm-flx-mode 1))
 
 (use-package helm-fuzzier
+  :disabled t
   :ensure t
   :after helm
   :config (helm-fuzzier-mode 1))
 
 (use-package helm-swoop
+  :disabled t
   :ensure t
   :after helm
   :commands (helm-swoop helm-multi-swoop-projectile helm-multi-swoop)
@@ -1579,6 +1588,21 @@
     (turn-on-visual-line-mode))
 
   (add-hook 'eww-mode-hook #'kd/eww-mode-hook-func))
+
+(use-package elfeed
+  :ensure t
+  :commands elfeed
+  :init
+  (defun kd-elfeed-show-mode-hook-func ()
+    (customize-set-value 'buffer-face-mode-face '(:family "Verdana" :height 200))
+    (buffer-face-mode 1))
+  (add-hook 'elfeed-show-mode-hook #'kd-elfeed-show-mode-hook-func))
+
+(use-package elfeed-org
+  :ensure t
+  :commands elfeed-org
+  :config (elfeed-org)
+  :custom (rmh-elfeed-org-files `(,(concat org-directory "/elfeed.org"))))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
