@@ -104,6 +104,7 @@
   :config
   (defvar kd/toggle-map nil)
   (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
+  (bind-key "l" #'display-line-numbers-mode 'kd/toggle-map)
   (defvar kd/pop-map nil)
   (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
   (defvar kd/org-map nil)
@@ -1003,8 +1004,7 @@
 (use-package prog-mode
   :init
   (defvar kd-prog-mode-minor-modes
-    '(display-line-numbers-mode
-      highlight-symbol-mode
+    '(highlight-symbol-mode
       turn-on-diff-hl-mode
       helm-gtags-mode
       outline-minor-mode
@@ -1013,7 +1013,12 @@
       flycheck-mode))
 
   (dolist (mode kd-prog-mode-minor-modes)
-    (add-hook 'prog-mode-hook mode)))
+    (add-hook 'prog-mode-hook mode))
+
+  (defun kd-prog-mode-hook-func ()
+    (setq-local show-trailing-whitespace t))
+
+  (add-hook 'prog-mode-hook #'kd-prog-mode-hook-func))
 
 
 ;;;; Tags
@@ -1594,8 +1599,10 @@
   :commands elfeed
   :init
   (defun kd-elfeed-show-mode-hook-func ()
-    (customize-set-value 'buffer-face-mode-face '(:family "Verdana" :height 200))
-    (buffer-face-mode 1))
+    (customize-set-value 'buffer-face-mode-face '(:family "verdana" :height 200))
+    (buffer-face-mode 1)
+    (setq-local fill-column 90)
+    (visual-fill-column-mode 1))
   (add-hook 'elfeed-show-mode-hook #'kd-elfeed-show-mode-hook-func))
 
 (use-package elfeed-org
@@ -1630,6 +1637,22 @@ already narrowed."
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
 
-(define-key kd/toggle-map "n" #'narrow-or-widen-dwim)
+(bind-key "n" #'narrow-or-widen-dwim 'kd/toggle-map)
+
+(defun prelude-open-with (arg)
+  "Open visited file in default external program.
+
+With a prefix ARG always prompt for command to use."
+  (interactive "P")
+  (when buffer-file-name
+    (shell-command (concat
+                    (cond
+                     ((and (not arg) (eq system-type 'darwin)) "open")
+                     ((and (not arg) (member system-type '(gnu gnu/linux gnu/kfreebsd))) "xdg-open")
+                     (t (read-shell-command "Open current file with: ")))
+                    " "
+                    (shell-quote-argument buffer-file-name)))))
+
+(bind-key "e" #'prelude-open-with 'kd/pop-map)
 
 ;;; .emacs ends here
