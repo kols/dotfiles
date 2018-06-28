@@ -1072,7 +1072,10 @@
   :init
   (add-hook 'after-init-hook #'smartparens-global-strict-mode)
   (add-hook 'after-init-hook #'show-smartparens-global-mode)
-  :config (require 'smartparens-config))
+  :config
+  (require 'smartparens-config)
+  (use-package paren
+    :config (show-paren-mode -1)))
 
 (use-package js2-mode
   :ensure t
