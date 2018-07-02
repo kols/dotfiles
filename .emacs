@@ -157,8 +157,6 @@
   (default-frame-alist '((fullscreen . maximized)
                          (ns-transparent-titlebar . t)
                          (ns-appearance . dark)))
-  (show-trailing-whitespace t)
-  (indicate-empty-lines t)
   :config
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
 
@@ -1013,10 +1011,11 @@
       flycheck-mode))
 
   (dolist (mode kd-prog-mode-minor-modes)
-    (add-hook 'prog-mode-hook mode))
+    (add-hook 'prog-mode-hook #'mode))
 
   (defun kd-prog-mode-hook-func ()
-    (setq-local show-trailing-whitespace t))
+    (setq-local show-trailing-whitespace t)
+    (setq-local indicate-empty-lines t))
 
   (add-hook 'prog-mode-hook #'kd-prog-mode-hook-func))
 
@@ -1506,7 +1505,7 @@
 
 (use-package go-direx
   :ensure t
-  :commands go-direx-pop-to-buffer
+  :after go-mode
   :bind (:map go-mode-map
               ("s-o '" . go-direx-pop-to-buffer)))
 
