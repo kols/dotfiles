@@ -13,11 +13,10 @@
 
 ;;; Package
 (require 'package)
-(customize-set-variable 'package-archives
-                        '(("melpa" . "https://melpa.org/packages/")
-                          ("org" . "https://orgmode.org/elpa/")))
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
 (package-initialize)
-(customize-set-variable 'load-prefer-newer t)
+(setq load-prefer-newer t)
 
 ;;;; install prerequisite packages
 (let ((pre-pkgs '(auto-compile
@@ -40,10 +39,10 @@
 ;;;; use-package
 (eval-when-compile
   (require 'use-package))
-(customize-set-variable 'use-package-enable-imenu-support t)
-(customize-set-variable 'use-package-compute-statistics t)
-(customize-set-variable 'use-package-verbose t)
-(customize-set-variable 'use-package-expand-minimally t)
+(setq use-package-enable-imenu-support t)
+(setq use-package-compute-statistics t)
+(setq use-package-verbose t)
+(setq use-package-expand-minimally t)
 (require 'bind-key)
 (require 'diminish)
 
@@ -60,21 +59,20 @@
 ;;; Defaults
 (use-package kd-defaults
   :no-require t
-  :custom
-  (confirm-kill-emacs 'y-or-n-p)
-  (gc-cons-threshold 50000000)
-  (scroll-conservatively 10000)
-  (scroll-preserve-screen-position t)
-  (vc-follow-symlinks t)
-  (custom-file (kd/emacs-subdirectory "custom.el"))
-  (history-length 200)
+  :config
+  (setq confirm-kill-emacs 'y-or-n-p)
+  (setq gc-cons-threshold 50000000)
+  (setq scroll-conservatively 10000)
+  (setq scroll-preserve-screen-position t)
+  (setq vc-follow-symlinks t)
+  (setq custom-file (kd/emacs-subdirectory "custom.el"))
+  (setq history-length 200)
 
   ;;;; Tabs
-  (default-tab-width 4)
-  (tab-width 4)
-  (indent-tabs-mode nil)
-  :config
-  (prefer-coding-system 'utf-8)
+  (setq default-tab-width 4)
+  (setq tab-width 4)
+  (setq indent-tabs-mode nil)
+  (setq prefer-coding-system 'utf-8)
   (use-package better-defaults
     :ensure t)
 
@@ -147,17 +145,16 @@
   :no-require t
   :preface (defconst IS-GUI (display-graphic-p))
   :if IS-GUI
-  :custom
+  :config
   ;;;;; Mouse
-  (mouse-wheel-scroll-amount '(3 ((shift) . 1)))
-  (mouse-wheel-progressive-speed nil)
-  (mouse-wheel-follow-mouse 't)
+  (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
+  (setq mouse-wheel-progressive-speed nil)
+  (setq mouse-wheel-follow-mouse 't)
 
   ;;;;; Frame
-  (default-frame-alist '((fullscreen . maximized)
+  (setq default-frame-alist '((fullscreen . maximized)
                          (ns-transparent-titlebar . t)
                          (ns-appearance . dark)))
-  :config
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
 
   ;;;;; Theme
@@ -204,29 +201,29 @@
   :diminish visual-line-mode
   :commands (global-visual-line-mode turn-on-visual-line-mode)
   :init (add-hook 'after-init-hook #'global-visual-line-mode)
-  :custom (set-mark-command-repeat-pop t))
+  :config (setq set-mark-command-repeat-pop t))
 
 (use-package shackle
   :ensure t
   :init
   (add-hook 'after-init-hook #'shackle-mode)
-  :custom
-  (shackle-lighter "")
-  (shackle-select-reused-windows nil)
-  (shackle-default-alignment 'below)
-  (shackle-default-size 0.4)
+  :config
+  (setq shackle-lighter "")
+  (setq shackle-select-reused-windows nil)
+  (setq shackle-default-alignment 'below)
+  (setq shackle-default-size 0.4)
 
   ;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el
-  (shackle-rules
-   ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
-   '(("*osx-dictionary*"            :select t                          :size 0.3 :align below  :popup t)
-     ("*info*"                      :select t                          :align right            :popup t)
-     ("*Help*"                      :select t                          :align right            :popup t)
-     ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
-     (helpful-mode                  :select t                          :align right            :popup t)
-     (magit-status-mode             :select t                          :align below            :popup t)
-     (magit-log-mode                :select t                          :align below            :popup t)
-     ("^\\*go-direx:"               :regexp t                          :size 0.3 :align right  :popup t))))
+  (setq shackle-rules
+        ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
+        '(("*osx-dictionary*"            :select t                          :size 0.3 :align below  :popup t)
+          ("*info*"                      :select t                          :align right            :popup t)
+          ("*Help*"                      :select t                          :align right            :popup t)
+          ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
+          (helpful-mode                  :select t                          :align right            :popup t)
+          (magit-status-mode             :select t                          :align below            :popup t)
+          (magit-log-mode                :select t                          :align below            :popup t)
+          ("^\\*go-direx:"               :regexp t                          :size 0.3 :align right  :popup t))))
 
 
 ;;;; macOS
@@ -239,13 +236,12 @@
   :defines IS-MAC
   :functions kd/lock-screen
   :chords ("lk" . kd/lock-screen)
-  :custom
-  (mac-option-modifier 'meta)
-  (mac-command-modifier 'super)
   :custom-face
   ;;;;; font
   (default ((t (:font "-apple-hack-regular-*-*-*-17-*-*-*-m-*-iso10646-1"))))
   :config
+  (setq mac-option-modifier 'meta)
+  (setq mac-command-modifier 'super)
   (defun kd/lock-screen ()
     (interactive)
     (cond (IS-MAC
@@ -266,7 +262,7 @@
     :bind ("C-c f" . osx-dictionary-search-word-at-point)
     :init
     (defun kd/osx-dictionary-mode-hook-func ()
-      (customize-set-value 'buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 200))
+      (setq buffer-face-mode-face '(:family "Verdana" :height 200))
       (buffer-face-mode 1))
     (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func)))
 
@@ -276,11 +272,11 @@
   :commands whitespace-mode
   :bind (:map kd/toggle-map
               ("w" . whitespace-mode))
-  :custom
-  (whitespace-line-column nil)
-  (whitespace-display-mappings '((space-mark 32 [183] [46])
-                                 (newline-mark 10 [9166 10])
-                                 (tab-mark 9 [9654 9] [92 9]))))
+  :config
+  (setq whitespace-line-column nil)
+  (setq whitespace-display-mappings '((space-mark 32 [183] [46])
+                                      (newline-mark 10 [9166 10])
+                                      (tab-mark 9 [9654 9] [92 9]))))
 
 (use-package fill
   :diminish auto-fill-mode
@@ -346,7 +342,7 @@
 (use-package winner
   :commands winner-mode
   :init (add-hook 'after-init-hook #'winner-mode)
-  :custom (winner-dont-bind-my-keys t))
+  :config (setq winner-dont-bind-my-keys t))
 
 (use-package zygospore
   :ensure t
@@ -365,11 +361,11 @@
          ("s-4" . eyebrowse-switch-to-window-config-4)
          ("s-5" . eyebrowse-switch-to-window-config-5))
   :init (add-hook 'after-init-hook #'eyebrowse-mode)
-  :custom
-  (eyebrowse-mode-line-separator " ")
-  (eyebrowse-mode-line-style 'always)
-  (eyebrowse-new-workspace t)
-  (eyebrowse-wrap-around t))
+  :config
+  (setq eyebrowse-mode-line-separator " ")
+  (setq eyebrowse-mode-line-style 'always)
+  (setq eyebrowse-new-workspace t)
+  (setq eyebrowse-wrap-around t))
 
 ;;; Dired
 
@@ -380,11 +376,11 @@
   :init
   (add-hook 'dired-mode-hook #'dired-hide-details-mode)
   (add-hook 'dired-mode-hook #'diff-hl-dired-mode-unless-remote)
-  :custom
-  (dired-dwim-target t)
-  (dired-listing-switches "-lahF")
-  (dired-isearch-filenames t)
-  (dired-ls-F-marks-symlinks t))
+  :config
+  (setq dired-dwim-target t)
+  (setq dired-listing-switches "-lahF")
+  (setq dired-isearch-filenames t)
+  (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired+
   :defer t
@@ -406,9 +402,9 @@
               ("n" . neotree-toggle)
               ("N" . neotree-find))
   :commands (neotree neotree-toggle neotree-find)
-  :custom
-  (neo-window-width 35)
-  (neo-confirm-change-root 'off-p))
+  :config
+  (setq neo-window-width 35)
+  (setq neo-confirm-change-root 'off-p))
 
 
 ;; ---
@@ -422,13 +418,13 @@
   (add-hook 'after-init-hook #'projectile-mode)
   (add-hook 'projectile-mode-hook #'(lambda ()
                                       (remove-hook 'find-file-hook #'projectile-find-file-hook-function)))
-  :custom
-  (projectile-track-known-projects-automatically nil)
-  (projectile-generic-command "fd --type f --print0")
-  (projectile-enable-caching t)
-  (projectile-completion-system 'helm)
-  (projectile-tags-backend 'ggtags)
-  (projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
+  :config
+  (setq projectile-track-known-projects-automatically nil)
+  (setq projectile-generic-command "fd --type f --print0")
+  (setq projectile-enable-caching t)
+  (setq projectile-completion-system 'helm)
+  (setq projectile-tags-backend 'ggtags)
+  (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
 
 (use-package rg
   :ensure t
@@ -448,9 +444,9 @@
   :init
   (add-hook 'magit-process-mode-hook #'goto-address-mode)
   (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
-  :custom
-  (magit-git-executable "/usr/local/bin/git")
-  (magit-status-expand-stashes nil))
+  :config
+  (setq magit-git-executable "/usr/local/bin/git")
+  (setq magit-status-expand-stashes nil))
 
 (use-package git-commit
   :ensure t
@@ -473,7 +469,7 @@
   :ensure t
   :commands global-smartscan-mode
   :init (add-hook 'after-init-hook #'global-smartscan-mode)
-  :custom (smartscan-symbol-selector "symbol"))
+  :config (setq smartscan-symbol-selector "symbol"))
 
 (use-package hydra
   :ensure t
@@ -577,16 +573,15 @@
                                  (message "Proxy turned on: %s" x))))))
 
   (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
-  :custom
-  (helm-idle-delay 0.0)
-  (helm-input-idle-delay 0.01)
-  (helm-ff-skip-boring-files t)
-
-  (helm-echo-input-in-header-line t)
-  (helm-display-header-line nil)
-
-  (helm-follow-mode-persistent t)
   :config
+  (setq helm-idle-delay 0.0)
+  (setq helm-input-idle-delay 0.01)
+  (setq helm-ff-skip-boring-files t)
+
+  (setq helm-echo-input-in-header-line t)
+  (setq helm-display-header-line nil)
+
+  (setq helm-follow-mode-persistent t)
   (require 'helm-config)
   (helm-mode 1))
 
@@ -613,17 +608,18 @@
                ("M-i" . helm-swoop-from-isearch))
          (:map helm-swoop-map
                ("M-i" . helm-multi-swoop-all-from-helm-swoop)))
-  :custom
-  (helm-multi-swoop-edit-save t)
-  (helm-swoop-speed-or-color nil)
-  (helm-swoop-move-to-line-cycle t)
-  (helm-swoop-use-line-number-face t)
-  (helm-swoop-use-fuzzy-match nil))
+  :config
+  (setq helm-multi-swoop-edit-save t)
+  (setq helm-swoop-speed-or-color nil)
+  (setq helm-swoop-move-to-line-cycle t)
+  (setq helm-swoop-use-line-number-face t)
+  (setq helm-swoop-use-fuzzy-match nil))
 
 (use-package helm-smex
   :ensure t
   :bind (("M-X" . helm-smex-major-mode-commands)
-         ([remap execute-extended-command] . helm-smex)))
+         ([remap execute-extended-command] . helm-smex))
+  :config (setq helm-smex-show-bindings t))
 
 (use-package helm-descbinds
   :ensure t
@@ -655,10 +651,11 @@
                ("C-}" . helm-gtags-find-rtag)
                ("C-t" . helm-gtags-pop-stack)
                ("C-S-t" . helm-gtags-show-stack)))
-  :custom ((helm-gtags-use-input-at-cursor t)
-           (helm-gtags-path-style 'relative)
-           (helm-gtags-ignore-case t)
-           (helm-gtags-auto-update t)))
+  :config
+  (setq helm-gtags-use-input-at-cursor t)
+  (setq helm-gtags-path-style 'relative)
+  (setq helm-gtags-ignore-case t)
+  (setq helm-gtags-auto-update t))
 
 (use-package helm-flycheck
   :ensure t
@@ -689,7 +686,7 @@
   :commands (exec-path-from-shell-initialize exec-path-from-shell-copy-env)
   :ensure t
   :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
-  :custom (exec-path-from-shell-check-startup-files nil))
+  :config (setq exec-path-from-shell-check-startup-files nil))
 
 (use-package saveplace
   :commands save-place-mode
@@ -721,7 +718,7 @@
   :after outline
   :commands outshine-hook-function
   :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
-  :custom (outshine-use-speed-commands t))
+  :config (setq outshine-use-speed-commands t))
 
 (use-package poporg
   :ensure t
@@ -731,9 +728,9 @@
   :ensure t
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
-  :custom
-  (irfc-directory "~/Documents/rfc/rfc")
-  (irfc-assoc-mode 1))
+  :config
+  (setq irfc-directory "~/Documents/rfc/rfc")
+  (setq irfc-assoc-mode 1))
 
 
 ;;; Org-mode
@@ -779,12 +776,12 @@
     (org-bullets-mode 1))
 
   (add-hook 'org-mode-hook #'kd/org-mode-hook-func)
-  :custom
-  (org-imenu-depth 3)
-  (org-src-fontify-natively t)
-  (org-src-preserve-indentation t)
-  (org-confirm-babel-evaluate nil)
   :config
+  (setq org-imenu-depth 3)
+  (setq org-src-fontify-natively t)
+  (setq org-src-preserve-indentation t)
+  (setq org-confirm-babel-evaluate nil)
+
   ;; face
   (dolist (face org-level-faces)
     (custom-set-faces `(,face ((t (:height 1.0 :weight semi-bold))))))
@@ -811,6 +808,7 @@
                                  (shell . t)
                                  (emacs-lisp . t)
                                  (clojure . t)))
+  (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package org-agenda
@@ -824,9 +822,9 @@
   :commands org-capture
   :bind ((:map kd/org-map
                ("c" . org-capture)))
-  :custom
-  (org-capture-templates
-   '(("n" "note" entry (file+olp+datetree "") "* %?\n  %U\n  %i"))))
+  :config
+  (setq org-capture-templates
+        '(("n" "note" entry (file+olp+datetree "") "* %?\n  %U\n  %i"))))
 
 (use-package ox
   :after org
@@ -844,7 +842,7 @@
   :commands (org-reveal-export-to-html
              org-reveal-export-to-html-and-browse
              org-reveal-export-current-subtree)
-  :custom (org-reveal-root "file:///Users/kane/src/reveal.js"))
+  :config (setq org-reveal-root "file:///Users/kane/src/reveal.js"))
 
 (use-package org-noter
   :ensure t
@@ -920,9 +918,8 @@
 
     (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t))
   (add-hook 'shell-mode-hook #'kd/shell-mode-hook-func)
-  :custom
-  (explicit-shell-file-name "/usr/local/bin/bash")
   :config
+  (setq explicit-shell-file-name "/usr/local/bin/bash")
   (setq comint-output-filter-functions
         (remove 'ansi-color-process-output comint-output-filter-functions)))
 
@@ -1070,9 +1067,9 @@
   :bind (:map company-active-map
               ("M-d" . company-quickhelp-manual-begin))
   :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
-  :custom
-  (company-quickhelp-use-propertized-text t)
-  (company-quickhelp-delay 0.5))
+  :config
+  (setq company-quickhelp-use-propertized-text t)
+  (setq company-quickhelp-delay 0.5))
 
 
 (use-package smartparens
@@ -1157,14 +1154,14 @@
 
   (defun kd/markdown-view-mode-hook-func ()
     (kd/markdown-mode-common-hook-func)
-    (customize-set-variable 'buffer-face-mode-face '(:family ".AppleSystemUIFont" :height 200))
+    (setq buffer-face-mode-face '(:family "Verdana" :height 200))
     (buffer-face-mode 1)
     (markdown-toggle-markup-hiding 1))
 
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
   (add-hook 'markdown-view-mode-hook #'kd/markdown-view-mode-hook-func)
   (add-hook 'gfm-view-mode-hook #'kd/markdown-view-mode-hook-func)
-  :custom (markdown-command "multimarkdown"))
+  :config (setq markdown-command "multimarkdown"))
 
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
@@ -1198,10 +1195,10 @@
                ("u" . undo-tree-visualize)))
   :diminish undo-tree-mode
   :init (add-hook 'after-init-hook #'global-undo-tree-mode)
-  :custom
-  (undo-tree-visualizer-timestamps t)
-  (undo-tree-visualizer-diff t)
   :config
+  (setq undo-tree-visualizer-timestamps t)
+  (setq undo-tree-visualizer-diff t)
+
   ;; Keep region when undoing in region
   ;; http://whattheemacsd.com/my-misc.el-02.html
   (defadvice undo-tree-undo (around keep-region activate)
@@ -1227,9 +1224,9 @@
 (use-package flycheck
   :ensure t
   :commands flycheck-mode
-  :custom
-  (flycheck-check-syntax-automatically '(save))
-  (flycheck-mode-line-prefix "⚠"))
+  :config
+  (setq flycheck-check-syntax-automatically '(save))
+  (setq flycheck-mode-line-prefix "⚠"))
 
 (use-package flycheck-inline
   :ensure t
@@ -1350,7 +1347,7 @@
   :after irony
   :ensure t
   :commands (company-irony company-irony-setup-begin-commands)
-  :custom (company-irony-ignore-case 'smart))
+  :config (setq company-irony-ignore-case 'smart))
 
 (use-package flycheck-irony
   :after irony
@@ -1440,7 +1437,7 @@
     (setq-local flycheck-disabled-checkers '(go-unconvert
                                              go-megacheck
                                              go-errcheck))
-    (customize-set-variable 'flycheck-go-vet-shadow t)
+    (setq flycheck-go-vet-shadow t)
 
     (when (bound-and-true-p ggtags-mode)
       (ggtags-mode -1))
@@ -1455,9 +1452,8 @@
     (setq-local indent-tabs-mode t)
     (setq-local whitespace-style '(face indentation::space)))
   (add-hook 'go-mode-hook #'kd/go-mode-hook-func)
-  :custom
-  (gofmt-command "goimports")
   :config
+  (setq gofmt-command "goimports")
   (when IS-MAC
     (exec-path-from-shell-copy-env "GOPATH")))
 
@@ -1466,15 +1462,15 @@
   :ensure t
   :commands (flycheck-gometalinter-setup)
   :after go-mode
-  :custom
-  (flycheck-gometalinter-vendor t)
-  (flycheck-gometalinter-test t)
-  (flycheck-gometalinter-errors-only nil)
-  (flycheck-gometalinter-fast nil)
-  (flycheck-gometalinter-concurrency 4)
-  (flycheck-gometalinter-deadline nil)
-  (flycheck-gometalinter-disable-all t)
-  (flycheck-gometalinter-enable-linters '("errcheck")))
+  :config
+  (setq flycheck-gometalinter-vendor t)
+  (setq flycheck-gometalinter-test t)
+  (setq flycheck-gometalinter-errors-only nil)
+  (setq flycheck-gometalinter-fast nil)
+  (setq flycheck-gometalinter-concurrency 4)
+  (setq flycheck-gometalinter-deadline nil)
+  (setq flycheck-gometalinter-disable-all t)
+  (setq flycheck-gometalinter-enable-linters '("errcheck")))
 
 (use-package go-eldoc
   :ensure t
@@ -1525,9 +1521,9 @@
     (setq-local c-basic-offset 4)
     (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
   (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
-  :custom
-  (meghanada-java-path "java")
-  (meghanada-maven-path "mvn"))
+  :config
+  (setq meghanada-java-path "java")
+  (setq meghanada-maven-path "mvn"))
 
 
 ;;;; Clojure
@@ -1598,7 +1594,7 @@
   :commands elfeed
   :init
   (defun kd-elfeed-show-mode-hook-func ()
-    (customize-set-value 'buffer-face-mode-face '(:family "verdana" :height 200))
+    (setq buffer-face-mode-face '(:family "Verdana" :height 200))
     (buffer-face-mode 1)
     (setq-local fill-column 90)
     (visual-fill-column-mode 1))
@@ -1608,7 +1604,7 @@
   :ensure t
   :commands elfeed-org
   :config (elfeed-org)
-  :custom (rmh-elfeed-org-files `(,(concat org-directory "/elfeed.org"))))
+  :config (setq rmh-elfeed-org-files `(,(concat org-directory "/elfeed.org"))))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
