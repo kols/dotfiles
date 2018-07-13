@@ -22,6 +22,9 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
 # go
+eval "$(goenv init -)"
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
 export GOROOT=/usr/local/opt/go/libexec
 export GOPATH=$HOME/go
 export PATH=$PATH:$HOME/go/bin:$GOROOT/bin
@@ -31,5 +34,8 @@ export PATH=$PATH:$HOME/.cargo/bin
 
 # brew
 export HOMEBREW_AUTO_UPDATE_SECS=86400
+
+# xapian cjk tokenizer
+export XAPIAN_CJK_NGRAM=1
 
 # vim:ft=zsh
