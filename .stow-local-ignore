@@ -4,3 +4,4 @@ README
 \.gitkeep
 \.gitignore
 work
+\#.*\#
