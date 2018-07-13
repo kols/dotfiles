@@ -48,6 +48,8 @@ brew "zsh"
 ## Apps
 
 brew "d12frosted/emacs-plus/emacs-plus", args: ["HEAD", "without-spacemacs-icon"]
+brew "emacs"
+brew "vim"
 brew "aspell", args: ["devel"]
 brew "aria2"
 brew "ffmpeg", args: ["with-fontconfig", "with-freetype"]
@@ -62,7 +64,6 @@ brew "stow"
 brew "telnet"
 brew "tmux"
 brew "tree"
-brew "vim"
 brew "wget"
 brew "youtube-dl"
 brew "multimarkdown"
