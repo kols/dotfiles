@@ -15,6 +15,7 @@
 
 (defun kd/turn-on-http-proxy (&optional proxy)
   (interactive)
+  (require 'url-vars)
   (unless url-proxy-services
     (unless proxy
       (setq proxy "127.0.0.1:1087"))
@@ -23,19 +24,27 @@
             ("http" . ,proxy)
             ("https" . ,proxy)))
     (message "Proxy turned on: %s" proxy)))
-
-(eval-after-load 'package
-  (progn
-    (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                             ("org" . "https://orgmode.org/elpa/")))
-    (setq load-prefer-newer t)
-
-    (add-hook 'package-menu-mode-hook #'kd/turn-on-http-proxy)))
+(kd/turn-on-http-proxy)
 
 (require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
+(setq load-prefer-newer t)
+(add-hook 'package-menu-mode-hook #'kd/turn-on-http-proxy)
 (package-initialize)
 
 ;;;; Prerequisite packages
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+(unless (require 'el-get nil 'noerror)
+  (with-current-buffer
+      (url-retrieve-synchronously
+       "https://raw.githubusercontent.com/dimitri/el-get/master/el-get-install.el")
+    (goto-char (point-max))
+    (eval-print-last-sexp)))
+(add-to-list 'el-get-recipe-path "~/.emacs.d/el-get-user/recipes")
+
+(el-get-bundle with-eval-after-load-feature)
+
 (let ((pre-pkgs '(auto-compile
                   bind-key
                   diminish
@@ -54,12 +63,11 @@
 (auto-compile-on-load-mode 1)
 
 ;;;; use-package
-(eval-after-load 'use-package
-  (progn
-    (setq use-package-enable-imenu-support t)
-    (setq use-package-compute-statistics t)
-    (setq use-package-verbose t)
-    (setq use-package-expand-minimally t)))
+(with-eval-after-load-feature 'use-package
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics t)
+  (setq use-package-verbose t)
+  (setq use-package-expand-minimally t))
 (eval-when-compile
   (require 'use-package))
 (require 'bind-key)
@@ -69,12 +77,9 @@
   :ensure t
   :config (key-chord-mode 1))
 
-(use-package paradox
+(use-package use-package-el-get
   :ensure t
-  :functions paradox-enable
-  :init (add-hook 'paradox-menu-mode-hook #'kd/turn-on-http-proxy)
-  :config (paradox-enable))
-
+  :config (use-package-el-get-setup))
 
 ;;; Defaults
 (use-package kd-defaults
@@ -151,9 +156,41 @@
   :no-require t
   :config
   (menu-bar-mode 1)
-  (horizontal-scroll-bar-mode -1)
   (scroll-bar-mode -1)
   (column-number-mode 1)
+
+  ;;;;; Theme
+  (use-package default-black-theme
+    :disabled t
+    :config (load-theme 'default-black t))
+
+  (use-package cyberpunk-theme
+    :disabled t
+    :ensure t
+    :config
+    (load-theme 'cyberpunk t)
+    (custom-theme-set-faces
+     'cyberpunk
+     '(highlight-symbol-face
+       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)
+     '(go-guru-hl-identifier-face
+       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
+
+  (use-package zenburn-theme
+    :ensure t
+    :config
+    (load-theme 'zenburn t)
+    (custom-theme-set-faces
+     'zenburn
+     '(highlight-symbol-face
+       ((t (:foreground "#2B2B2B" :background "#8FB28F"))) t)
+     '(region
+       ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
+
+  (use-package prez-theme
+    :disabled t
+    :config
+    (load-theme 'prez t))
 
   (use-package remap-face
     :defines buffer-face-mode-face
@@ -195,8 +232,10 @@
   :if IS-GUI
   :custom-face
   ;;;;; Typeface
-  (default ((t (:font "-apple-iosevka-regular-*-*-*-19-*-*-*-m-*-iso10646-1"))))
+  (default ((t (:font "-apple-sarasa mono sc-regular-*-*-*-19-*-*-*-m-*-iso10646-1"))))
   :config
+  (horizontal-scroll-bar-mode -1)
+
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -206,39 +245,6 @@
   (setq default-frame-alist '((fullscreen . maximized)))
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
 
-  ;;;;; Theme
-  (use-package default-black-theme
-    :disabled t
-    :config (load-theme 'default-black t))
-
-  (use-package cyberpunk-theme
-    :disabled t
-    :ensure t
-    :config
-    (load-theme 'cyberpunk t)
-    (custom-theme-set-faces
-     'cyberpunk
-     '(highlight-symbol-face
-       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)
-     '(go-guru-hl-identifier-face
-       ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
-
-  (use-package zenburn-theme
-    :ensure t
-    :config
-    (load-theme 'zenburn t)
-    (custom-theme-set-faces
-     'zenburn
-     '(highlight-symbol-face
-       ((t (:foreground "#2B2B2B" :background "#8FB28F"))) t)
-     '(region
-       ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
-
-  (use-package prez-theme
-    :disabled t
-    :config
-    (load-theme 'prez t))
-
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
@@ -247,17 +253,15 @@
 (defconst IS-MAC (memq window-system '(mac ns)))
 
 (use-package kd-macOS
-  :if (and IS-MAC)
+  :if IS-MAC
   :no-require t
   :functions kd/lock-screen
   :config
   (setq mac-option-modifier 'meta)
   (setq mac-command-modifier 'super)
 
-  (use-package osx-lib
-    :defer t
-    :ensure t)
-
+  ;; (el-get-bundle raghavgautam/osx-lib)
+  
   (use-package osx-dictionary
     :ensure t
     :functions kd/osx-dictionary-mode-hook-func
@@ -386,7 +390,6 @@
 ;;; Dired
 
 (use-package dired
-  :defer t
   :commands (dired dired-hide-details-mode)
   :diminish dired-mode
   :init
@@ -400,7 +403,7 @@
 
 (use-package dired+
   :defer t
-  :ensure t)
+  :el-get t)
 
 (use-package dired-x
   :commands dired-omit-mode
@@ -680,10 +683,10 @@
 
 
 (use-package bookmark+
-  :load-path "/Users/kane/.ghq/github.com/emacsmirror/bookmark-plus")
+  :el-get t)
 
 (use-package isearch+
-  :load-path "/Users/kane/.ghq/github.com/emacsmirror/isearch-plus")
+  :el-get t)
 
 (use-package helpful
   :ensure t
@@ -738,7 +741,7 @@
   :bind ("C-c \"" . poporg-dwim))
 
 (use-package irfc
-  :ensure t
+  :el-get t
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
   :config
@@ -759,7 +762,10 @@
   :bind (("C-M-<return>" . org-insert-subheading)
          ("C-c L" . org-insert-link-global)
          (:map kd/org-map
-               ("l" . org-store-link)))
+               ("l" . org-store-link)
+               ("g m" . org-mac-grab-link)
+               ("g g" . kd/quick-url-note)
+               ("g f" . kd/quick-file-pos-note)))
   :custom-face
   (org-document-title ((t (:height 1.1 :wight semi-bold))))
   :init
@@ -784,6 +790,21 @@
     (goto-char (point-max))
     (forward-line -2)
     (org-end-of-line))
+
+  (defun kd/quick-url-note ()
+    "Fastest way to capture a web page link"
+    (interactive)
+    (org-capture nil "n")
+    (org-mac-safari-insert-frontmost-url)
+    (org-capture-finalize))
+
+  (defun kd/quick-file-pos-note ()
+    "Store a org link to a file position"
+    (interactive)
+    (org-store-link nil)
+    (org-capture nil "n")
+    (org-insert-link)
+    (org-capture-finalize))
 
   (defun kd/org-mode-hook-func ()
     (org-bullets-mode 1))
@@ -816,6 +837,20 @@
                               (concat "https://mail.google.com/mail/?shva=1#all/" id))))
 
   ;; babel
+  (use-package ob-ipython
+    :ensure t
+    :after org
+    :commands company-ob-ipython
+    :init
+    (defun kd/ob-ipython-hook-func ()
+      (kd/local-push-company-backend #'company-ob-ipython))
+    (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
+    (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
+
+  (use-package ob-clojure
+    :after org
+    :config (setq org-babel-clojure-backend 'cider))
+
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
                                  (shell . t)
@@ -868,48 +903,11 @@
   :after org
   :commands org-bullets-mode)
 
-(use-package org-mac-link
-  :ensure t
-  :if (eq system-type 'darwin)
-  :after org
-  :bind (:map kd/org-map
-              ("g m" . org-mac-grab-link)
-              ("g g" . kd/quick-url-note)
-              ("g f" . kd/quick-file-pos-note))
-  :config
-  (defun kd/quick-url-note ()
-    "Fastest way to capture a web page link"
-    (interactive)
-    (org-capture nil "n")
-    (org-mac-safari-insert-frontmost-url)
-    (org-capture-finalize))
-  (defun kd/quick-file-pos-note ()
-    "Store a org link to a file position"
-    (interactive)
-    (org-store-link nil)
-    (org-capture nil "n")
-    (org-insert-link)
-    (org-capture-finalize)))
-
 (use-package org-download
   :ensure t
   :after org
   :bind (:map kd/org-map
               ("d" . org-download-yank)))
-
-(use-package ob-ipython
-  :ensure t
-  :after org
-  :commands company-ob-ipython
-  :init
-  (defun kd/ob-ipython-hook-func ()
-    (kd/local-push-company-backend #'company-ob-ipython))
-  (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
-  (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
-
-(use-package ob-clojure
-  :after org
-  :config (setq org-babel-clojure-backend 'cider))
 
 (use-package ob-async
   :ensure t
@@ -1141,7 +1139,7 @@
   :defer t)
 
 (use-package csv-mode
-  :ensure t
+  :el-get t
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
@@ -1156,6 +1154,7 @@
   :functions LaTeX-narrow-to-environment)
 
 (use-package salt-mode
+  :preface (el-get-bundle mmm-mode)
   :ensure t
   :mode ("\\.sls\\'" . salt-mode))
 
@@ -1526,6 +1525,7 @@
   :mode ("\\.clj\\'" . clojure-mode))
 
 (use-package cider
+  :preface (el-get-bundle queue)
   :ensure t
   :commands cider-mode)
 
