@@ -1,25 +1,21 @@
 Pygments
 ansible
 ansible-lint
-coursera-dl<0.11
+coursera-dl
 flake8
 git-remote-dropbox
 haxor-news
 httpie
 http-prompt
-ipython<6.0.0
+ipython<6; python_version < '3'
+ipython; python_version >= '3'
 jedi
 jupyter
 matplotlib
 mitmproxy==0.18.2
 pip-autoremove
-pylint
-pudb
-tcconfig
+tcconfig; sys_platform == 'linux'
 tmuxp
-trypackage
 virtualenv
-yapf
-yamllint
 wharfee
 wheel
