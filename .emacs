@@ -14,7 +14,9 @@
 ;;; Package
 
 (defun kd/turn-on-http-proxy (&optional proxy)
+  "Turn on http PROXY."
   (interactive)
+  (require 'url-vars)
   (unless url-proxy-services
     (unless proxy
       (setq proxy "127.0.0.1:1087"))
@@ -23,6 +25,7 @@
             ("http" . ,proxy)
             ("https" . ,proxy)))
     (message "Proxy turned on: %s" proxy)))
+(kd/turn-on-http-proxy)
 
 (eval-after-load 'package
   (progn
@@ -69,17 +72,12 @@
   :ensure t
   :config (key-chord-mode 1))
 
-(use-package paradox
-  :ensure t
-  :functions paradox-enable
-  :init (add-hook 'paradox-menu-mode-hook #'kd/turn-on-http-proxy)
-  :config (paradox-enable))
-
-
 ;;; Defaults
 (use-package kd-defaults
   :no-require t
   :config
+  (use-package better-defaults
+    :ensure t)
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq gc-cons-threshold 50000000)
   (setq scroll-conservatively 10000)
@@ -92,8 +90,6 @@
   (setq-default tab-width 4)
   (setq indent-tabs-mode nil)
   (setq prefer-coding-system 'utf-8)
-  (use-package better-defaults
-    :ensure t)
 
   (fset 'yes-or-no-p 'y-or-n-p)
 
@@ -131,6 +127,14 @@
 
 
 ;;; Startup
+
+;;;; envvar
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (setq exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-initialize))
+
 ;;;; daemon
 (use-package server
   :init
@@ -193,10 +197,10 @@
 (use-package kd-GUI
   :no-require t
   :if IS-GUI
-  :custom-face
-  ;;;;; Typeface
-  (default ((t (:font "-apple-iosevka-regular-*-*-*-19-*-*-*-m-*-iso10646-1"))))
   :config
+  ;;;;; Typeface
+  (set-frame-font (font-spec :family "Sarasa Mono SC" :size 18))
+
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -212,7 +216,6 @@
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
-    :disabled t
     :ensure t
     :config
     (load-theme 'cyberpunk t)
@@ -224,6 +227,7 @@
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
   (use-package zenburn-theme
+    :disabled t
     :ensure t
     :config
     (load-theme 'zenburn t)
@@ -399,8 +403,9 @@
   (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired+
-  :defer t
-  :ensure t)
+  :load-path "~/.ghq/github.com/emacsmirror/dired-plus"
+  :after dired
+  :defer t)
 
 (use-package dired-x
   :commands dired-omit-mode
@@ -411,17 +416,6 @@
   :commands peep-dired
   :bind ((:map dired-mode-map
                ("P" . peep-dired))))
-
-(use-package neotree
-  :ensure t
-  :bind (:map kd/pop-map
-              ("n" . neotree-toggle)
-              ("N" . neotree-find))
-  :commands (neotree neotree-toggle neotree-find)
-  :config
-  (setq neo-window-width 35)
-  (setq neo-confirm-change-root 'off-p))
-
 
 ;; ---
 
@@ -680,10 +674,12 @@
 
 
 (use-package bookmark+
-  :load-path "/Users/kane/.ghq/github.com/emacsmirror/bookmark-plus")
+  :load-path "~/.ghq/github.com/emacsmirror/bookmark-plus"
+  :defer t)
 
 (use-package isearch+
-  :load-path "/Users/kane/.ghq/github.com/emacsmirror/isearch-plus")
+  :load-path "~/.ghq/github.com/emacsmirror/isearch-plus"
+  :defer t)
 
 (use-package helpful
   :ensure t
@@ -693,13 +689,6 @@
 (use-package eldoc
   :defer t
   :diminish eldoc-mode)
-
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns))
-  :commands (exec-path-from-shell-initialize exec-path-from-shell-copy-env)
-  :ensure t
-  :init (add-hook 'after-init-hook #'exec-path-from-shell-initialize)
-  :config (setq exec-path-from-shell-check-startup-files nil))
 
 (use-package saveplace
   :commands save-place-mode
@@ -738,7 +727,7 @@
   :bind ("C-c \"" . poporg-dwim))
 
 (use-package irfc
-  :ensure t
+  :load-path "~/.ghq/github.com/emacsmirror/irfc"
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
   :config
@@ -816,6 +805,24 @@
                               (concat "https://mail.google.com/mail/?shva=1#all/" id))))
 
   ;; babel
+  (use-package ob-ipython
+    :ensure t
+    :defer t
+    :commands company-ob-ipython
+    :init
+    (defun kd/ob-ipython-hook-func ()
+      (kd/local-push-company-backend #'company-ob-ipython))
+    (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
+    (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
+
+  (use-package ob-clojure
+    :defer t
+    :config (setq org-babel-clojure-backend 'cider))
+
+  (use-package ob-async
+    :ensure t
+    :defer t)
+
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((ipython . t)
                                  (shell . t)
@@ -855,11 +862,10 @@
   :commands (org-reveal-export-to-html
              org-reveal-export-to-html-and-browse
              org-reveal-export-current-subtree)
-  :config (setq org-reveal-root "file:///Users/kane/src/reveal.js"))
+  :config (setq org-reveal-root "file://~/src/reveal.js"))
 
 (use-package org-noter
   :ensure t
-  :after org
   :commands org-noter
   :config (setq org-noter-auto-save-last-location t))
 
@@ -869,8 +875,7 @@
   :commands org-bullets-mode)
 
 (use-package org-mac-link
-  :ensure t
-  :if (eq system-type 'darwin)
+  :if IS-MAC
   :after org
   :bind (:map kd/org-map
               ("g m" . org-mac-grab-link)
@@ -896,24 +901,6 @@
   :after org
   :bind (:map kd/org-map
               ("d" . org-download-yank)))
-
-(use-package ob-ipython
-  :ensure t
-  :after org
-  :commands company-ob-ipython
-  :init
-  (defun kd/ob-ipython-hook-func ()
-    (kd/local-push-company-backend #'company-ob-ipython))
-  (add-hook 'inferior-python-mode-hook #'kd/ob-ipython-hook-func)
-  (add-hook 'org-mode-hook #'kd/ob-ipython-hook-func))
-
-(use-package ob-clojure
-  :after org
-  :config (setq org-babel-clojure-backend 'cider))
-
-(use-package ob-async
-  :ensure t
-  :after org)
 
 
 ;;; Shell script
@@ -1141,7 +1128,7 @@
   :defer t)
 
 (use-package csv-mode
-  :ensure t
+  :load-path "~/.ghq/github.com/emacsmirror/csv-mode"
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
@@ -1155,8 +1142,12 @@
   :defer t
   :functions LaTeX-narrow-to-environment)
 
+(use-package mmm-mode
+  :load-path "~/.ghq/github.com/emacsmirror/mmm-mode"
+  :defer t)
+
 (use-package salt-mode
-  :ensure t
+  :load-path "~/.ghq/github.com/emacsmirror/salt-mode"
   :mode ("\\.sls\\'" . salt-mode))
 
 (use-package apib-mode
@@ -1232,7 +1223,7 @@
   :after yasnippet)
 
 (use-package undo-tree
-  :ensure t
+  :load-path "~/.ghq/github.com/emacsmirror/undo-tree"
   :commands (global-undo-tree-mode undo-tree-mode)
   :bind ((:map kd/toggle-map
                ("u" . undo-tree-visualize)))
@@ -1525,8 +1516,12 @@
   :ensure t
   :mode ("\\.clj\\'" . clojure-mode))
 
+(use-package queue
+  :load-path "~/.ghq/github.com/emacsmirror/queue"
+  :defer t)
+
 (use-package cider
-  :ensure t
+  :load-path "~/.ghq/github.com/emacsmirror/cider"
   :commands cider-mode)
 
 
