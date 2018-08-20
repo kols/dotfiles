@@ -91,7 +91,6 @@ autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
       \ endif
 set wrap
 set textwidth=79
-set colorcolumn=80
 set backspace=indent,eol,start
 set autoindent
 set tabstop=4
@@ -338,34 +337,6 @@ map <leader>8 <ESC><ESC>:NERDTreeFind<Return>
 nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
 
-" w0rp/ale {{{2
-let g:ale_go_gometalinter_args = get(g:, 'ale_go_gometalinter_args',
-\   '--fast --disable=golint --disable=govet')
-
-let s:format = '--format="{{.Path}}:{{.Line}}:{{if .Col}}{{.Col}}{{end}}: {{.Severity}}: {{.Message}} ({{.Linter}})"'
-
-call ale#linter#Define('go', {
-\   'name': 'gometalinter',
-\   'output_stream': 'stdout',
-\   'executable': 'gometalinter',
-\   'command': 'gometalinter ' . s:format . ' ' . g:ale_go_gometalinter_args,
-\   'callback': 'ale#handlers#HandleGCCFormat',
-\})
-
-let g:ale_linters = {
-\   'python': ['flake8'],
-\   'go': ['gometalinter'],
-\}
-let g:ale_linter_aliases = {
-\   'sls': 'yaml',
-\}
-let g:ale_sign_column_always = 1
-let g:ale_lint_on_enter = 0
-let g:ale_lint_on_text_changed = 1
-let g:ale_lint_on_save = 1
-nnoremap <silent> [Space]ec :call ale#Queue(0)<Return>
-"}}}
-
 " tagbar {{{2
 nnoremap <silent> [Space]tg :Tagbar<Return>
 let g:tagbar_compact=1
@@ -449,11 +420,6 @@ nnoremap <silent> [Space]f :CtrlPBufTag<Return>
 nnoremap <silent> [Space]t :CtrlPTag<Return>
 "}}}
 
-" maralla/completor.vim {{{2
-let g:completor_python_binary = '/usr/local/bin/python'
-let g:completor_blacklist = ['java', 'tagbar', 'netrw']
-"}}}
-
 " lambdalisue/vim-pyenv {{{2
 let g:pyenv#auto_activate = 1
 "}}}
@@ -468,12 +434,6 @@ augroup python
         \ nnoremap <silent> <buffer> [Space]gg :call jedi#goto()<Return> |
         \ nnoremap <silent> <buffer> [Space]gd :call jedi#goto_assignments()<Return>
 augroup END
-"}}}
-
-" ultisnips {{{2
-let g:UltiSnipsExpandTrigger="<C-d>"
-let g:UltiSnipsJumpForwardTrigger="<C-j>"
-let g:UltiSnipsJumpBackwardTrigger="<C-k>"
 "}}}
 
 " indent-guides {{{2

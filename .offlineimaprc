@@ -1,20 +1,25 @@
 [general]
-accounts = xhs
-ui = basic
-socktimeout = 10
+accounts = RED
+# ui = basic
+socktimeout = 30
 
-[Account xhs]
-localrepository = Local
-remoterepository = Remote
+[Account RED]
+localrepository = LocalRED
+remoterepository = RemoteRED
+postsynchook = mu index --maildir ~/mail
+autorefresh = 5
+quick = 10
 
-[Repository Local]
+[Repository LocalRED]
 type = Maildir
 localfolders = ~/mail/qdou@xiaohongshu.com
 
-[Repository Remote]
+[Repository RemoteRED]
 type = IMAP
-remotehost = imap.exmail.qq.com
+remotehost = partner.outlook.cn
 remoteuser = qdou@xiaohongshu.com
 remotepassfile = ~/.qdouatxingindotcom
+folderfilter = lambda folder: folder in ['INBOX', 'Sent Messages', 'Archive', 'Drafts']
 ssl = yes
-cert_fingerprint= 7a845668b97288ad8d265372f6e6e041c73e8d1e
+# cert_fingerprint= 7a845668b97288ad8d265372f6e6e041c73e8d1e
+sslcacertfile = /usr/local/etc/openssl/cert.pem

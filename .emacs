@@ -1594,6 +1594,24 @@
   :config (elfeed-org)
   :config (setq rmh-elfeed-org-files `(,(concat org-directory "/elfeed.org"))))
 
+(use-package mu4e
+  :disabled t
+  :load-path "/usr/local/share/emacs/site-lisp/mu/mu4e"
+  :commands mu4e
+  :config
+  (setq mu4e-completing-read-function 'completing-read)
+  (setq mu4e-maildir "~/mail")
+  (setq mu4e-contexts
+        `(,(make-mu4e-context
+            :name "RED"
+            :match-func (lambda (msg)
+                          (when msg
+                            (string-prefix-p "/qdou@xiaohongshu.com" (mu4e-message-field msg :maildir))))
+            :vars '((mu4e-trash-folder . "/qdou@xiaohongshu.com/Trash")
+                    (mu4e-refile-folder . "/qdou@xiaohongshu.com/Archive")
+                    (mu4e-sent-folder .  "/qdou@xiaohongshu.com/Sent Messages")
+                    (mu4e-drafts-folder . "/qdou@xiaohongshu.com/Drafts"))))))
+
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
   "Widen if buffer is narrowed, narrow-dwim otherwise.
