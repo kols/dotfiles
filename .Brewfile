@@ -84,6 +84,7 @@ cask "mailmate"
 cask "dropbox"
 cask "steam"
 cask "launchbar"
+cask "skim"
 
 # Mac Apple Store
 
