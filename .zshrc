@@ -261,6 +261,7 @@ function install_gopkg {
 
         # tagging
         github.com/jstemmer/gotags
+        github.com/rogpeppe/godef
 
         # analysis
         golang.org/x/tools/cmd/guru
@@ -269,6 +270,9 @@ function install_gopkg {
 
         # dependency
         github.com/golang/dep/cmd/dep
+
+        # build
+        github.com/mitchellh/gox
     )
     for p in $pkgs; do
         go get -v -u $p

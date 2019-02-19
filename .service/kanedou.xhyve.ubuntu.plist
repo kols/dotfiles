@@ -11,7 +11,7 @@
 	  <string>./headless.sh</string>
     </array>
     <key>RunAtLoad</key>
-    <false/>
+    <true/>
 	<key>StandardErrorPath</key>
 	<string>/Users/kane/devel/ubuntu/log/stderr.log</string>
 	<key>StandardOutPath</key>

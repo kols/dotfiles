@@ -11,7 +11,7 @@ ipython<6; python_version < '3'
 ipython; python_version >= '3'
 jedi
 jupyter
-matplotlib
+matplotlib<3; python_version < '3'
 mitmproxy==0.18.2
 pip-autoremove
 tcconfig; sys_platform == 'linux'
