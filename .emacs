@@ -505,6 +505,7 @@
          _s_rc
          code snippe_t_s
          re_f_erence
+         [_x_]*scratch*
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("D" deft)
@@ -513,7 +514,8 @@
     ("s" kd/jump-to-src)
     ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
     ("p" (helm-projectile-switch-project t))
-    ("f" kd/jump-to-reference))
+    ("f" kd/jump-to-reference)
+    ("x" (switch-to-buffer "*scratch*")))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -718,8 +720,8 @@
 (use-package outshine
   :ensure t
   :after outline
-  :commands outshine-hook-function
-  :init (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+  :commands outshine-mode
+  :init (add-hook 'outline-minor-mode-hook 'outshine-mode)
   :config (setq outshine-use-speed-commands t))
 
 (use-package poporg
@@ -1114,10 +1116,50 @@
   (setq company-quickhelp-delay 1))
 
 
+(use-package company-tern
+  :ensure t
+  :commands company-tern)
+
+(use-package js2-refactor
+  :ensure t
+  :commands js2-refactor-mode)
+
+(use-package indium
+  :ensure t
+  :commands indium-interaction-mode
+  :config
+  (setq indium-chrome-executable "/Applications/Chromium.app/Contents/MacOS/Chromium"))
+
+(use-package tern
+  :ensure t
+  :commands tern-mode
+  :config (unbind-key "M-." tern-mode-keymap))
+
+(use-package xref-js2
+  :ensure t
+  :commands xref-js2-xref-backend)
+
 (use-package js2-mode
   :ensure t
   :mode ("\\.js\\'" . js2-mode)
-  :interpreter ("node" . js2-mode))
+  :interpreter ("node" . js2-mode)
+  :init
+  (defun kd-js2-mode-hook-func ()
+    (js2-minor-mode 1)
+    (js2-imenu-extras-mode 1)
+    (js2-refactor-mode 1)
+    (indium-interaction-mode 1)
+
+    (setq-local flycheck-checker 'javascript-jshint)
+
+    (tern-mode 1)
+    (kd/local-push-company-backend #'company-tern)
+
+    ;; (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)
+    )
+  (add-hook 'js2-mode-hook #'kd-js2-mode-hook-func)
+  ;; :config (unbind-key "M-." js2-mode-map)
+  )
 
 (use-package json-mode
   :ensure t
