@@ -19,7 +19,7 @@
   (require 'url-vars)
   (unless url-proxy-services
     (unless proxy
-      (setq proxy "127.0.0.1:1087"))
+      (setq proxy "127.0.0.1:7890"))
     (setq url-proxy-services
           `(("no_proxy" . "^\\(localhost\\|10.*\\)")
             ("http" . ,proxy)
@@ -176,7 +176,7 @@
     (setq shackle-lighter "")
     (setq shackle-select-reused-windows nil)
     (setq shackle-default-alignment 'below)
-    (setq shackle-default-size 0.4)
+    (setq shackle-default-size 0.45)
 
     ;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el
     (setq shackle-rules
@@ -199,7 +199,7 @@
   :if IS-GUI
   :config
   ;;;;; Typeface
-  (set-frame-font (font-spec :family "Sarasa Mono SC" :size 18))
+  (set-frame-font (font-spec :family "Sarasa Mono SC" :size 20))
 
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
@@ -216,6 +216,7 @@
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
+    :disabled t
     :ensure t
     :config
     (load-theme 'cyberpunk t)
@@ -227,7 +228,6 @@
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
   (use-package zenburn-theme
-    :disabled t
     :ensure t
     :config
     (load-theme 'zenburn t)
@@ -577,7 +577,7 @@
     (interactive)
     (helm :sources (helm-build-sync-source "Select proxy"
                      :candidates
-                     '("127.0.0.1:1087")
+                     '("127.0.0.1:7890")
                      :action (lambda (x)
                                (if url-proxy-services
                                    (progn
@@ -751,8 +751,6 @@
          ("C-c L" . org-insert-link-global)
          (:map kd/org-map
                ("l" . org-store-link)))
-  :custom-face
-  (org-document-title ((t (:height 1.1 :wight semi-bold))))
   :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
