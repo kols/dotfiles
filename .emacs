@@ -30,6 +30,7 @@
 (eval-after-load 'package
   (progn
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                             ("melpa-stable" . "https://stable.melpa.org/packages/")
                              ("org" . "https://orgmode.org/elpa/")))
     (setq load-prefer-newer t)
 
@@ -1536,6 +1537,25 @@
   :ensure t
   :mode ("\\.class\\'" . ad-javap-mode))
 
+(use-package eclim
+  :disabled t
+  :ensure t
+  :init
+  (defun kd/java-mode-hook-func ()
+    (setq-local c-basic-offset 4)
+    (eclim-mode t)
+    (company-emacs-eclim-setup))
+  (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
+  :config
+  (setq eclim-executable "/Applications/Eclipse.app/Contents/Eclipse/plugins/org.eclim_2.8.0/bin/eclim")
+  (setq eclimd-default-workspace "/Users/kane/devel/eclipse-workspace")
+  (setq eclimd-autostart t))
+
+(use-package company-emacs-eclim
+  :disabled t
+  :ensure t
+  :commands company-emacs-eclim-setup)
+
 (use-package meghanada
   :ensure t
   :commands meghanada-mode
@@ -1548,6 +1568,13 @@
   :config
   (setq meghanada-java-path "java")
   (setq meghanada-maven-path "mvn"))
+
+
+;;;; Scala
+
+(use-package ensime
+  :ensure t
+  :pin melpa-stable)
 
 
 ;;;; Clojure
