@@ -101,3 +101,4 @@ mas "Pages", id: 409201541
 mas "Keynote", id: 409183694
 mas "Marked 2", id: 890031187
 mas "NepTunes", id: 1006739057
+mas "LyricsX", id: 1254743014
