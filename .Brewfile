@@ -74,6 +74,7 @@ brew "multimarkdown"
 
 cask "anki"
 cask "bartender"
+cask "nvalt"
 cask "devonthink-pro"
 cask "iina"
 cask "iterm2"
@@ -85,6 +86,7 @@ cask "dropbox"
 cask "steam"
 cask "launchbar"
 cask "skim"
+cask "lyricsx"
 
 # Mac Apple Store
 
@@ -101,4 +103,3 @@ mas "Pages", id: 409201541
 mas "Keynote", id: 409183694
 mas "Marked 2", id: 890031187
 mas "NepTunes", id: 1006739057
-mas "LyricsX", id: 1254743014
