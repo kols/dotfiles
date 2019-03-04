@@ -87,7 +87,7 @@
           inhibit-default-init t
           initial-major-mode 'fundamental-mode
           initial-scratch-message nil
-          visible-bell nil))
+          ring-bell-function 'ignore))
 
   (when (file-exists-p custom-file)
     (load custom-file)))
@@ -664,6 +664,9 @@
   :after flycheck
   :bind ((:map flycheck-command-map
                ("f" . helm-flycheck))))
+
+(use-package helm-org-rifle
+  :ensure t)
 
 
 (use-package bookmark+
