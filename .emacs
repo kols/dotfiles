@@ -186,7 +186,7 @@
   :if IS-GUI
   :config
   ;;;;; Typeface
-  (set-frame-font (font-spec :family "Fira Code Retina" :size 15))
+  (set-frame-font (font-spec :family "fira code retina" :size 19))
 
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
