@@ -489,7 +489,7 @@
   goto   file
          -----------------------
          ._e_macs
-         _D_eft
+         _d_eft
          _c_ap.org: default note
          o_r_g files
          _p_rojectile
@@ -497,16 +497,18 @@
          code snippe_t_s
          re_f_erence
          [_x_]*scratch*
+         the rif_l_e
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
-    ("D" deft)
+    ("d" deft)
     ("c" kd/default-captured-org-note)
     ("r" kd/find-org-file)
     ("s" kd/jump-to-src)
     ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
     ("p" (helm-projectile-switch-project t))
     ("f" kd/jump-to-reference)
-    ("x" (switch-to-buffer "*scratch*")))
+    ("x" (switch-to-buffer "*scratch*"))
+    ("l" (hydra-helm-org-rifle/body)))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -666,7 +668,16 @@
                ("f" . helm-flycheck))))
 
 (use-package helm-org-rifle
-  :ensure t)
+  :ensure t
+  :commands (helm-org-rifle
+             helm-org-rifl-org-directory
+             hydra-helm-org-rifle/body)
+  :init
+  (defhydra hydra-helm-org-rifle ()
+    "the rifle"
+    ("R" helm-org-rifle "open buffers")
+    ("r" helm-org-rifle-org-directory "org directory")
+    ("a" helm-org-rifle-agenda-files "agenda")))
 
 
 (use-package bookmark+
@@ -748,6 +759,9 @@
   :init
   (setq org-directory "~/Dropbox/org")
   (setq org-default-notes-file (concat org-directory "/cap.org"))
+  (setq org-todo-keywords '((sequence "TODO(!)" "DONE(!)")))
+  (setq org-log-into-drawer t)
+  (setq org-hide-leading-stars t)
 
   (defun kd/find-org-file (&optional directory)
     (interactive)
@@ -769,7 +783,8 @@
     (org-end-of-line))
 
   (defun kd/org-mode-hook-func ()
-    (org-bullets-mode 1))
+    ;; (org-bullets-mode 1)
+    )
 
   (add-hook 'org-mode-hook #'kd/org-mode-hook-func)
   :config
@@ -828,7 +843,9 @@
 (use-package org-agenda
   :after org
   :bind (:map kd/org-map
-              ("a" . org-agenda)))
+              ("a" . org-agenda))
+  :init
+  (setq org-agenda-files (concat org-directory "/agenda_files.txt")))
 
 (use-package org-capture
   :after org
@@ -837,8 +854,11 @@
   :bind ((:map kd/org-map
                ("c" . org-capture)))
   :config
-  (setq org-capture-templates
-        '(("n" "note" entry (file+olp+datetree "") "* %?\n  %U\n  %i"))))
+  (let ((default-capture-file "")
+        (meeting-record-file (concat org-directory "/meeting.org")))
+    (setq org-capture-templates
+          `(("n" "note" entry (file+olp+datetree ,default-capture-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i")
+            ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)))))
 
 (use-package ox
   :after org
@@ -864,6 +884,7 @@
   :config (setq org-noter-auto-save-last-location t))
 
 (use-package org-bullets
+  :disabled t
   :ensure t
   :after org
   :commands org-bullets-mode)
