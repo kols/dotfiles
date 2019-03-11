@@ -273,6 +273,9 @@ function install_gopkg {
 
         # build
         github.com/mitchellh/gox
+
+        # exec
+        github.com/motemen/github-list-starred
     )
     for p in $pkgs; do
         go get -v -u $p

@@ -89,7 +89,7 @@
 [ghq]
     root = ~/.ghq
     root = ~/go/src
-    root = ~/work/xhs
+    root = ~/work/repos
 [status]
     showUntrackedFiles = all
 [transfer]

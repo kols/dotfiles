@@ -120,6 +120,8 @@
   :ensure t
   :config
   (setq exec-path-from-shell-check-startup-files nil)
+  (setq exec-path-from-shell-shell-name "/usr/local/bin/zsh")
+  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH"))
   (exec-path-from-shell-initialize))
 
 ;;;; daemon
@@ -547,7 +549,6 @@
          (:map isearch-mode-map
                ("M-s o" . helm-occur-from-isearch))
          (:map kd/toggle-map
-               ("p" . kd/toggle-http-proxy)
                ("h" . helm-resume)))
   :init
   (defun kd/jump-to-src (&optional initial-input)
@@ -812,6 +813,11 @@
                               ;; or "https://mail.google.com/mail/h/?&v=c&s=l&th="
                               ;; for html-browser
                               (concat "https://mail.google.com/mail/?shva=1#all/" id))))
+  (org-link-set-parameters "elewiki"
+                           :follow
+                           (lambda (id)
+                             (browse-url
+                              (concat "https://wiki.ele.to:8090/pages/viewpage.action?pageId=" id))))
 
   ;; babel
   (use-package ob-ipython
@@ -1457,14 +1463,6 @@
 (use-package company-jedi
   :ensure t
   :commands company-jedi)
-
-(use-package ein
-  :ensure t
-  :defer t
-  :config
-  (require 'ein-loaddefs)
-  (require 'ein-notebook)
-  (require 'ein-subpackages))
 
 ;;;; Golang
 
