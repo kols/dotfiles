@@ -94,3 +94,5 @@
     showUntrackedFiles = all
 [transfer]
     fsckObjects = true
+[credential]
+	helper = osxkeychain
