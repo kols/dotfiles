@@ -2,6 +2,8 @@
 
 ;;; Commentary:
 ;;;   Emacs init file
+;;;
+;;;   - Clone all the `~/.ghq' prefixed repos first
 
 ;;; Code:
 
@@ -339,7 +341,11 @@
   :bind (("C-x =" . balance-windows)))
 
 (use-package windmove
-  :bind (("<C-s-268632072>" . windmove-left)
+  :bind (("C-s-h" . windmove-left)
+         ("C-s-j" . windmove-down)
+         ("C-s-k" . windmove-up)
+         ("C-s-l" . windmove-right)
+         ("<C-s-268632072>" . windmove-left)
          ("<C-s-268632074>" . windmove-down)
          ("<C-s-268632075>" . windmove-up)
          ("<C-s-268632076>" . windmove-right)))
@@ -1615,6 +1621,7 @@
   :ensure t
   :commands (deft deft-find-file)
   :config
+  (setq deft-default-extension "md")
   (setq deft-org-mode-title-prefix t)
   (setq deft-use-filter-string-for-filename t)
   (setq deft-directory (expand-file-name "~/Dropbox/nvALT")))
