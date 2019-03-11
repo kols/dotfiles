@@ -1,5 +1,5 @@
 cask_args appdir: "/Applications"
-cask "shadowsocksx-ng"
+cask "clashx"
 brew "mas"
 
 # Taps
@@ -13,46 +13,14 @@ tap "d12frosted/emacs-plus"
 
 # Packages
 
-## Devel
-
-brew "openssl"
-brew "autoconf"
-brew "automake"
-brew "readline"
-brew "bash"
-brew "cloc"
-brew "cmake"
-brew "coreutils"
-brew "cppcheck"
-brew "gawk"
-brew "gnu-sed"
-brew "grep"
-brew "ctags", args: ["HEAD"]
-brew "dep"
-brew "diff-so-fancy"
-brew "fd"
-brew "fish", args: ["HEAD"]
-brew "fzy"
-brew "git"
-brew "git-extras"
-brew "global", args: ["with-ctags", "with-pygments"]
-brew "goenv"
-brew "hadolint"
-brew "jsonlint"
-brew "pyenv"
-brew "rbenv"
-brew "shellcheck"
-brew "zplug"
-brew "zsh"
-
 ## Apps
 
 brew "d12frosted/emacs-plus/emacs-plus", args: ["HEAD", "without-spacemacs-icon"]
 brew "emacs"
 brew "vim"
-brew "aspell", args: ["devel"]
+brew "aspell"
 brew "aria2"
-brew "ffmpeg", args: ["with-fontconfig", "with-freetype"]
+brew "ffmpeg"
 brew "ghq"
 brew "gnupg"
 brew "graphviz"
@@ -83,7 +51,6 @@ cask "xiami"
 cask "spectacle"
 cask "mailmate"
 cask "dropbox"
-cask "steam"
 cask "launchbar"
 cask "skim"
 cask "lyricsx"
@@ -103,3 +70,35 @@ mas "Pages", id: 409201541
 mas "Keynote", id: 409183694
 mas "Marked 2", id: 890031187
 mas "NepTunes", id: 1006739057
+
+# Devel
+
+brew "openssl"
+brew "autoconf"
+brew "automake"
+brew "readline"
+brew "bash"
+brew "cloc"
+brew "cmake"
+brew "coreutils"
+brew "cppcheck"
+brew "gawk"
+brew "gnu-sed"
+brew "grep"
+# brew "ctags", args: ["HEAD"]
+brew "dep"
+brew "diff-so-fancy"
+brew "fd"
+brew "fzy"
+brew "git"
+brew "git-extras"
+brew "global", args: ["with-ctags", "with-pygments"]
+brew "goenv"
+brew "hadolint"
+brew "jsonlint"
+brew "pyenv"
+brew "rbenv"
+brew "shellcheck"
+brew "zplug"
+brew "zsh"
+
