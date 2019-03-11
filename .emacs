@@ -13,28 +13,12 @@
 
 ;;; Package
 
-(defun kd/turn-on-http-proxy (&optional proxy)
-  "Turn on http PROXY."
-  (interactive)
-  (require 'url-vars)
-  (unless url-proxy-services
-    (unless proxy
-      (setq proxy "127.0.0.1:7890"))
-    (setq url-proxy-services
-          `(("no_proxy" . "^\\(localhost\\|10.*\\)")
-            ("http" . ,proxy)
-            ("https" . ,proxy)))
-    (message "Proxy turned on: %s" proxy)))
-(kd/turn-on-http-proxy)
-
 (eval-after-load 'package
   (progn
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                              ("melpa-stable" . "https://stable.melpa.org/packages/")
                              ("org" . "https://orgmode.org/elpa/")))
-    (setq load-prefer-newer t)
-
-    (add-hook 'package-menu-mode-hook #'kd/turn-on-http-proxy)))
+    (setq load-prefer-newer t)))
 
 (require 'package)
 (package-initialize)
@@ -200,7 +184,7 @@
   :if IS-GUI
   :config
   ;;;;; Typeface
-  (set-frame-font (font-spec :family "Sarasa Mono SC" :size 20))
+  (set-frame-font (font-spec :family "Fira Code Retina" :size 15))
 
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))

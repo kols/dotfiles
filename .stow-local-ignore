@@ -5,3 +5,4 @@ README
 \.gitignore
 work
 \#.*\#
+\.ssh/id_rsa.pub
