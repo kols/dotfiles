@@ -846,6 +846,10 @@
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
+(use-package ox-latex
+  :init
+  (setq org-latex-compiler "xelatex"))
+
 (use-package org-agenda
   :after org
   :bind (:map kd/org-map
@@ -861,10 +865,12 @@
                ("c" . org-capture)))
   :config
   (let ((default-capture-file "")
-        (meeting-record-file (concat org-directory "/meeting.org")))
+        (meeting-record-file (concat org-directory "/meeting.org"))
+        (tldr-file (concat org-directory "/tldr.org")))
     (setq org-capture-templates
           `(("n" "note" entry (file+olp+datetree ,default-capture-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i")
-            ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)))))
+            ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
+            ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)))))
 
 (use-package ox
   :after org
