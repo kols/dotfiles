@@ -770,13 +770,12 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package outline
   :diminish outline-minor-mode
-  :commands outline-minor-mode)
+  :commands outline-minor-mode
+  :init (defvar outline-minor-mode-prefix "\M-#"))
 
 (use-package outshine
   :ensure t
-  :after outline
   :commands outshine-mode
-  :init (add-hook 'outline-minor-mode-hook 'outshine-mode)
   :config (setq outshine-use-speed-commands t))
 
 (use-package poporg
