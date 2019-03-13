@@ -76,6 +76,7 @@
   ;;;; Tabs
   (setq-default tab-width 4)
   (setq indent-tabs-mode nil)
+  (setq buffer-file-coding-system 'utf-8)
   (setq prefer-coding-system 'utf-8)
 
   (fset 'yes-or-no-p 'y-or-n-p)
@@ -121,7 +122,7 @@
   :config
   (setq exec-path-from-shell-check-startup-files nil)
   (setq exec-path-from-shell-shell-name "/usr/local/bin/zsh")
-  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH"))
+  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "HOMEBREW_AUTO_UPDATE_SECS"))
   (exec-path-from-shell-initialize))
 
 ;;;; daemon
@@ -188,7 +189,11 @@
   :if IS-GUI
   :config
   ;;;;; Typeface
-  (set-frame-font (font-spec :family "fira code retina" :size 19))
+  (set-frame-font (font-spec :family "Fira Code Retina" :size 18))
+  ;; 单独设置 CJK 字体，在 orgtbl 中英文混排时可对齐
+  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+  ;;   (set-fontset-font (frame-parameter nil 'font)
+  ;;                     charset (font-spec :family "Noto Sans Mono" :size 18)))
 
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
@@ -546,6 +551,7 @@
          ("C-." . helm-imenu)
          ("C-x C-f" . helm-find-files)
          ("C-S-s" . helm-occur)
+         ("C-S-j" . helm-all-mark-rings)
          (:map isearch-mode-map
                ("M-s o" . helm-occur-from-isearch))
          (:map kd/toggle-map
@@ -651,16 +657,16 @@
 (use-package helm-gtags
   :ensure t
   :diminish helm-gtags-mode
-  :bind ((:map helm-gtags-mode-map
-               ("C-]" . helm-gtags-find-tag)
-               ("C-}" . helm-gtags-find-rtag)
-               ("C-t" . helm-gtags-pop-stack)
-               ("C-S-t" . helm-gtags-show-stack)))
+  :bind (("C-]" . helm-gtags-find-tag)
+         ("C-}" . helm-gtags-find-rtag)
+         ("C-t" . helm-gtags-pop-stack)
+         ("C-S-t" . helm-gtags-show-stack))
   :config
   (setq helm-gtags-use-input-at-cursor t)
   (setq helm-gtags-path-style 'relative)
   (setq helm-gtags-ignore-case t)
-  (setq helm-gtags-auto-update t))
+  (setq helm-gtags-auto-update t)
+  (setq helm-gtags-direct-helm-completing t))
 
 (use-package helm-flycheck
   :ensure t
@@ -847,6 +853,7 @@
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package ox-latex
+  :after org
   :init
   (setq org-latex-compiler "xelatex"))
 
@@ -1011,7 +1018,9 @@
 (use-package flyspell
   :commands flyspell-mode
   :init (add-hook 'org-mode-hook #'flyspell-mode)
-  :config (define-key flyspell-mode-map [remap flyspell-auto-correct-word] nil))
+  :config
+  (define-key flyspell-mode-map [remap flyspell-auto-correct-word] nil)
+  (unbind-key "C-." flyspell-mode-map))
 
 (use-package graphql-mode
   :ensure t
@@ -1062,6 +1071,7 @@
   :commands (smartparens-global-strict-mode show-smartparens-global-mode)
   :bind (:map smartparens-mode-map
               ("<C-s-268632093>" . sp-unwrap-sexp)
+              ("C-s-]" . sp-unwrap-sexp)
               ("C-)" . sp-slurp-hybrid-sexp))
   :init
   (add-hook 'after-init-hook #'smartparens-global-strict-mode)
