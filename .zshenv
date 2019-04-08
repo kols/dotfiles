@@ -1,6 +1,6 @@
 export LANG='en_US.UTF-8'
 export LC_CTYPE=$LANG
-export PATH=/usr/local/sbin:/usr/local/bin:$HOME/Library/Python/2.7/bin:$PATH:$HOME/bin
+export PATH="/usr/local/sbin:/usr/local/bin:$HOME/Library/Python/2.7/bin:${PATH}:$HOME/bin"
 export EDITOR=/usr/local/bin/vim
 export VISUAL=$EDITOR
 
@@ -17,25 +17,25 @@ export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 # zplug
 export ZPLUG_HOME=/usr/local/opt/zplug
 
-# pyenv
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+# jenv
+export JENV_ROOT=/usr/local/opt/jenv
 
 # go
-eval "$(goenv init -)"
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
+export GOENV_ROOT=/usr/local/opt/goenv
 export GOROOT=/usr/local/opt/go/libexec
-export GOPATH=$HOME/go
-export PATH=$PATH:$HOME/go/bin:$GOROOT/bin
+export GOPATH="$HOME/go"
+export PATH="${PATH}:$HOME/go/bin:$GOROOT/bin"
 
 # rust
-export PATH=$PATH:$HOME/.cargo/bin
+export PATH="${PATH}:$HOME/.cargo/bin"
 
 # brew
 export HOMEBREW_AUTO_UPDATE_SECS=86400
 
 # xapian cjk tokenizer
 export XAPIAN_CJK_NGRAM=1
+
+# pkgconfig
+export PKG_CONFIG_PATH=/usr/local/opt/pkgconfig
 
 # vim:ft=zsh

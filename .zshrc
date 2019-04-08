@@ -290,4 +290,14 @@ eval "$(pyenv virtualenv-init -)"
 # rbenv
 eval "$(rbenv init -)"
 
+# jenv
+eval "$(jenv init -)"
+
+# goenv
+eval "$(goenv init -)"
+
+# sdkman
+export SDKMAN_DIR="/Users/kane/.sdkman"
+[[ -s "/Users/kane/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/kane/.sdkman/bin/sdkman-init.sh"
+
 # vim:ft=zsh

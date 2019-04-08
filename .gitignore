@@ -2,3 +2,7 @@
 .config/hub
 .vim/autoload/plug.vim
 .emacs.desktop
+.emacs.d/
+
+.gnupg/pubring.kbx
+.gnupg/trustdb.gpg

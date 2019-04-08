@@ -689,11 +689,11 @@
 
 (use-package bookmark+
   :load-path "~/.ghq/github.com/emacsmirror/bookmark-plus"
-  :defer t)
+  :after bookmark)
 
 (use-package isearch+
   :load-path "~/.ghq/github.com/emacsmirror/isearch-plus"
-  :defer t)
+  :after isearch)
 
 (use-package helpful
   :ensure t
@@ -759,8 +759,10 @@
   :defines (org-directory
             org-imenu-depth
             org-default-notes-file)
-  :bind (("C-M-<return>" . org-insert-subheading)
-         ("C-c L" . org-insert-link-global)
+  :bind ((:map org-mode-map
+               ("C-M-<return>" . org-insert-subheading)
+               ("C-c L" . org-insert-link-global)
+               ("C-c R" . org-refile))
          (:map kd/org-map
                ("l" . org-store-link)))
   :init
@@ -769,6 +771,9 @@
   (setq org-todo-keywords '((sequence "TODO(!)" "DONE(!)")))
   (setq org-log-into-drawer t)
   (setq org-hide-leading-stars t)
+  (setq org-refile-targets `((,(concat org-directory "/work.org") :maxlevel . 2)
+                             (,(concat org-directory "/snippets.org") :level . 1)
+                             (,(concat org-directory "/tldr.org") :level . 1)))
 
   (defun kd/find-org-file (&optional directory)
     (interactive)
@@ -790,8 +795,7 @@
     (org-end-of-line))
 
   (defun kd/org-mode-hook-func ()
-    ;; (org-bullets-mode 1)
-    )
+    (visual-line-mode -1))
 
   (add-hook 'org-mode-hook #'kd/org-mode-hook-func)
   :config
@@ -812,6 +816,10 @@
                            :follow
                            (lambda (id)
                              (osx-open-url-at-point (concat "x-devonthink-item://" id))))
+  (org-link-set-parameters "2do"
+                           :follow
+                           (lambda (id)
+                             (osx-open-url-at-point (concat "twodo://x-callback-url/showTask?uid=" id))))
   (org-link-set-parameters "gmail"
                            :follow
                            (lambda (id)
@@ -848,7 +856,8 @@
                                '((ipython . t)
                                  (shell . t)
                                  (emacs-lisp . t)
-                                 (clojure . t)))
+                                 (plantuml . t)))
+  (setq org-plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
@@ -883,6 +892,9 @@
   :after org
   :commands (org-export-dispatch))
 
+(use-package ox-md
+  :after org)
+
 (use-package htmlize
   :ensure t
   :after ox
@@ -900,7 +912,9 @@
 (use-package org-noter
   :ensure t
   :commands org-noter
-  :config (setq org-noter-auto-save-last-location t))
+  :config
+  (setq org-noter-auto-save-last-location t)
+  (setq org-noter-always-create-frame nil))
 
 (use-package org-bullets
   :disabled t
@@ -935,6 +949,42 @@
   :after org
   :bind (:map kd/org-map
               ("d" . org-download-yank)))
+
+(use-package org-plus-contrib
+  :ensure t
+  :defer t)
+
+(use-package mandoku
+  :ensure t
+  :commands mandoku-view-mode
+  :config
+  (setq mandoku-base-dir "~/Documents/krp"))
+
+(unless (require 'mandoku nil t)
+  (defvar mandoku-starter-packages
+    (list
+     'magit
+	 'json
+	 'org 'org-plus-contrib
+	 'mandoku 'mandoku-meta-kr 'mandoku-meta-zb
+	 )
+    "Libraries that should be installed by default.")
+
+  (unless (every #'package-installed-p mandoku-starter-packages)
+    (package-refresh-contents)
+    (dolist (package mandoku-starter-packages)
+      (unless (package-installed-p package)
+        (message "installing %s" package)
+        (package-install package))))
+
+
+  (require 'mandoku)
+  ;; (require 'mandoku-link)
+  (mandoku-initialize)
+  (unless (< 0 (length mandoku-user-account))
+    (find-file (expand-file-name "mandoku-settings.org" mandoku-user-dir ))
+    (search-forward "uservalues"))
+  )
 
 
 ;;; Shell script
@@ -1003,8 +1053,7 @@
   :ensure t
   :bind (:map kd/pop-map
               ("r" . browse-at-remote))
-  :config (dolist (elt '(("gitlab.xiaohongshu.com" . "gitlab")
-                         ("code.devops.xiaohongshu.com" . "gitlab")))
+  :config (dolist (elt '(("gitlab.alibaba-inc.com" . "gitlab")))
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
 
 (use-package goto-addr
@@ -1044,7 +1093,6 @@
   (let ((prog-minor-modes '(highlight-symbol-mode
                             turn-on-diff-hl-mode
                             helm-gtags-mode
-                            outline-minor-mode
                             goto-address-prog-mode
                             abbrev-mode
                             flycheck-mode)))
@@ -1343,9 +1391,27 @@
 (use-package pdf-tools
   :if IS-GUI
   :ensure t
+  :pin manual
   :mode ("\\.pdf\\'" . pdf-view-mode)
+  :bind ((:map pdf-view-mode-map
+               ("h" . pdf-annot-add-highlight-markup-annotation)
+               ("t" . pdf-annot-add-text-annotation)
+               ("D" . pdf-annot-delete)))
   :commands pdf-view-mode
-  :config (pdf-tools-install))
+  :init
+  (defun kd/pdf-view-mode-hook-func ()
+    (cua-mode 0))
+  (add-hook 'pdf-view-mode-hook #'kd/pdf-view-mode-hook-func)
+  ;; ~libffi~ is keg-only (maybe it wasn't before), therefore only
+  ;; exists in ~/usr/local/Cellar~. There is no ~libffi.pc~ in
+  ;; ~/usr/local/lib/pkgconfig/~, and ~pkgconfig~ cannot find it.
+  ;;
+  ;; ref: https://github.com/politza/pdf-tools/issues/480#issuecomment-473707355
+  (setenv "PKG_CONFIG_PATH" "/usr/local/opt/pkgconfig:/usr/local/Cellar/libffi/3.2.1/lib/pkgconfig")
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-width)
+  (setq pdf-view-resize-factor 1.1))
 
 
 ;;;; C/C++
@@ -1491,7 +1557,6 @@
         ("M-C-." . godef-jump-other-window)
         ("M-k" . godoc-at-point))
   :init
-  (load "go-mode-autoloads")
   (defun kd/go-mode-hook-func ()
     (add-hook 'before-save-hook #'gofmt-before-save nil t)
 
@@ -1584,16 +1649,22 @@
   :ensure t
   :commands company-emacs-eclim-setup)
 
+(use-package gradle-mode
+  :ensure t
+  :commands gradle-mode)
+
 (use-package meghanada
   :ensure t
   :commands meghanada-mode
   :init
   (defun kd/java-mode-hook-func ()
     (meghanada-mode t)
+    (gradle-mode 1)
     (setq-local c-basic-offset 4)
-    (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))
+    (add-hook 'before-save-hook #'meghanada-code-beautify-before-save))
   (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
   :config
+  (setq meghanada-gradle-version "4.2.1")
   (setq meghanada-java-path "java")
   (setq meghanada-maven-path "mvn"))
 
