@@ -1,4 +1,4 @@
-;;; .emacs --- Emacs init file  -*- no-byte-compile: t -*-
+;;; .emacs --- Emacs init file
 
 ;;; Commentary:
 ;;;   Emacs init file
@@ -95,6 +95,7 @@
 
 
 ;;; Keybinding
+
 (use-package kd-keybinding
   :no-require t
   :init
@@ -111,7 +112,14 @@
   (defvar kd/org-map nil)
   (kd/make-prefix-command (kbd "s-r") 'kd/org-map)
   (defvar kd/compile-map nil)
-  (kd/make-prefix-command (kbd "s-c") 'kd/compile-map))
+  (kd/make-prefix-command (kbd "s-c") 'kd/compile-map)
+
+  (defun kd/switch-to-previous-buffer ()
+    "Switch to previously open buffer.
+Repeated invocations toggle between the two most recently open buffers."
+    (interactive)
+    (switch-to-buffer (other-buffer (current-buffer) 1)))
+  (key-chord-define-global "JJ" #'kd/switch-to-previous-buffer))
 
 
 ;;; Startup
@@ -952,39 +960,32 @@
 
 (use-package org-plus-contrib
   :ensure t
-  :defer t)
+  :after org
+  :no-require t
+  :config
+  (use-package org-annotate-file
+    :bind ("s-r n" . org-annotate-file)
+    :after org
+    :config
+    (setq org-annotate-file-add-search t)
+    (setq org-annotate-file-storage-file (concat org-directory "/annotation.org")))
+
+  (use-package org-git-link
+    :after org))
+
+(use-package org-annotate
+  :load-path "/Users/kane/.ghq/github.com/girzel/org-annotate"
+  :after org)
 
 (use-package mandoku
   :ensure t
   :commands mandoku-view-mode
   :config
-  (setq mandoku-base-dir "~/Documents/krp"))
-
-(unless (require 'mandoku nil t)
-  (defvar mandoku-starter-packages
-    (list
-     'magit
-	 'json
-	 'org 'org-plus-contrib
-	 'mandoku 'mandoku-meta-kr 'mandoku-meta-zb
-	 )
-    "Libraries that should be installed by default.")
-
-  (unless (every #'package-installed-p mandoku-starter-packages)
-    (package-refresh-contents)
-    (dolist (package mandoku-starter-packages)
-      (unless (package-installed-p package)
-        (message "installing %s" package)
-        (package-install package))))
-
-
-  (require 'mandoku)
-  ;; (require 'mandoku-link)
+  (setq mandoku-base-dir "~/Documents/krp")
   (mandoku-initialize)
   (unless (< 0 (length mandoku-user-account))
     (find-file (expand-file-name "mandoku-settings.org" mandoku-user-dir ))
-    (search-forward "uservalues"))
-  )
+    (search-forward "uservalues")))
 
 
 ;;; Shell script
@@ -1512,7 +1513,8 @@
 
 ;;;; Python
 
-(use-package python
+(use-package python-mode
+  :load-path ("~/.ghq/github.com/emacs-mirror/emacs/lisp/progmodes")
   :commands python-mode
   :init
   (setenv "PYTHONIOENCODING" "UTF-8")
@@ -1658,7 +1660,7 @@
   :commands meghanada-mode
   :init
   (defun kd/java-mode-hook-func ()
-    (meghanada-mode t)
+    (meghanada-mode 1)
     (gradle-mode 1)
     (setq-local c-basic-offset 4)
     (add-hook 'before-save-hook #'meghanada-code-beautify-before-save))
@@ -1806,3 +1808,7 @@ With a prefix ARG always prompt for command to use."
 (bind-key "e" #'prelude-open-with 'kd/pop-map)
 
 ;;; .emacs ends here
+;;; Local Variables:
+;;; no-byte-compile: t
+;;; eval: (outshine-mode 1)
+;;; End:
