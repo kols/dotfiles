@@ -12,6 +12,7 @@
   (expand-file-name d user-emacs-directory))
 
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
+(add-to-list 'load-path "~/.ghq/github.com/emacs-mirror/emacs/lisp/progmodes")
 
 ;;; Package
 
@@ -669,12 +670,18 @@ Repeated invocations toggle between the two most recently open buffers."
          ("C-}" . helm-gtags-find-rtag)
          ("C-t" . helm-gtags-pop-stack)
          ("C-S-t" . helm-gtags-show-stack))
+  :chords (("gd" . helm-gtags-find-tag)
+           ("gr" . helm-gtags-find-rtag))
   :config
   (setq helm-gtags-use-input-at-cursor t)
+  (setq helm-gtags-fuzzy-match t)
   (setq helm-gtags-path-style 'relative)
+  (setq helm-gtags-display-style 'detail)
+  (setq helm-gtags-preselect t)
   (setq helm-gtags-ignore-case t)
   (setq helm-gtags-auto-update t)
   (setq helm-gtags-direct-helm-completing t))
+
 
 (use-package helm-flycheck
   :ensure t
@@ -1514,7 +1521,6 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;; Python
 
 (use-package python-mode
-  :load-path ("~/.ghq/github.com/emacs-mirror/emacs/lisp/progmodes")
   :commands python-mode
   :init
   (setenv "PYTHONIOENCODING" "UTF-8")
@@ -1653,6 +1659,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package gradle-mode
   :ensure t
+  :diminish gradle-mode
   :commands gradle-mode)
 
 (use-package meghanada
