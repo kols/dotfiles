@@ -56,6 +56,26 @@
 (require 'bind-key)
 (require 'diminish)
 
+(use-package auto-package-update
+  :ensure t
+  :commands auto-package-update-now
+  :init
+  (defun kd/update-git-packages ()
+    "Update git managed packages."
+    (interactive "P")
+    (let ((repos ())
+          (matched nil))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward ":load-path \"\\(?1:.+\\)\"" (point-max) t 1)
+          (setq repos (append repos (list (match-string-no-properties 1))))))
+      (dolist (repo repos)
+        (let* ((default-directory repo)
+               (proc (start-process "git-update-repo" (concat "*update-git-packages*") "git" "pull")))
+          (message default-directory)
+          (display-buffer (process-buffer proc))))))
+  (add-hook 'auto-package-update-before-hook #'kd/update-git-packages))
+
 (use-package use-package-chords
   :ensure t
   :config (key-chord-mode 1))
