@@ -11,8 +11,21 @@
   "Make dir path inside Emacs user dir for D."
   (expand-file-name d user-emacs-directory))
 
+(defvar kd/ghq-dir "~/.ghq")
+(defvar kd/ghq-managed-repos nil)
+(defun kd/ghq-repo-path (repo)
+  "Return a path of repo managed by ghq.
+REPO's pattern: `<domain>/<user>/<repo>'."
+  (let* ((repo-path (expand-file-name repo kd/ghq-dir)))
+    (add-to-list 'kd/ghq-managed-repos repo-path)
+    repo-path))
+(defun kd/ghq-github-repo-path (repo)
+  "Return a path of github repo mamaged by ghq.
+REPO's pattern: `<user>/<repo>'"
+  (expand-file-name (kd/ghq-repo-path (concat "github.com/" repo))))
+
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
-(add-to-list 'load-path "~/.ghq/github.com/emacs-mirror/emacs/lisp/progmodes")
+(add-to-list 'load-path (expand-file-name "lisp/progmodes" (kd/ghq-github-repo-path "emacs-mirror/emacs")))
 
 ;;; Package
 
@@ -62,13 +75,8 @@
   :init
   (defun kd/update-git-packages ()
     "Update git managed packages."
-    (interactive "P")
-    (let ((repos ())
-          (matched nil))
-      (save-excursion
-        (goto-char (point-min))
-        (while (re-search-forward ":load-path \"\\(?1:.+\\)\"" (point-max) t 1)
-          (setq repos (append repos (list (match-string-no-properties 1))))))
+    (interactive)
+    (let ((repos kd/ghq-managed-repos))
       (dolist (repo repos)
         (let* ((default-directory repo)
                (proc (start-process "git-update-repo" (concat "*update-git-packages*") "git" "pull")))
@@ -430,7 +438,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired+
-  :load-path "~/.ghq/github.com/emacsmirror/dired-plus"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/dired-plus"))
   :after dired
   :defer t)
 
@@ -723,11 +731,11 @@ Repeated invocations toggle between the two most recently open buffers."
 
 
 (use-package bookmark+
-  :load-path "~/.ghq/github.com/emacsmirror/bookmark-plus"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/bookmark-plus"))
   :after bookmark)
 
 (use-package isearch+
-  :load-path "~/.ghq/github.com/emacsmirror/isearch-plus"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/isearch-plus"))
   :after isearch)
 
 (use-package helpful
@@ -776,7 +784,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ("C-c \"" . poporg-dwim))
 
 (use-package irfc
-  :load-path "~/.ghq/github.com/emacsmirror/irfc"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/irfc"))
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
   :config
@@ -1001,7 +1009,7 @@ Repeated invocations toggle between the two most recently open buffers."
     :after org))
 
 (use-package org-annotate
-  :load-path "/Users/kane/.ghq/github.com/girzel/org-annotate"
+  :load-path (lambda () (kd/ghq-github-repo-path "girzel/org-annotate"))
   :after org)
 
 (use-package mandoku
@@ -1281,7 +1289,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :defer t)
 
 (use-package csv-mode
-  :load-path "~/.ghq/github.com/emacsmirror/csv-mode"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/csv-mode"))
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
@@ -1296,11 +1304,11 @@ Repeated invocations toggle between the two most recently open buffers."
   :functions LaTeX-narrow-to-environment)
 
 (use-package mmm-mode
-  :load-path "~/.ghq/github.com/emacsmirror/mmm-mode"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/mmm-mode"))
   :defer t)
 
 (use-package salt-mode
-  :load-path "~/.ghq/github.com/emacsmirror/salt-mode"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/salt-mode"))
   :mode ("\\.sls\\'" . salt-mode))
 
 (use-package apib-mode
@@ -1376,7 +1384,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :after yasnippet)
 
 (use-package undo-tree
-  :load-path "~/.ghq/github.com/emacsmirror/undo-tree"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/undo-tree"))
   :commands (global-undo-tree-mode undo-tree-mode)
   :bind ((:map kd/toggle-map
                ("u" . undo-tree-visualize)))
@@ -1712,11 +1720,11 @@ Repeated invocations toggle between the two most recently open buffers."
   :mode ("\\.clj\\'" . clojure-mode))
 
 (use-package queue
-  :load-path "~/.ghq/github.com/emacsmirror/queue"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/queue"))
   :defer t)
 
 (use-package cider
-  :load-path "~/.ghq/github.com/emacsmirror/cider"
+  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/cider"))
   :commands cider-mode)
 
 
