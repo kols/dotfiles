@@ -17,6 +17,8 @@
   "Return a path of repo managed by ghq.
 REPO's pattern: `<domain>/<user>/<repo>'."
   (let* ((repo-path (expand-file-name repo kd/ghq-dir)))
+    (unless (file-directory-p repo-path)
+      (call-process-shell-command (concat "ghq get " repo)))
     (add-to-list 'kd/ghq-managed-repos repo-path)
     repo-path))
 (defun kd/ghq-github-repo-path (repo)
@@ -1012,6 +1014,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :after org)
 
 (use-package mandoku
+  :disabled t
   :ensure t
   :commands mandoku-view-mode
   :config
@@ -1022,7 +1025,19 @@ Repeated invocations toggle between the two most recently open buffers."
     (search-forward "uservalues")))
 
 
-;;; Shell script
+;;; Shell
+
+(use-package eshell
+  :bind ("s-e" . eshell)
+  :init
+  (add-hook 'eshell-mode-hook #'(lambda () (smartscan-mode -1))))
+
+(use-package em-smart
+  :after eshell
+  :config
+  (setq eshell-where-to-jump 'begin)
+  (setq eshell-review-quick-commands t)
+  (setq eshell-smart-space-goes-to-end t))
 
 (use-package sh-script
   :commands sh-mode
