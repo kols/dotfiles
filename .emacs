@@ -34,7 +34,6 @@ REPO's pattern: `<user>/<repo>'"
 (eval-after-load 'package
   (progn
     (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                             ("melpa-stable" . "https://stable.melpa.org/packages/")
                              ("org" . "https://orgmode.org/elpa/")))
     (setq load-prefer-newer t)))
 
@@ -752,11 +751,11 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package bookmark+
   :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/bookmark-plus"))
-  :after bookmark)
+  :demand t)
 
 (use-package isearch+
   :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/isearch-plus"))
-  :after isearch)
+  :demand t)
 
 (use-package helpful
   :ensure t
@@ -1768,7 +1767,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package ensime
   :ensure t
-  :pin melpa-stable)
+  :defer t)
 
 
 ;;;; Clojure
