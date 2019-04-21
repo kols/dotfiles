@@ -1048,10 +1048,15 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;;; Shell
 
+(defvar kd/eshell-map nil)
+(kd/make-prefix-command (kbd "s-e") 'kd/eshell-map)
 (use-package eshell
   :bind
-  (("s-e" . eshell)
-   ("s-E" . kd/eshell-new))
+  (:map kd/eshell-map
+        ("e" . eshell)
+        ("v" . kd/eshell-new-other-window)
+        ("h" . kd/eshell-new-other-window-horizontally)
+        ("." . kd/eshell-here))
   :init
   (defun kd/eshell-mode-hook-func ()
     (smartscan-mode -1)
@@ -1061,6 +1066,38 @@ Repeated invocations toggle between the two most recently open buffers."
   (defun kd/eshell-new ()
     (interactive)
     (eshell 'N))
+
+  (defun kd/eshell-new-other-window ()
+    (interactive)
+    (let ((height (/ (window-total-height) 2)))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (kd/eshell-new)))
+
+  (defun kd/eshell-new-other-window-horizontally ()
+    (interactive)
+    (let ((height (/ (window-total-width) 2)))
+      (split-window-horizontally (- height))
+      (other-window 1)
+      (kd/eshell-new)))
+
+  (defun kd/eshell-here ()
+    "Opens up a new shell in the directory associated with the
+current buffer's file. The eshell is renamed to match that
+directory to make multiple eshell windows easier."
+    (interactive)
+    (let* ((parent (if (buffer-file-name)
+                       (file-name-directory (buffer-file-name))
+                     default-directory))
+           (height (/ (window-total-height) 3))
+           (name   (car (last (split-string parent "/" t)))))
+      (split-window-vertically (- height))
+      (other-window 1)
+      (eshell "new")
+      (rename-buffer (concat "*eshell: " name "*"))
+
+      (insert (concat "ls"))
+      (eshell-send-input)))
 
   (defun kd/eshell-gst (&rest args)
     (magit-status (pop args) nil)
@@ -1080,7 +1117,9 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; magit
   (eshell/alias "gst" #'kd/eshell-gst)
   (eshell/alias "gd" #'magit-diff-unstaged)
-  (eshell/alias "gds" #'magit-diff-staged))
+  (eshell/alias "gds" #'magit-diff-staged)
+  ;; grep
+  (eshell/alias "hrg" "helm-rg $1"))
 
 (use-package em-smart
   :after eshell
