@@ -454,6 +454,14 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ((:map dired-mode-map
                ("P" . peep-dired))))
 
+;;; Tramp
+
+(use-package tramp
+  :config
+  (setq remote-file-name-inhibit-cache nil)
+  (setq tramp-verbose 1)
+  (setq tramp-default-method "ssh"))
+
 ;; ---
 
 (use-package projectile
@@ -472,12 +480,22 @@ Repeated invocations toggle between the two most recently open buffers."
     (bind-key "r" #'helm-projectile-rg projectile-command-map))
   (add-hook 'projectile-mode-hook #'kd-projectile-mode-hook-func)
   :config
+  (defadvice projectile-project-root (around exlude-tramp activate)
+    "This should disable projectile when visiting a remote file"
+    (unless (--any? (and it (file-remote-p it))
+                    (list
+                     (buffer-file-name)
+                     list-buffers-directory
+                     default-directory
+                     dired-directory))
+      ad-do-it))
+
   (setq projectile-track-known-projects-automatically nil)
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'helm)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-mode-line '(:eval (format " P[%s]" (projectile-project-name)))))
+  (setq projectile-mode-line "P"))
 
 (use-package rg
   :ensure t
