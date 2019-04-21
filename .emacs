@@ -1062,6 +1062,10 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (eshell 'N))
 
+  (defun kd/eshell-gst (&rest args)
+    (magit-status (pop args) nil)
+    (eshell/echo))
+
   :config
   (setenv "PAGER" "cat")
   (setq eshell-scroll-to-bottom-on-input 'all
@@ -1069,7 +1073,14 @@ Repeated invocations toggle between the two most recently open buffers."
         eshell-hist-ignoredups t
         eshell-save-history-on-exit t
         eshell-prefer-lisp-functions nil
-        eshell-destroy-buffer-when-process-dies t))
+        eshell-destroy-buffer-when-process-dies t)
+  (eshell/alias "lm" "ls -lahF")
+  (eshell/alias "ff" "find-file $1")
+  (eshell/alias "d" "dired $1")
+  ;; magit
+  (eshell/alias "gst" #'kd/eshell-gst)
+  (eshell/alias "gd" #'magit-diff-unstaged)
+  (eshell/alias "gds" #'magit-diff-staged))
 
 (use-package em-smart
   :after eshell
