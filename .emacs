@@ -943,11 +943,15 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (let ((default-capture-file "")
         (meeting-record-file (concat org-directory "/meeting.org"))
-        (tldr-file (concat org-directory "/tldr.org")))
+        (tldr-file (concat org-directory "/tldr.org"))
+        (bookmark-file (concat org-directory "/bookmark.org")))
+    (defun kd/org-bookmark-template ()
+      (concat "* " (org-mac-chrome-get-frontmost-url) "%?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i"))
     (setq org-capture-templates
           `(("n" "note" entry (file+olp+datetree ,default-capture-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i")
             ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
-            ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)))))
+            ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
+            ("u" "url bookmark" entry (file+olp ,bookmark-file "Bookmarks") #'kd/org-bookmark-template)))))
 
 (use-package ox
   :after org
