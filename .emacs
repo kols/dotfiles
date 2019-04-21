@@ -1046,16 +1046,42 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;; Shell
 
 (use-package eshell
-  :bind ("s-e" . eshell)
+  :bind
+  (("s-e" . eshell)
+   ("s-E" . kd/eshell-new))
   :init
-  (add-hook 'eshell-mode-hook #'(lambda () (smartscan-mode -1))))
+  (defun kd/eshell-mode-hook-func ()
+    (smartscan-mode -1)
+    (add-to-list 'eshell-visual-commands "ssh"))
+  (add-hook 'eshell-mode-hook #'kd/eshell-mode-hook-func)
+
+  (defun kd/eshell-new ()
+    (interactive)
+    (eshell 'N))
+
+  :config
+  (setenv "PAGER" "cat")
+  (setq eshell-scroll-to-bottom-on-input 'all
+        eshell-error-if-no-glob t
+        eshell-hist-ignoredups t
+        eshell-save-history-on-exit t
+        eshell-prefer-lisp-functions nil
+        eshell-destroy-buffer-when-process-dies t))
 
 (use-package em-smart
   :after eshell
+  :commands eshell-smart-initialize
+  :init (add-hook 'eshell-mode-hook #'eshell-smart-initialize)
   :config
   (setq eshell-where-to-jump 'begin)
-  (setq eshell-review-quick-commands t)
+  (setq eshell-review-quick-commands nil)
   (setq eshell-smart-space-goes-to-end t))
+
+(use-package esh-autosuggest
+  :ensure t
+  :after eshell
+  :commands esh-autosuggest-mode
+  :init (add-hook 'eshell-mode-hook #'esh-autosuggest-mode))
 
 (use-package sh-script
   :commands sh-mode
