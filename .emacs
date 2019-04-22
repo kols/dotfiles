@@ -561,6 +561,7 @@ Repeated invocations toggle between the two most recently open buffers."
          re_f_erence
          [_x_]*scratch*
          the rif_l_e
+         led_g_er
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("d" deft)
@@ -571,7 +572,8 @@ Repeated invocations toggle between the two most recently open buffers."
     ("p" (helm-projectile-switch-project t))
     ("f" kd/jump-to-reference)
     ("x" (switch-to-buffer "*scratch*"))
-    ("l" (hydra-helm-org-rifle/body)))
+    ("l" (hydra-helm-org-rifle/body))
+    ("g" (find-file "~/Dropbox/ledger/ledger.beancount")))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -1081,6 +1083,7 @@ Repeated invocations toggle between the two most recently open buffers."
       (other-window 1)
       (kd/eshell-new)))
 
+  ;; https://github.com/howardabrams/dot-files/blob/master/emacs-eshell.org#shell-here
   (defun kd/eshell-here ()
     "Opens up a new shell in the directory associated with the
 current buffer's file. The eshell is renamed to match that
@@ -1090,14 +1093,12 @@ directory to make multiple eshell windows easier."
                        (file-name-directory (buffer-file-name))
                      default-directory))
            (height (/ (window-total-height) 3))
-           (name   (car (last (split-string parent "/" t)))))
+           (name   (car (last (split-string parent "/" t))))
+           (eshell-buffer-name (concat "*eshell: " name "*")))
       (split-window-vertically (- height))
       (other-window 1)
-      (eshell "new")
-      (rename-buffer (concat "*eshell: " name "*"))
-
-      (insert (concat "ls"))
-      (eshell-send-input)))
+      (eshell)
+      (rename-buffer eshell-buffer-name)))
 
   (defun kd/eshell-gst (&rest args)
     (magit-status (pop args) nil)
@@ -1205,6 +1206,8 @@ directory to make multiple eshell windows easier."
 
 (use-package goto-addr
   :diminish goto-address-mode
+  :bind (:map goto-address-highlight-keymap
+              ("C-c C-o" . goto-address-at-point))
   :commands (goto-address-mode goto-address-prog-mode))
 
 (use-package ispell
@@ -1242,7 +1245,8 @@ directory to make multiple eshell windows easier."
                             helm-gtags-mode
                             goto-address-prog-mode
                             abbrev-mode
-                            flycheck-mode)))
+                            flycheck-mode
+                            eshell-mode)))
     (dolist (mode prog-minor-modes)
       (add-hook 'prog-mode-hook mode)))
 
