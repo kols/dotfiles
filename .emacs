@@ -1053,16 +1053,27 @@ Repeated invocations toggle between the two most recently open buffers."
 (defvar kd/eshell-map nil)
 (kd/make-prefix-command (kbd "s-e") 'kd/eshell-map)
 (use-package eshell
-  :bind
-  (:map kd/eshell-map
-        ("e" . eshell)
-        ("v" . kd/eshell-new-other-window)
-        ("h" . kd/eshell-new-other-window-horizontally)
-        ("." . kd/eshell-here))
+  :bind (("C-`" . kd/eshell-here)
+         (:map kd/eshell-map
+               ("e" . eshell)
+               ("v" . kd/eshell-new-other-window-horizontally)
+               ("h" . kd/eshell-new-other-window)
+               ("." . kd/eshell-here)))
   :init
   (defun kd/eshell-mode-hook-func ()
     (smartscan-mode -1)
-    (add-to-list 'eshell-visual-commands "ssh"))
+    (goto-address-mode 1)
+    (add-to-list 'eshell-visual-commands "ssh")
+    ;; alias
+    (eshell/alias "lm" "ls -lahF")
+    (eshell/alias "ff" "find-file $1")
+    (eshell/alias "d" "dired $1")
+    ;; magit
+    (eshell/alias "gst" #'kd/eshell-gst)
+    (eshell/alias "gd" #'magit-diff-unstaged)
+    (eshell/alias "gds" #'magit-diff-staged)
+    ;; grep
+    (eshell/alias "hrg" "helm-rg $1"))
   (add-hook 'eshell-mode-hook #'kd/eshell-mode-hook-func)
 
   (defun kd/eshell-new ()
@@ -1094,11 +1105,14 @@ directory to make multiple eshell windows easier."
                      default-directory))
            (height (/ (window-total-height) 3))
            (name   (car (last (split-string parent "/" t))))
-           (eshell-buffer-name (concat "*eshell: " name "*")))
-      (split-window-vertically (- height))
-      (other-window 1)
-      (eshell)
-      (rename-buffer eshell-buffer-name)))
+           (eshell-buffer-name (concat "*eshell: " name "*"))
+           (eshell-buffer-window (get-buffer-window eshell-buffer-name 'visible)))
+      (if eshell-buffer-window
+          (delete-window eshell-buffer-window)
+        (split-window-vertically (- height))
+        (other-window 1)
+        (eshell)
+        (rename-buffer eshell-buffer-name))))
 
   (defun kd/eshell-gst (&rest args)
     (magit-status (pop args) nil)
@@ -1111,16 +1125,7 @@ directory to make multiple eshell windows easier."
         eshell-hist-ignoredups t
         eshell-save-history-on-exit t
         eshell-prefer-lisp-functions nil
-        eshell-destroy-buffer-when-process-dies t)
-  (eshell/alias "lm" "ls -lahF")
-  (eshell/alias "ff" "find-file $1")
-  (eshell/alias "d" "dired $1")
-  ;; magit
-  (eshell/alias "gst" #'kd/eshell-gst)
-  (eshell/alias "gd" #'magit-diff-unstaged)
-  (eshell/alias "gds" #'magit-diff-staged)
-  ;; grep
-  (eshell/alias "hrg" "helm-rg $1"))
+        eshell-destroy-buffer-when-process-dies t))
 
 (use-package em-smart
   :after eshell
@@ -1245,8 +1250,7 @@ directory to make multiple eshell windows easier."
                             helm-gtags-mode
                             goto-address-prog-mode
                             abbrev-mode
-                            flycheck-mode
-                            eshell-mode)))
+                            flycheck-mode)))
     (dolist (mode prog-minor-modes)
       (add-hook 'prog-mode-hook mode)))
 
@@ -1956,6 +1960,12 @@ With a prefix ARG always prompt for command to use."
                     (shell-quote-argument buffer-file-name)))))
 
 (bind-key "e" #'prelude-open-with 'kd/pop-map)
+
+;;; beancount
+
+(use-package beancount
+  :load-path (lambda () (concat (kd/ghq-github-repo-path "beancount/beancount") "/editors/emacs"))
+  :mode ("\\.beancount\\'" . beancount-mode))
 
 ;;; .emacs ends here
 ;;; Local Variables:
