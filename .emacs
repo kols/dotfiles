@@ -1496,7 +1496,8 @@ directory to make multiple eshell windows easier."
   :ensure t
   :commands (yas-global-mode yas-expand)
   :diminish yas-minor-mode
-  :init (add-hook 'after-init-hook #'yas-global-mode))
+  :init (add-hook 'after-init-hook #'yas-global-mode)
+  :config (setq yas-indent-line 'fixed))
 
 (use-package yasnippet-snippets
   :ensure t
@@ -1965,7 +1966,11 @@ With a prefix ARG always prompt for command to use."
 
 (use-package beancount
   :load-path (lambda () (concat (kd/ghq-github-repo-path "beancount/beancount") "/editors/emacs"))
-  :mode ("\\.beancount\\'" . beancount-mode))
+  :mode ("\\.beancount\\'" . beancount-mode)
+  :init
+  (defun kd/beancount-mode-hook-func ()
+    (add-to-list 'yas-extra-modes 'beancount-mode))
+  (add-hook 'beancount-mode-hook #'kd/beancount-mode-hook-func))
 
 ;;; .emacs ends here
 ;;; Local Variables:
