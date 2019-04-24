@@ -226,13 +226,6 @@ Repeated invocations toggle between the two most recently open buffers."
   :no-require t
   :if IS-GUI
   :config
-  ;;;;; Typeface
-  (set-frame-font (font-spec :family "Fira Code Retina" :size 18))
-  ;; 单独设置 CJK 字体，在 orgtbl 中英文混排时可对齐
-  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-  ;;   (set-fontset-font (frame-parameter nil 'font)
-  ;;                     charset (font-spec :family "Noto Sans Mono" :size 18)))
-
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -244,7 +237,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
   ;;;;; Theme
   (use-package default-black-theme
-    :disabled t
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
@@ -260,6 +252,7 @@ Repeated invocations toggle between the two most recently open buffers."
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
   (use-package zenburn-theme
+    :disabled t
     :ensure t
     :config
     (load-theme 'zenburn t)
@@ -276,7 +269,15 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'prez t))
 
   (tool-bar-mode -1)
-  (tooltip-mode -1))
+  (tooltip-mode -1)
+
+  ;;;;; Typeface
+  (set-frame-font (font-spec :family "Fira Code Retina" :size 17))
+  ;; 单独设置 CJK 字体，在 orgtbl 中英文混排时可对齐
+  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
+  ;;   (set-fontset-font (frame-parameter nil 'font)
+  ;;                     charset (font-spec :family "Noto Sans Mono" :size 18)))
+  )
 
 ;;;; macOS
 
@@ -1023,7 +1024,8 @@ Repeated invocations toggle between the two most recently open buffers."
   :no-require t
   :config
   (use-package org-annotate-file
-    :bind ("s-r n" . org-annotate-file)
+    :bind (:map kd/org-map
+                ("n" . org-annotate-file))
     :after org
     :config
     (setq org-annotate-file-add-search t)
