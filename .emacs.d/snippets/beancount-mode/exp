@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: exp
+# key: exp
+# --
+`(format-time-string "%Y-%m-%d")` *${1: "$2"}
+    `(yas-choose-value (seq-filter '(lambda (ele) (string-prefix-p "Expenses:" ele)) (beancount-get-accounts)))` $3 CNY
+    ${4:Liabilities:CN:CMB:CreditCard}
