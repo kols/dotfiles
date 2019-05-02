@@ -585,7 +585,8 @@ Repeated invocations toggle between the two most recently open buffers."
     ("f" kd/jump-to-reference)
     ("x" (switch-to-buffer "*scratch*"))
     ("l" (hydra-helm-org-rifle/body))
-    ("g" (find-file "~/Dropbox/ledger/ledger.beancount")))
+    ("g" (find-file "~/Dropbox/ledger/ledger.beancount"))
+    ("w" (find-file (concat org-directory "/work.org"))))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -1169,6 +1170,7 @@ Repeated invocations toggle between the two most recently open buffers."
     ;; alias
     (eshell/alias "lm" "ls -lahF")
     (eshell/alias "ff" "find-file $1")
+    (eshell/alias "fo" "find-file-other-window $1")
     (eshell/alias "d" "dired $1")
     ;; magit
     (eshell/alias "gst" #'kd/eshell-gst)
@@ -1415,7 +1417,10 @@ directory to make multiple eshell windows easier."
 (use-package imenu-list
   :ensure t
   :bind (:map kd/pop-map
-              ("'" . imenu-list-smart-toggle)))
+              ("'" . imenu-list-smart-toggle))
+  :config
+  (setq idle-update-delay 1)
+  (setq imenu-list-focus-after-activation t))
 
 ;;;; Completion
 
