@@ -626,7 +626,8 @@ Repeated invocations toggle between the two most recently open buffers."
          (:map isearch-mode-map
                ("M-s o" . helm-occur-from-isearch))
          (:map kd/toggle-map
-               ("h" . helm-resume)))
+               ("h" . helm-resume)
+               ("P" . kd/turn-on-http-proxy)))
   :init
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
@@ -644,6 +645,19 @@ Repeated invocations toggle between the two most recently open buffers."
                      '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
                        "~/Documents/rfc")
                      :action (lambda (d) (dired d)))))
+
+  (defun kd/turn-on-http-proxy (&optional proxy)
+    "Turn on http PROXY."
+    (interactive)
+    (require 'url-vars)
+    (unless url-proxy-services
+      (unless proxy
+        (setq proxy "127.0.0.1:7890"))
+      (setq url-proxy-services
+            `(("no_proxy" . "^\\(localhost\\|10.*\\)")
+              ("http" . ,proxy)
+              ("https" . ,proxy)))
+      (message "Proxy turned on: %s" proxy)))
 
   (defun kd/toggle-http-proxy ()
     (interactive)
