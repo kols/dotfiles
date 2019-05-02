@@ -121,7 +121,10 @@ REPO's pattern: `<user>/<repo>'"
           ring-bell-function 'ignore))
 
   (when (file-exists-p custom-file)
-    (load custom-file)))
+    (load custom-file))
+
+  (use-package warnings
+    :config (setq warning-minimum-level :error)))
 
 
 ;;; Keybinding
@@ -149,7 +152,12 @@ REPO's pattern: `<user>/<repo>'"
 Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer) 1)))
-  (key-chord-define-global "JJ" #'kd/switch-to-previous-buffer))
+
+  (use-package key-chord
+    :ensure t
+    :demand t
+    :config
+    (key-chord-define-global "JJ" #'kd/switch-to-previous-buffer)))
 
 
 ;;; Startup
@@ -454,6 +462,13 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ((:map dired-mode-map
                ("P" . peep-dired))))
 
+(use-package neotree
+  :ensure t
+  :bind (("<f8>" . neotree-toggle)
+         ("<f7>" . neotree-find))
+  :config
+  (setq neo-show-hidden-files t))
+
 ;;; Tramp
 
 (use-package tramp
@@ -563,6 +578,7 @@ Repeated invocations toggle between the two most recently open buffers."
          [_x_]*scratch*
          the rif_l_e
          led_g_er
+         _w_ork
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("d" deft)
@@ -620,6 +636,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (helm :sources (helm-build-sync-source "Jump to repo"
                      :candidates
+                     ;; regexp to trim: "^/Users/kane/\\(go/src/\\|\.ghq/\\|work/repos/\\)"
                      (split-string
                       (shell-command-to-string "ghq list -p") "\n" t)
                      :action (lambda (d) (dired d)))))
@@ -665,16 +682,8 @@ Repeated invocations toggle between the two most recently open buffers."
   :after helm
   :config (helm-flx-mode 1))
 
-(use-package helm-fuzzier
-  :disabled t
-  :ensure t
-  :after helm
-  :config (helm-fuzzier-mode 1))
-
 (use-package helm-swoop
-  :disabled t
   :ensure t
-  :after helm
   :commands (helm-swoop helm-multi-swoop-projectile helm-multi-swoop)
   :bind ((:map isearch-mode-map
                ("M-i" . helm-swoop-from-isearch))
@@ -984,12 +993,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-noter-auto-save-last-location t)
   (setq org-noter-always-create-frame nil))
 
-(use-package org-bullets
-  :disabled t
-  :ensure t
-  :after org
-  :commands org-bullets-mode)
-
 (use-package org-mac-link
   :if IS-MAC
   :after org
@@ -1213,8 +1216,8 @@ directory to make multiple eshell windows easier."
 
 (use-package goto-addr
   :diminish goto-address-mode
-  :bind (:map goto-address-highlight-keymap
-              ("C-c C-o" . goto-address-at-point))
+  :bind ((:map goto-address-highlight-keymap
+               ("C-c C-o" . 'goto-address-at-point)))
   :commands (goto-address-mode goto-address-prog-mode))
 
 (use-package ispell
@@ -1294,12 +1297,6 @@ directory to make multiple eshell windows easier."
   :config
   (setq flycheck-check-syntax-automatically '(save))
   (setq flycheck-mode-line-prefix "⚠"))
-
-(use-package flycheck-pos-tip
-  :disabled t
-  :ensure t
-  :commands flycheck-pos-tip-mode
-  :init (add-hook 'flycheck-mode-hook #'flycheck-pos-tip-mode))
 
 ;;;; Tags
 
