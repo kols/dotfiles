@@ -484,16 +484,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :diminish projectile-mode
   :commands projectile-mode
   :functions projectile-find-file-hook-function
+  :bind ((:map projectile-mode-map
+               ("s-p" . projectile-find-file)))
   :init
   (add-hook 'after-init-hook #'projectile-mode)
-  (defun kd-projectile-mode-hook-func ()
-    (remove-hook 'find-file-hook #'projectile-find-file-hook-function)
-
-    (bind-key "s-p" #'helm-projectile-find-file projectile-mode-map)
-    (bind-key "C-c C-a" #'helm-projectile-rg projectile-mode-map)
-    (bind-key "p" #'helm-projectile-find-file projectile-command-map)
-    (bind-key "r" #'helm-projectile-rg projectile-command-map))
-  (add-hook 'projectile-mode-hook #'kd-projectile-mode-hook-func)
   :config
   (defadvice projectile-project-root (around exlude-tramp activate)
     "This should disable projectile when visiting a remote file"
@@ -508,9 +502,10 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-track-known-projects-automatically nil)
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
-  (setq projectile-completion-system 'helm)
+  (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'ggtags)
-  (setq projectile-mode-line "P"))
+  (setq projectile-mode-line "P")
+  (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
 
 (use-package rg
   :ensure t
@@ -672,7 +667,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (setq helm-follow-mode-persistent t)
   (require 'helm-config)
-  (helm-mode 1))
+  ;; (helm-mode 1)
+  )
 
 (use-package flx
   :ensure t)
@@ -712,9 +708,14 @@ Repeated invocations toggle between the two most recently open buffers."
              helm-projectile-rg
              helm-projectile-switch-project))
 
+;; (use-package helm-grep
+;;   :after helm
+;;   :bind ("C-c a" . helm-do-grep-ag)
+;;   :config (setq helm-grep-ag-command "rg --color=ansi --colors=match:fg:red --colors=match:style:bold --smart-case --no-heading --line-number %s %s %s"))
+
 (use-package helm-rg
   :ensure t
-  :bind ("C-c a" . helm-rg)
+  ;; :bind ("C-c a" . helm-rg)
   :config (setq helm-rg-default-directory 'git-root))
 
 (use-package helm-xref
@@ -725,10 +726,10 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package helm-gtags
   :ensure t
   :diminish helm-gtags-mode
-  :bind (("C-]" . helm-gtags-find-tag)
-         ("C-}" . helm-gtags-find-rtag)
-         ("C-t" . helm-gtags-pop-stack)
-         ("C-S-t" . helm-gtags-show-stack))
+  ;; :bind (("C-]" . helm-gtags-find-tag)
+  ;;        ("C-}" . helm-gtags-find-rtag)
+  ;;        ("C-t" . helm-gtags-pop-stack)
+  ;;        ("C-S-t" . helm-gtags-show-stack))
   :chords (("gd" . helm-gtags-find-tag)
            ("gr" . helm-gtags-find-rtag))
   :config
@@ -760,19 +761,115 @@ Repeated invocations toggle between the two most recently open buffers."
     ("r" helm-org-rifle-org-directory "org directory")
     ("a" helm-org-rifle-agenda-files "agenda")))
 
+;;; Ivy, Swiper & Counsel
+
+;;;; Ivy
+
+(use-package flx
+  :ensure t)
+
+(use-package ivy
+  :ensure t
+  :demand t
+  :functions ivy-read
+  :bind ((:map ivy-mode-map
+               ("s-x" . ivy-switch-buffer)
+               ("C-c C-r" . ivy-resume)))
+  :diminish ivy-mode
+  :init
+  (defun kd/jump-to-src (&optional initial-input)
+    (interactive)
+    (ivy-read "repo: "
+              (split-string
+               (shell-command-to-string
+                (concat "ghq list -p")) "\n" t)
+              :initial-input initial-input
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-src))
+
+  (defun kd/jump-to-reference (&optional initial-input)
+    (interactive)
+    (ivy-read "ref: "
+              '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
+                "~/Documents/rfc")
+              :action (lambda (d) (dired d))
+              :caller 'kd/jump-to-reference))
+
+  (add-hook 'after-init-hook 'ivy-mode)
+  :config
+  (setq ivy-height 15)
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-count-format "%d/%d ")
+  (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
+  (global-unset-key (kbd "C-x b")))
+
+(use-package ivy-rich                   ; Too slow
+  :disabled t
+  :ensure t
+  :after ivy
+  :config
+  (ivy-rich-mode 1)
+  (setq ivy-format-function #'ivy-format-function-line))
+
+;;;; Counsel
+
+(use-package counsel
+  :ensure t
+  :after ivy
+  :bind
+  (("C-S-s" . counsel-grep-or-swiper)
+   ("M-x" . counsel-M-x)
+   ("C-x C-f" . counsel-find-file)
+   ("C-." . counsel-imenu)
+   ("C-c a" . counsel-rg)
+   ("M-y" . counsel-yank-pop)
+   ("C-h b" . counsel-descbinds)
+   ("C-h y" . counsel-find-library))
+  :config
+  (add-to-list 'ivy-re-builders-alist '(counsel-rg . ivy--regex-plus))
+  (add-to-list 'ivy-initial-inputs-alist '(counsel-rg . ivy-thing-at-point))
+  (add-to-list 'ivy-more-chars-alist '(counsel-rg . 2)))
+
+(use-package counsel-gtags
+  :ensure t
+  :bind (:map counsel-gtags-mode-map
+              ("C-]" . counsel-gtags-find-definition)
+              ("C-}" . counsel-gtags-find-reference)
+              ("C-t" . counsel-gtags-go-backward))
+  :config
+  (setq counsel-gtags-use-input-at-point t)
+  (add-to-list 'ivy-re-builders-alist '(counsel-gtags--read-tag . ivy--regex-fuzzy))
+  (add-to-list 'ivy-more-chars-alist '(counsel-gtags--read-tag . 0))
+  (unbind-key "C-]" global-map))
+
+;;;; Swiper
+
+(use-package swiper
+  :ensure t
+  :after ivy
+  :commands (swiper swiper-from-isearch)
+  :config
+  (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
+  (setq swiper-include-line-number-in-search t)
+  (setq swiper-goto-start-of-match t))
 
 (use-package bookmark+
   :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/bookmark-plus"))
-  :demand t)
+  :defer 0.1)
 
 (use-package isearch+
   :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/isearch-plus"))
-  :demand t)
+  :defer 0.1
+  :bind (:map isearch-mode-map
+              ("M-i" . swiper-from-isearch)))
 
 (use-package helpful
   :ensure t
   :bind (("C-h f" . helpful-callable)
-         ("C-h v" . helpful-variable)))
+         ("C-h v" . helpful-variable)
+         ("C-h k" . helpful-key)))
 
 (use-package eldoc
   :defer t
@@ -1252,10 +1349,11 @@ directory to make multiple eshell windows easier."
   :init
   (let ((prog-minor-modes '(highlight-symbol-mode
                             turn-on-diff-hl-mode
-                            helm-gtags-mode
+                            counsel-gtags-mode
                             goto-address-prog-mode
                             abbrev-mode
-                            flycheck-mode)))
+                            flycheck-mode
+                            which-function-mode)))
     (dolist (mode prog-minor-modes)
       (add-hook 'prog-mode-hook mode)))
 
