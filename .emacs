@@ -77,9 +77,7 @@ REPO's pattern: `<user>/<repo>'"
 (let ((pre-pkgs '(auto-compile
                   bind-key
                   diminish
-                  use-package
-                  quelpa
-                  quelpa-use-package))
+                  use-package))
       (refreshed nil))
   (dolist (pkg pre-pkgs)
     (unless (package-installed-p pkg)
@@ -102,17 +100,19 @@ REPO's pattern: `<user>/<repo>'"
 (eval-when-compile
   (require 'use-package))
 
-(with-eval-after-load 'quelpa
-  (progn
-    (setq quelpa-melpa-recipe-stores '("~/.ghq/github.com/melpa/melpa/recipes"))
-    (setq quelpa-update-melpa-p nil)
-    (setq quelpa-melpa-dir "~/.ghq/github.com/melpa/melpa")))
-(eval-when-compile
-  (require 'quelpa)
-  (require 'quelpa-use-package))
+(use-package bind-key)
+(use-package diminish)
 
-(require 'bind-key)
-(require 'diminish)
+(use-package quelpa
+  :ensure t
+  :defer t
+  :config
+  (setq quelpa-melpa-recipe-stores '("~/.ghq/github.com/melpa/melpa/recipes"))
+  (setq quelpa-update-melpa-p nil)
+  (setq quelpa-melpa-dir "~/.ghq/github.com/melpa/melpa"))
+
+(use-package quelpa-use-package
+  :ensure t)
 
 (use-package use-package-chords
   :ensure t
@@ -456,9 +456,9 @@ Repeated invocations toggle between the two most recently open buffers."
   :config (setq wgrep-auto-save-buffer t))
 
 (use-package autoinsert
-  :commands auto-insert
+  :commands auto-insert-mode
   :functions define-auto-insert
-  :init (add-hook 'find-file-hook 'auto-insert)
+  :init (add-hook 'after-init-hook #'auto-insert-mode)
   :config (setq auto-insert-query nil))
 
 (use-package highlight-symbol
@@ -915,6 +915,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (add-to-list 'ivy-initial-inputs-alist '(counsel-rg . ivy-thing-at-point)))
 
+(use-package xref)
 (use-package gxref
   :ensure t
   :commands gxref-xref-backend
