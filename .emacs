@@ -193,6 +193,10 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer) 1)))
 
+  (defun kd/kill-buffer-no-select ()
+    (interactive)
+    (kill-buffer nil))
+
   :defines (kd/toggle-map
             kd/pop-map
             kd/org-map
@@ -205,7 +209,8 @@ Repeated invocations toggle between the two most recently open buffers."
   :functions kd/make-prefix-command
   :chords ("JJ" . kd/switch-to-previous-buffer)
   :bind (:map kd/toggle-map
-              ("l" . display-line-numbers-mode)))
+              ("l" . display-line-numbers-mode))
+  :config (global-set-key (kbd "C-x K") #'kd/kill-buffer-no-select))
 
 
 ;;; Startup
@@ -1148,19 +1153,17 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))))
 
 (use-package ox-latex
-  :after org
+  :defer t
   :init
   (setq org-latex-compiler "xelatex"))
 
 (use-package org-agenda
-  :after org
   :bind (:map kd/org-map
               ("a" . org-agenda))
   :init
   (setq org-agenda-files (concat org-directory "/agenda_files.txt")))
 
 (use-package org-capture
-  :after org
   :functions (org-capture-finalize)
   :commands org-capture
   :bind ((:map kd/org-map
