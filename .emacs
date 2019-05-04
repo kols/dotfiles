@@ -40,12 +40,12 @@ REPO's pattern: `<user>/<repo>'."
 REPO's pattern: `<user>/<repo>'"
   (expand-file-name (kd/ghq-repo-path "github.com" repo)))
 
-(defconst kd/default-local-proxy "127.0.0.1:8118")
+(defconst kd/default-local-proxy "127.0.0.1:7890")
 (defun kd/turn-on-http-proxy (force &optional proxy)
   "Turn on http PROXY.  FORCE to turn on even no proxy process detected."
   (interactive "P")
   ;; Tor / Proxy: set up before package initialization.
-  (when (or (member "privoxy"
+  (when (or (member "ClashX"
                     (mapcar (lambda (p) (alist-get 'comm (process-attributes p)))
                             (list-system-processes)))
             (eq force '(4)))
