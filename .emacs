@@ -3,48 +3,83 @@
 ;;; Commentary:
 ;;;   Emacs init file
 ;;;
-;;;   - Clone all the `~/.ghq' prefixed repos first
 
 ;;; Code:
+
+;;; Speed up init.
+;;; Temporarily reduce garbage collection during startup. Inspect `gcs-done'.
+;; https://gitlab.com/ambrevar/dotfiles/blob/master/.emacs.d/init.el
+(defun ambrevar/reset-gc-cons-threshold ()
+  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
+(setq gc-cons-threshold (* 64 1024 1024))
+(add-hook 'after-init-hook 'ambrevar/reset-gc-cons-threshold)
+;;; Temporarily disable the file name handler.
+(setq default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(defun ambrevar/reset-file-name-handler-alist ()
+  (setq file-name-handler-alist
+        (append default-file-name-handler-alist
+                file-name-handler-alist))
+  (cl-delete-duplicates file-name-handler-alist :test 'equal))
+(add-hook 'after-init-hook 'ambrevar/reset-file-name-handler-alist)
+
+(setq load-prefer-newer t)
 
 (defun kd/emacs-subdirectory (d)
   "Make dir path inside Emacs user dir for D."
   (expand-file-name d user-emacs-directory))
 
 (defvar kd/ghq-dir "~/.ghq")
-(defvar kd/ghq-managed-repos nil)
-(defun kd/ghq-repo-path (repo)
+(defun kd/ghq-repo-path (domain repo)
   "Return a path of repo managed by ghq.
-REPO's pattern: `<domain>/<user>/<repo>'."
-  (let* ((repo-path (expand-file-name repo kd/ghq-dir)))
-    (unless (file-directory-p repo-path)
-      (call-process-shell-command (concat "ghq get " repo)))
-    (add-to-list 'kd/ghq-managed-repos repo-path)
-    repo-path))
+DOMAIN is like: `github.com'
+REPO's pattern: `<user>/<repo>'."
+  (expand-file-name (concat domain "/" repo) kd/ghq-dir))
 (defun kd/ghq-github-repo-path (repo)
   "Return a path of github repo mamaged by ghq.
 REPO's pattern: `<user>/<repo>'"
-  (expand-file-name (kd/ghq-repo-path (concat "github.com/" repo))))
+  (expand-file-name (kd/ghq-repo-path "github.com" repo)))
+
+(defconst kd/default-local-proxy "127.0.0.1:8118")
+(defun kd/turn-on-http-proxy (force &optional proxy)
+  "Turn on http PROXY.  FORCE to turn on even no proxy process detected."
+  (interactive "P")
+  ;; Tor / Proxy: set up before package initialization.
+  (when (or (member "privoxy"
+                    (mapcar (lambda (p) (alist-get 'comm (process-attributes p)))
+                            (list-system-processes)))
+            (eq force '(4)))
+    (require 'url)
+    (unless url-proxy-services
+      (unless proxy
+        (setq proxy kd/default-local-proxy))
+      (setq url-proxy-services
+            `(("no_proxy" . "^\\(localhost\\|10.*\\)")
+              ("http" . ,proxy)
+              ("https" . ,proxy)))
+      (message "Proxy turned on: %s" proxy))))
 
 (add-to-list 'load-path (kd/emacs-subdirectory "elisp"))
-(add-to-list 'load-path (expand-file-name "lisp/progmodes" (kd/ghq-github-repo-path "emacs-mirror/emacs")))
+(setq source-directory (kd/ghq-github-repo-path "emacs-mirror/emacs"))
 
 ;;; Package
 
-(eval-after-load 'package
-  (progn
-    (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                             ("org" . "https://orgmode.org/elpa/")))
-    (setq load-prefer-newer t)))
+(with-eval-after-load 'package
+  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                           ("gnu" . "https://elpa.gnu.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/"))))
 
 (require 'package)
+(call-interactively 'kd/turn-on-http-proxy)
 (package-initialize)
 
 ;;;; Prerequisite packages
 (let ((pre-pkgs '(auto-compile
                   bind-key
                   diminish
-                  use-package))
+                  use-package
+                  quelpa
+                  quelpa-use-package))
       (refreshed nil))
   (dolist (pkg pre-pkgs)
     (unless (package-installed-p pkg)
@@ -59,42 +94,47 @@ REPO's pattern: `<user>/<repo>'"
 (auto-compile-on-load-mode 1)
 
 ;;;; use-package
-(eval-after-load 'use-package
+(with-eval-after-load 'use-package
   (progn
-    (setq use-package-enable-imenu-support t)
+    (customize-set-variable 'use-package-enable-imenu-support t)
     (setq use-package-compute-statistics t)
     (setq use-package-verbose t)
-    (setq use-package-expand-minimally t)))
+    (setq use-package-expand-minimally nil)))
 (eval-when-compile
   (require 'use-package))
+
+(with-eval-after-load 'quelpa
+  (progn
+    (setq quelpa-melpa-recipe-stores '("~/.ghq/github.com/melpa/melpa/recipes"))
+    (setq quelpa-update-melpa-p nil)
+    (setq quelpa-melpa-dir "~/.ghq/github.com/melpa/melpa")))
+(eval-when-compile
+  (require 'quelpa)
+  (require 'quelpa-use-package))
+
 (require 'bind-key)
 (require 'diminish)
-
-(use-package auto-package-update
-  :ensure t
-  :commands auto-package-update-now
-  :init
-  (defun kd/update-git-packages ()
-    "Update git managed packages."
-    (interactive)
-    (let ((repos kd/ghq-managed-repos))
-      (dolist (repo repos)
-        (let* ((default-directory repo)
-               (proc (start-process "git-update-repo" (concat "*update-git-packages*") "git" "pull")))
-          (message default-directory)
-          (display-buffer (process-buffer proc))))))
-  (add-hook 'auto-package-update-before-hook #'kd/update-git-packages))
 
 (use-package use-package-chords
   :ensure t
   :config (key-chord-mode 1))
 
+(use-package auto-package-update
+  :ensure t
+  :commands (auto-package-update-now kd/update-git-packages)
+  :config (setq auto-package-update-delete-old-versions nil))
+
 ;;; Defaults
+
 (use-package kd-defaults
   :no-require t
   :config
   (use-package better-defaults
     :ensure t)
+  (setenv "LC_ALL" "en_US.UTF-8")
+  (setenv "LC_CTYPE" "en_US.UTF-8")
+  (setenv "LANG" "en_US.UTF-8")
+  (setq current-language-environment "en_US.UTF-8")
   (setq confirm-kill-emacs 'y-or-n-p)
   (setq gc-cons-threshold 50000000)
   (setq scroll-conservatively 10000)
@@ -114,8 +154,6 @@ REPO's pattern: `<user>/<repo>'"
   (unless noninteractive
     (advice-add #'display-startup-echo-area-message :override #'ignore)
     (setq inhibit-startup-message t
-          inhibit-startup-echo-area-message "Dou Qilong"
-          inhibit-default-init t
           initial-major-mode 'fundamental-mode
           initial-scratch-message nil
           ring-bell-function 'ignore))
@@ -131,21 +169,27 @@ REPO's pattern: `<user>/<repo>'"
 
 (use-package kd-keybinding
   :no-require t
-  :init
+  :demand t
+  :preface
   (defun kd/make-prefix-command (key command)
     "Bind KEY for a prefix COMMAND."
     (define-prefix-command command)
     (global-set-key key command))
-  :config
+
   (defvar kd/toggle-map nil)
   (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
-  (bind-key "l" #'display-line-numbers-mode 'kd/toggle-map)
   (defvar kd/pop-map nil)
   (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
   (defvar kd/org-map nil)
   (kd/make-prefix-command (kbd "s-r") 'kd/org-map)
   (defvar kd/compile-map nil)
   (kd/make-prefix-command (kbd "s-c") 'kd/compile-map)
+  (defvar kd/errors-map nil)
+  (kd/make-prefix-command (kbd "s-e") 'kd/errors-map)
+  (defvar kd/eshell-map nil)
+  (kd/make-prefix-command (kbd "s-s") 'kd/eshell-map)
+  (defvar kd/projectile-map nil)
+  (kd/make-prefix-command (kbd "s-P") 'kd/projectile-map)
 
   (defun kd/switch-to-previous-buffer ()
     "Switch to previously open buffer.
@@ -153,11 +197,19 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (switch-to-buffer (other-buffer (current-buffer) 1)))
 
-  (use-package key-chord
-    :ensure t
-    :demand t
-    :config
-    (key-chord-define-global "JJ" #'kd/switch-to-previous-buffer)))
+  :defines (kd/toggle-map
+            kd/pop-map
+            kd/org-map
+            kd/compile-map
+            kd/errors-map
+            kd/eshell-map
+            kd/projectile-map)
+
+  :commands kd/switch-to-previous-buffer
+  :functions kd/make-prefix-command
+  :chords ("JJ" . kd/switch-to-previous-buffer)
+  :bind (:map kd/toggle-map
+              ("l" . display-line-numbers-mode)))
 
 
 ;;; Startup
@@ -168,7 +220,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (setq exec-path-from-shell-check-startup-files nil)
   (setq exec-path-from-shell-shell-name "/usr/local/bin/zsh")
-  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "HOMEBREW_AUTO_UPDATE_SECS"))
+  (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "JAVA_HOME"))
   (exec-path-from-shell-initialize))
 
 ;;;; daemon
@@ -180,10 +232,10 @@ Repeated invocations toggle between the two most recently open buffers."
   (add-hook 'after-init-hook #'kd/server-start))
 
 (use-package desktop
+  :disabled t
   :config
   (setq desktop-dirname user-emacs-directory)
   (desktop-save-mode 1))
-
 
 ;;; User Interface (UI)
 
@@ -191,13 +243,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :no-require t
   :config
   (menu-bar-mode 1)
-  (horizontal-scroll-bar-mode -1)
-  (scroll-bar-mode -1)
   (column-number-mode 1)
 
   (use-package remap-face
-    :defines buffer-face-mode-face
-    :commands buffer-face-mode)
+    :commands (buffer-face-mode text-scale-mode face-remap-add-relative))
 
   (use-package simple
     :diminish visual-line-mode
@@ -212,19 +261,39 @@ Repeated invocations toggle between the two most recently open buffers."
     (setq shackle-lighter "")
     (setq shackle-select-reused-windows nil)
     (setq shackle-default-alignment 'below)
-    (setq shackle-default-size 0.45)
+    (setq shackle-default-size 0.35)
 
     ;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el
     (setq shackle-rules
           ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
-          '(("*osx-dictionary*"            :select t                          :size 0.3 :align below  :popup t)
+          '(("*osx-dictionary*"            :select t                          :align below            :popup t)
             ("*info*"                      :select t                          :align right            :popup t)
             ("*Help*"                      :select t                          :align right            :popup t)
-            ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align above :popup t)
+            ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align 'below)
             (helpful-mode                  :select t                          :align right            :popup t)
-            (magit-status-mode             :select t                          :align below            :popup t)
-            (magit-log-mode                :select t                          :align below            :popup t)
-            ("^\\*go-direx:"               :regexp t                          :size 0.3 :align right  :popup t)))))
+            (magit-status-mode             :select t                          :align right            :popup t)
+            (magit-log-mode                :select t                          :align below            :same t))))
+
+  (use-package doom-modeline
+    :ensure t
+    :init
+    (add-hook 'after-init-hook #'doom-modeline-mode)
+    :config
+    (setq doom-modeline-buffer-file-name-style 'buffer-name)
+    (setq doom-modeline-icon nil))
+  )
+
+(use-package writeroom-mode
+  :ensure t
+  :bind (:map kd/toggle-map
+              ("z" . writeroom-mode))
+  :config
+  (setq writeroom-mode-line-toggle-position 'mode-line-format)
+  (setq writeroom-mode-line t)
+  (setq writeroom-restore-window-config t)
+  (setq writeroom-fullscreen-effect 'maximized)
+  (setq writeroom-global-effects '(writeroom-set-fullscreen
+                                   writeroom-set-bottom-divider-width)))
 
 ;;;; Graphic
 
@@ -234,6 +303,9 @@ Repeated invocations toggle between the two most recently open buffers."
   :no-require t
   :if IS-GUI
   :config
+  (horizontal-scroll-bar-mode -1)
+  (scroll-bar-mode -1)
+
   ;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
@@ -245,6 +317,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
   ;;;;; Theme
   (use-package default-black-theme
+    :disabled t
     :config (load-theme 'default-black t))
 
   (use-package cyberpunk-theme
@@ -271,20 +344,34 @@ Repeated invocations toggle between the two most recently open buffers."
      '(region
        ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
 
+  (use-package hc-zenburn-theme
+    :disabled t
+    :ensure t
+    :config
+    (load-theme 'hc-zenburn t))
+
   (use-package prez-theme
     :disabled t
     :config
     (load-theme 'prez t))
 
+  (use-package doom-themes
+    :ensure t
+    :config
+    (setq doom-themes-padded-modeline t)
+    (setq doom-opera-brighter-comments nil)
+    (setq doom-opera-brighter-modeline nil)
+    (setq doom-opera-comment-bg nil)
+    (setq doom-opera-padded-modeline 1)
+    (load-theme 'doom-opera t)
+    (doom-themes-org-config)
+    (custom-theme-set-faces
+     'doom-opera
+     '(region (doom-lighten base4 0.2))))
+
   (tool-bar-mode -1)
   (tooltip-mode -1)
 
-  ;;;;; Typeface
-  (set-frame-font (font-spec :family "Fira Code Retina" :size 17))
-  ;; 单独设置 CJK 字体，在 orgtbl 中英文混排时可对齐
-  ;; (dolist (charset '(kana han symbol cjk-misc bopomofo))
-  ;;   (set-fontset-font (frame-parameter nil 'font)
-  ;;                     charset (font-spec :family "Noto Sans Mono" :size 18)))
   )
 
 ;;;; macOS
@@ -319,9 +406,12 @@ Repeated invocations toggle between the two most recently open buffers."
   :if (and IS-MAC IS-GUI)
   :no-require t
   :config
-  (setq default-frame-alist '((fullscreen . maximized)
-                              (ns-transparent-titlebar . t)
-                              (ns-appearance . dark)))
+  (set-frame-font (font-spec :family "Input Mono Condensed" :size 16 :weight 'light) nil t)
+  (setq default-frame-alist '((ns-transparent-titlebar . t)
+                              (ns-appearance . dark)
+                              (fullscreen . fit-frame-to-buffer-sizes)
+                              (font . "Input Mono Condensed-16:light")))
+  (add-to-list 'initial-frame-alist '(fullscreen . maximized))
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
   (setq mac-mouse-wheel-smooth-scroll nil))
@@ -357,7 +447,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package wgrep
   :ensure t
-  :commands wgrep-change-to-wgrep-mode)
+  :commands wgrep-change-to-wgrep-mode
+  :config (setq wgrep-auto-save-buffer t))
 
 (use-package autoinsert
   :commands auto-insert-mode
@@ -435,7 +526,6 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;; Dired
 
 (use-package dired
-  :defer t
   :commands (dired dired-hide-details-mode)
   :diminish dired-mode
   :init
@@ -448,7 +538,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dired-ls-F-marks-symlinks t))
 
 (use-package dired+
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/dired-plus"))
+  :quelpa (dired+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/dired+.el")
   :after dired
   :defer t)
 
@@ -484,8 +574,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :diminish projectile-mode
   :commands projectile-mode
   :functions projectile-find-file-hook-function
-  :bind ((:map projectile-mode-map
-               ("s-p" . projectile-find-file)))
+  :bind ((:map kd/projectile-map
+               ("a" . projectile-add-known-project)
+               ("b" . projectile-ibuffer)
+               ("i" . projectile-invalidate-cache)))
   :init
   (add-hook 'after-init-hook #'projectile-mode)
   :config
@@ -578,7 +670,7 @@ Repeated invocations toggle between the two most recently open buffers."
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("d" deft)
     ("c" kd/default-captured-org-note)
-    ("r" kd/find-org-file)
+    ("r" kd/counsel-org-find-file)
     ("s" kd/jump-to-src)
     ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
     ("p" (helm-projectile-switch-project t))
@@ -617,17 +709,16 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :diminish helm-mode
   :commands (helm-mode helm-hide-minibuffer-maybe)
-  :bind (("s-x" . helm-mini)
-         ("M-y" . helm-show-kill-ring)
-         ("C-." . helm-imenu)
-         ("C-x C-f" . helm-find-files)
-         ("C-S-s" . helm-occur)
-         ("C-S-j" . helm-all-mark-rings)
-         (:map isearch-mode-map
-               ("M-s o" . helm-occur-from-isearch))
-         (:map kd/toggle-map
-               ("h" . helm-resume)
-               ("P" . kd/turn-on-http-proxy)))
+  ;; :bind (("s-x" . helm-mini)
+  ;;        ("M-y" . helm-show-kill-ring)
+  ;;        ("C-." . helm-imenu)
+  ;;        ("C-x C-f" . helm-find-files)
+  ;;        ("C-S-s" . helm-occur)
+  ;;        ("C-S-j" . helm-all-mark-rings)
+  ;;        (:map isearch-mode-map
+  ;;              ("M-s o" . helm-occur-from-isearch))
+  ;;        (:map kd/toggle-map
+  ;;              ("h" . helm-resume)))
   :init
   (defun kd/jump-to-src (&optional initial-input)
     (interactive)
@@ -663,7 +754,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (helm :sources (helm-build-sync-source "Select proxy"
                      :candidates
-                     '("127.0.0.1:7890")
+                     `(,kd/default-local-proxy)
                      :action (lambda (x)
                                (if url-proxy-services
                                    (progn
@@ -745,8 +836,8 @@ Repeated invocations toggle between the two most recently open buffers."
   ;;        ("C-}" . helm-gtags-find-rtag)
   ;;        ("C-t" . helm-gtags-pop-stack)
   ;;        ("C-S-t" . helm-gtags-show-stack))
-  :chords (("gd" . helm-gtags-find-tag)
-           ("gr" . helm-gtags-find-rtag))
+  ;; :chords (("gd" . helm-gtags-find-tag)
+  ;;          ("gr" . helm-gtags-find-rtag))
   :config
   (setq helm-gtags-use-input-at-cursor t)
   (setq helm-gtags-fuzzy-match t)
@@ -817,6 +908,8 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
   (setq ivy-count-format "%d/%d ")
+  (setq ivy-more-chars-alist '((t . 2)))
+  (setq ivy-re-builders-alist '((t . ivy--regex-plus)))
   (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
   (global-unset-key (kbd "C-x b")))
 
@@ -827,6 +920,11 @@ Repeated invocations toggle between the two most recently open buffers."
   :config
   (ivy-rich-mode 1)
   (setq ivy-format-function #'ivy-format-function-line))
+
+(use-package ivy-xref
+  :ensure t
+  :commands ivy-xref-show-xrefs
+  :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
 ;;;; Counsel
 
@@ -843,21 +941,39 @@ Repeated invocations toggle between the two most recently open buffers."
    ("C-h b" . counsel-descbinds)
    ("C-h y" . counsel-find-library))
   :config
-  (add-to-list 'ivy-re-builders-alist '(counsel-rg . ivy--regex-plus))
-  (add-to-list 'ivy-initial-inputs-alist '(counsel-rg . ivy-thing-at-point))
-  (add-to-list 'ivy-more-chars-alist '(counsel-rg . 2)))
+  (add-to-list 'ivy-initial-inputs-alist '(counsel-rg . ivy-thing-at-point)))
+
+(use-package gxref
+  :ensure t
+  :commands gxref-xref-backend
+  :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package counsel-gtags
-  :ensure t
+  :disabled t
+  :quelpa (counsel-gtags :fetcher github :repo "kols/emacs-counsel-gtags")
   :bind (:map counsel-gtags-mode-map
               ("C-]" . counsel-gtags-find-definition)
               ("C-}" . counsel-gtags-find-reference)
               ("C-t" . counsel-gtags-go-backward))
+  :chords (("gd" . counsel-gtags-find-definition)
+           ("gr" . counsel-gtags-find-definition))
+  :diminish counsel-gtags-mode
   :config
   (setq counsel-gtags-use-input-at-point t)
-  (add-to-list 'ivy-re-builders-alist '(counsel-gtags--read-tag . ivy--regex-fuzzy))
+  (setq counsel-gtags-auto-select-only-candidate t)
   (add-to-list 'ivy-more-chars-alist '(counsel-gtags--read-tag . 0))
   (unbind-key "C-]" global-map))
+
+(use-package counsel-projectile
+  :ensure t
+  :bind ((:map projectile-mode-map
+               ("s-X" . counsel-projectile-switch-to-buffer)
+               ("s-p" . counsel-projectile-find-file)
+               ("C-c a" . counsel-projectile-rg))
+         (:map kd/projectile-map
+               ("p" . counsel-projectile-switch-project)
+               ("g" . counsel-projectile-git-grep)))
+  :init (add-hook 'after-init-hook #'counsel-projectile-mode))
 
 ;;;; Swiper
 
@@ -867,15 +983,16 @@ Repeated invocations toggle between the two most recently open buffers."
   :commands (swiper swiper-from-isearch)
   :config
   (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
-  (setq swiper-include-line-number-in-search t)
+  (setq swiper-include-line-number-in-search nil)
   (setq swiper-goto-start-of-match t))
 
+
 (use-package bookmark+
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/bookmark-plus"))
-  :defer 0.1)
+  :quelpa (bookmark+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/bookmark+.el")
+  :defer t)
 
 (use-package isearch+
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/isearch-plus"))
+  :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
   :defer 0.1
   :bind (:map isearch-mode-map
               ("M-i" . swiper-from-isearch)))
@@ -926,7 +1043,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ("C-c \"" . poporg-dwim))
 
 (use-package irfc
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/irfc"))
+  :quelpa (irfc :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/irfc.el")
   :commands irfc-mode
   :mode ("/rfc[0-9]+\\.txt\\'" . irfc-mode)
   :config
@@ -936,11 +1053,34 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;;; Org-mode
 
-(use-package org
+(use-package org-plus-contrib
+  :pin org
   :ensure t
+  :defer t)
+
+(use-package org
+  :preface
+  (defun kd/counsel-org-find-file (&optional directory)
+    (interactive)
+    (let ((default-directory (or directory org-directory)))
+      (ivy-read "org file:"
+                (split-string
+                 (shell-command-to-string "fd -e org") "\n" t)
+                :action (lambda (x)
+                          (find-file
+                           (expand-file-name x default-directory))))))
+
+  (defun kd/default-captured-org-note ()
+    "Move to the end of penultimate line of the last org capture note."
+    (interactive)
+    (find-file org-default-notes-file)
+    (goto-char (point-max))
+    (forward-line -2)
+    (org-end-of-line))
+
   :functions (org-narrow-to-block
               org-end-of-line)
-  :commands (org-mode orgtbl-mode)
+  :commands (org-mode orgtbl-mode kd/counsel-org-find-file kd/default-captured-org-note)
   :defines (org-directory
             org-imenu-depth
             org-default-notes-file)
@@ -959,25 +1099,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-refile-targets `((,(concat org-directory "/work.org") :maxlevel . 2)
                              (,(concat org-directory "/snippets.org") :level . 1)
                              (,(concat org-directory "/tldr.org") :level . 1)))
-
-  (defun kd/find-org-file (&optional directory)
-    (interactive)
-    (let ((default-directory (or directory org-directory)))
-      (helm :sources (helm-build-sync-source "Org file"
-                       :candidates
-                       (split-string
-                        (shell-command-to-string "fd -e org") "\n" t)
-                       :action (lambda (x)
-                                 (find-file
-                                  (expand-file-name x default-directory)))))))
-
-  (defun kd/default-captured-org-note ()
-    "Move to the end of penultimate line of the last org capture note."
-    (interactive)
-    (find-file org-default-notes-file)
-    (goto-char (point-max))
-    (forward-line -2)
-    (org-end-of-line))
 
   (defun kd/org-mode-hook-func ()
     (visual-line-mode -1))
@@ -1084,6 +1205,9 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package ox-md
   :after org)
 
+(use-package ox-taskjuggler
+  :after org)
+
 (use-package htmlize
   :ensure t
   :after ox
@@ -1150,7 +1274,7 @@ Repeated invocations toggle between the two most recently open buffers."
     :after org))
 
 (use-package org-annotate
-  :load-path (lambda () (kd/ghq-github-repo-path "girzel/org-annotate"))
+  :quelpa (org-annotate :fetcher github :repo "girzel/org-annotate")
   :after org)
 
 (use-package mandoku
@@ -1167,8 +1291,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;;; Shell
 
-(defvar kd/eshell-map nil)
-(kd/make-prefix-command (kbd "s-e") 'kd/eshell-map)
 (use-package eshell
   :bind (("C-`" . kd/eshell-here)
          (:map kd/eshell-map
@@ -1368,6 +1490,7 @@ directory to make multiple eshell windows easier."
                             counsel-gtags-mode
                             goto-address-prog-mode
                             abbrev-mode
+                            hs-minor-mode
                             flycheck-mode
                             which-function-mode)))
     (dolist (mode prog-minor-modes)
@@ -1375,9 +1498,64 @@ directory to make multiple eshell windows easier."
 
   (defun kd-prog-mode-hook-func ()
     (setq-local show-trailing-whitespace t)
-    (setq-local indicate-empty-lines t))
+    (setq-local indicate-empty-lines t)
+    (use-package quickrun
+      :ensure t))
 
   (add-hook 'prog-mode-hook #'kd-prog-mode-hook-func))
+
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-session)
+  :bind (:map lsp-mode-map
+              ("<f8>" . treemacs))
+  :init
+  (defun kd/lsp-mode-hook-func ()
+    (require 'lsp-clients)
+    (require 'lsp-ui-flycheck)
+    (lsp-ui-flycheck-enable t)
+    (kd/local-push-company-backend #'company-lsp)
+    (when (lsp--capability "documentSymbolProvider")
+      (lsp-enable-imenu))
+    (lsp-ui-mode 1)
+    (highlight-symbol-mode -1))
+  (add-hook 'lsp-mode-hook #'kd/lsp-mode-hook-func)
+  :config
+  (setq lsp-response-timeout 5)
+  (setq lsp-enable-completion-at-point nil)
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-auto-guess-root t)
+  (setq lsp-auto-configure nil)
+  (setq lsp-lens-check-interval 1)
+  (setq lsp-document-highlight-delay 0.5)
+  (setq lsp-eldoc-prefer-signature-help t)
+  (setq lsp-eldoc-enable-signature-help t)
+  (add-to-list 'xref-prompt-for-identifier 'xref-find-references t))
+
+(use-package treemacs
+  :ensure t
+  :commands treemacs
+  :bind (:map treemacs-mode-map
+              ("<f8>" . treemacs))
+  :init
+  (defun kd/treemacs-mode-hook-func ()
+    (treemacs-resize-icons 15))
+  (add-hook 'treemacs-mode-hook #'kd/treemacs-mode-hook-func))
+
+(use-package lsp-ui
+  :ensure t
+  :commands (lsp-ui-mode lsp-ui-flycheck-enable)
+  :config
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-sideline-show-code-actions nil)
+  (setq lsp-ui-sideline-delay 1)
+  (setq lsp-ui-sideline-ignore-duplicate t)
+  (setq lsp-ui-sideline-show-symbol nil))
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
 
 (use-package realgud
   :ensure t
@@ -1403,11 +1581,62 @@ directory to make multiple eshell windows easier."
   (use-package paren
     :config (show-paren-mode -1)))
 
+(use-package hideshow
+  :commands (hs-minor-mode hs-toggle-hiding hs-hide-all kd/hs-toggle-hiding-all)
+  :diminish hs-minor-mode
+  :preface
+  (defvar kd/hs-hided nil)
+  (defun kd/hs-toggle-hiding-all ()
+    (interactive)
+    (if kd/hs-hided
+        (hs-show-all)
+      (hs-hide-all)))
+  :init
+  (add-hook 'hs-hide-hook (lambda ()
+                            (setq kd/hs-hided t)))
+  (add-hook 'hs-show-hook (lambda ()
+                            (setq kd/hs-hided nil)))
+  :bind (:map hs-minor-mode-map
+              ("C-\\" . hs-toggle-hiding)
+              ("C-|" . kd/hs-toggle-hiding-all)
+              ("M-+" . hs-show-all)))
+
 ;;;; Flycheck
 
 (use-package flycheck
   :ensure t
-  :commands flycheck-mode
+  :commands (flycheck-mode counsel-flycheck)
+  :preface
+  (defvar kd/counsel-flycheck-history nil
+    "History for `counsel-flycheck'")
+
+  (defun kd/counsel-flycheck ()
+    (interactive)
+    (if (not (bound-and-true-p flycheck-mode))
+        (message "Flycheck mode is not available or enabled")
+      (ivy-read "Error: "
+                (let ((source-buffer (current-buffer)))
+                  (with-current-buffer (or (get-buffer flycheck-error-list-buffer)
+                                           (progn
+                                             (with-current-buffer
+                                                 (get-buffer-create flycheck-error-list-buffer)
+                                               (flycheck-error-list-mode)
+                                               (current-buffer))))
+                    (flycheck-error-list-set-source source-buffer)
+                    (flycheck-error-list-reset-filter)
+                    (revert-buffer t t t)
+                    (split-string (buffer-string) "\n" t " *")))
+                :action (lambda (s &rest _)
+                          (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
+                                        (pos (flycheck-error-pos error)) )
+                            (goto-char (flycheck-error-pos error))))
+                :history 'counsel-flycheck-history)))
+
+  :bind (:map kd/errors-map
+              ("c" . flycheck-buffer)
+              ("C" . flycheck-clear)
+              ("x" . flycheck-disable-checker)
+              ("l" . kd/counsel-flycheck))
   :config
   (setq flycheck-check-syntax-automatically '(save))
   (setq flycheck-mode-line-prefix "⚠"))
@@ -1447,6 +1676,7 @@ directory to make multiple eshell windows easier."
   (setq company-tooltip-align-annotations t)
   (setq company-minimum-prefix-length 2)
   (setq tab-always-indent 'complete)
+  (setq company-show-numbers t)
   (defun kd/local-push-company-backend (backend)
     "Add BACKEND to a buffer-local version of `company-backends'."
     (setq-local company-backends (add-to-list 'company-backends backend))))
@@ -1524,7 +1754,7 @@ directory to make multiple eshell windows easier."
   :defer t)
 
 (use-package csv-mode
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/csv-mode"))
+  :ensure t
   :mode ("\\.[Cc][Ss][Vv]\\'" . csv-mode))
 
 (use-package dockerfile-mode
@@ -1539,11 +1769,11 @@ directory to make multiple eshell windows easier."
   :functions LaTeX-narrow-to-environment)
 
 (use-package mmm-mode
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/mmm-mode"))
+  :quelpa (mmm-mode :fetcher github :repo "emacsmirror/mmm-mode")
   :defer t)
 
 (use-package salt-mode
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/salt-mode"))
+  :quelpa (salt-mode :fetcher github :repo "emacsmirror/salt-mode")
   :mode ("\\.sls\\'" . salt-mode))
 
 (use-package apib-mode
@@ -1620,7 +1850,7 @@ directory to make multiple eshell windows easier."
   :after yasnippet)
 
 (use-package undo-tree
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/undo-tree"))
+  :quelpa (undo-tree :fetcher github :repo "emacsmirror/undo-tree")
   :commands (global-undo-tree-mode undo-tree-mode)
   :bind ((:map kd/toggle-map
                ("u" . undo-tree-visualize)))
@@ -1662,6 +1892,7 @@ directory to make multiple eshell windows easier."
 
 (use-package pdf-tools
   :if IS-GUI
+  :disabled t
   :ensure t
   :pin manual
   :mode ("\\.pdf\\'" . pdf-view-mode)
@@ -1784,7 +2015,9 @@ directory to make multiple eshell windows easier."
 
 ;;;; Python
 
-(use-package python-mode
+(use-package python
+  :pin manual
+  :quelpa (python :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/progmodes/python.el")
   :commands python-mode
   :init
   (setenv "PYTHONIOENCODING" "UTF-8")
@@ -1801,7 +2034,8 @@ directory to make multiple eshell windows easier."
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
     (setq-local whitespace-style '(face indentation::tab))
 
-    (subword-mode 1))
+    (subword-mode 1)
+    (hs-hide-level 2))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
   :config (define-auto-insert 'python-mode '(nil "# coding: utf-8\n")))
@@ -1898,28 +2132,43 @@ directory to make multiple eshell windows easier."
 
 ;;;; Java
 
+(use-package cc-mode
+  :init
+  (defun kd/java-mode-hook-func ()
+    (lsp)
+    (require 'lsp-java-boot)
+    (lsp-java-boot-lens-mode 1))
+  (add-hook 'java-mode-hook #'kd/java-mode-hook-func))
+
+(use-package eglot
+  :disabled t
+  :ensure t)
+
+(use-package lsp-java
+  :ensure t
+  :defer t
+  :config
+  (setq lsp-java-vmargs
+        (list
+         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
+         "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+         "-Dosgi.bundles.defaultStartLevel=4"
+         "-Declipse.product=org.eclipse.jdt.ls.core.product"
+         "-Dlog.level=ALL"
+         ;; "-jar ./plugins/org.eclipse.equinox.launcher_1.5.200.v20180922-1751.jar"
+         "--add-modules=ALL-SYSTEM"
+         ;; "--add-opens java.base/java.util=ALL-UNNAMED"
+         ;; "--add-opens java.base/java.lang=ALL-UNNAMED"
+         "-noverify"
+         "-Xmx1G"
+         "-XX:+UseG1GC"
+         "-XX:+UseStringDeduplication"))
+  (setq lsp-java-java-path
+        "/Users/kane/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/bin/java"))
+
 (use-package autodisass-java-bytecode
   :ensure t
   :mode ("\\.class\\'" . ad-javap-mode))
-
-(use-package eclim
-  :disabled t
-  :ensure t
-  :init
-  (defun kd/java-mode-hook-func ()
-    (setq-local c-basic-offset 4)
-    (eclim-mode t)
-    (company-emacs-eclim-setup))
-  (add-hook 'java-mode-hook #'kd/java-mode-hook-func)
-  :config
-  (setq eclim-executable "/Applications/Eclipse.app/Contents/Eclipse/plugins/org.eclim_2.8.0/bin/eclim")
-  (setq eclimd-default-workspace "/Users/kane/devel/eclipse-workspace")
-  (setq eclimd-autostart t))
-
-(use-package company-emacs-eclim
-  :disabled t
-  :ensure t
-  :commands company-emacs-eclim-setup)
 
 (use-package gradle-mode
   :ensure t
@@ -1927,6 +2176,7 @@ directory to make multiple eshell windows easier."
   :commands gradle-mode)
 
 (use-package meghanada
+  :disabled t
   :ensure t
   :commands meghanada-mode
   :init
@@ -1955,20 +2205,17 @@ directory to make multiple eshell windows easier."
   :ensure t
   :mode ("\\.clj\\'" . clojure-mode))
 
-(use-package queue
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/queue"))
-  :defer t)
-
-(use-package cider
-  :load-path (lambda () (kd/ghq-github-repo-path "emacsmirror/cider"))
-  :commands cider-mode)
-
 
 ;;;; Elisp
 
 (use-package elisp-mode
   :mode ("\\.el\\'" . emacs-lisp-mode)
-  :init (add-hook 'emacs-lisp-mode-hook #'aggressive-indent-mode))
+  :preface
+  (defun kd/emacs-lisp-mode-hook-func ()
+    (aggressive-indent-mode 1)
+    (kd/local-push-company-backend #'company-elisp))
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'kd/emacs-lisp-mode-hook-func))
 
 (use-package elisp-slime-nav
   :ensure t
@@ -2022,10 +2269,12 @@ directory to make multiple eshell windows easier."
   :commands elfeed
   :init
   (defun kd-elfeed-show-mode-hook-func ()
-    (setq buffer-face-mode-face '(:family "Verdana" :height 190))
-    (buffer-face-mode 1)
-    (setq-local fill-column 90)
-    (visual-fill-column-mode 1))
+    (face-remap-add-relative 'variable-pitch
+                             '(:family "Input Sans" :height 150 :weight light))
+    (setq-local line-spacing 2)
+    (writeroom-mode 1)
+    (setq visual-fill-column-width 80)
+    (setq-local writeroom-width 80))
   (add-hook 'elfeed-show-mode-hook #'kd-elfeed-show-mode-hook-func))
 
 (use-package elfeed-org
@@ -2081,7 +2330,7 @@ With a prefix ARG always prompt for command to use."
 ;;; beancount
 
 (use-package beancount
-  :load-path (lambda () (concat (kd/ghq-github-repo-path "beancount/beancount") "/editors/emacs"))
+  :quelpa (beancount :fetcher url :url "https://raw.githubusercontent.com/beancount/beancount/master/editors/emacs/beancount.el")
   :mode ("\\.beancount\\'" . beancount-mode)
   :init
   (defun kd/beancount-mode-hook-func ()
@@ -2091,5 +2340,5 @@ With a prefix ARG always prompt for command to use."
 ;;; .emacs ends here
 ;;; Local Variables:
 ;;; no-byte-compile: t
-;;; eval: (outshine-mode 1)
+;;; eval: (hs-hide-all)
 ;;; End:
