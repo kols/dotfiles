@@ -349,9 +349,16 @@ Repeated invocations toggle between the two most recently open buffers."
        ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
 
   (use-package hc-zenburn-theme
+    :disabled t
     :ensure t
     :config
     (load-theme 'hc-zenburn t))
+
+  (use-package color-theme-sanityinc-tomorrow
+    :disabled t
+    :ensure t
+    :config
+    (load-theme 'sanityinc-tomorrow-night t))
 
   (use-package prez-theme
     :disabled t
@@ -359,7 +366,6 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'prez t))
 
   (use-package doom-themes
-    :disabled t
     :ensure t
     :config
     (setq doom-themes-padded-modeline t)
@@ -374,7 +380,7 @@ Repeated invocations toggle between the two most recently open buffers."
      `(region
        ((t (:background ,(doom-lighten (doom-color 'base4) 0.1))) t))
      `(ivy-current-match
-       ((t (:background ,(doom-lighten (doom-color 'base4) 0.2))) t))))
+       ((t (:background ,(doom-lighten (doom-color 'base4) 0.1) :underline t)) t))))
 
   (tool-bar-mode -1)
   (tooltip-mode -1)
@@ -971,6 +977,14 @@ Repeated invocations toggle between the two most recently open buffers."
   :defer 0.1
   :bind (:map isearch-mode-map
               ("M-i" . swiper-from-isearch)))
+
+(use-package anzu
+  :ensure t
+  :commands global-anzu-mode
+  :bind (:map isearch-mode-map
+              ([remap isearch-query-replace] . #'anzu-query-replace)
+              ([remap isearch-query-replace-regexp] . #'anzu-query-replace-regexp))
+  :hook (after-init . global-anzu-mode))
 
 (use-package helpful
   :ensure t
