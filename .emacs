@@ -477,7 +477,6 @@ Repeated invocations toggle between the two most recently open buffers."
          (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
                              (thing-at-point 'line))))))
 
-
 (use-package avy
   :ensure t
   :commands (avy-goto-char-timer avy-goto-line)
@@ -488,6 +487,11 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package ace-window
   :ensure t
   :chords ("jw" . ace-window))
+
+(use-package frog-jump-buffer
+  :quelpa (frog-jump-buffer :fetcher github :repo "waymondo/frog-jump-buffer")
+  :commands frog-jump-buffer
+  :chords ("bb" . frog-jump-buffer))
 
 ;;; Window
 
@@ -1134,6 +1138,16 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
+
+(use-package org-projectile
+  :ensure t
+  :bind (:map kd/projectile-map
+              ("n" . org-projectile-project-todo-completing-read))
+  :config
+  (setq org-projectile-projects-file
+        (expand-file-name "proj_notes.org" org-directory))
+  (push (org-projectile-project-todo-entry) org-capture-templates)
+  (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))))
 
 (use-package ox-latex
   :after org
@@ -2210,13 +2224,6 @@ directory to make multiple eshell windows easier."
 (use-package tldr
   :ensure t
   :commands tldr)
-
-(use-package multiple-cursors
-  :ensure t
-  :commands (mc/mark-next-like-this
-             mc/mark-previous-like-this
-             mc/mark-all-like-this
-             mc/edit-lines))
 
 (use-package iedit
   :ensure t
