@@ -70,7 +70,7 @@ REPO's pattern: `<user>/<repo>'"
                            ("org" . "https://orgmode.org/elpa/"))))
 
 (require 'package)
-(call-interactively 'kd/turn-on-http-proxy)
+;; (call-interactively 'kd/turn-on-http-proxy)
 (package-initialize)
 
 ;;;; Prerequisite packages
@@ -98,8 +98,7 @@ REPO's pattern: `<user>/<repo>'"
   (progn
     (customize-set-variable 'use-package-enable-imenu-support t)
     (setq use-package-compute-statistics t)
-    (setq use-package-verbose t)
-    (setq use-package-expand-minimally nil)))
+    (setq use-package-verbose t)))
 (eval-when-compile
   (require 'use-package))
 
@@ -225,7 +224,8 @@ Repeated invocations toggle between the two most recently open buffers."
 
 ;;;; daemon
 (use-package server
-  :init
+  :defer 1
+  :config
   (defun kd/server-start ()
     (unless (server-running-p)
       (server-start)))
@@ -276,6 +276,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (use-package doom-modeline
     :ensure t
+    :commands doom-modeline-mode
     :init
     (add-hook 'after-init-hook #'doom-modeline-mode)
     :config
@@ -367,7 +368,10 @@ Repeated invocations toggle between the two most recently open buffers."
     (doom-themes-org-config)
     (custom-theme-set-faces
      'doom-opera
-     '(region (doom-lighten base4 0.2))))
+     `(region
+       ((t (:background ,(doom-lighten (doom-color 'base4) 0.1))) t))
+     `(ivy-current-match
+       ((t (:background ,(doom-lighten (doom-color 'base4) 0.2))) t))))
 
   (tool-bar-mode -1)
   (tooltip-mode -1)
@@ -406,11 +410,11 @@ Repeated invocations toggle between the two most recently open buffers."
   :if (and IS-MAC IS-GUI)
   :no-require t
   :config
-  (set-frame-font (font-spec :family "Input Mono Condensed" :size 16 :weight 'light) nil t)
+  (set-frame-font (font-spec :family "Input Mono Condensed" :size 18 :weight 'light) nil t)
   (setq default-frame-alist '((ns-transparent-titlebar . t)
                               (ns-appearance . dark)
                               (fullscreen . fit-frame-to-buffer-sizes)
-                              (font . "Input Mono Condensed-16:light")))
+                              (font . "Input Mono Condensed-18:light")))
   (add-to-list 'initial-frame-alist '(fullscreen . maximized))
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
@@ -451,9 +455,9 @@ Repeated invocations toggle between the two most recently open buffers."
   :config (setq wgrep-auto-save-buffer t))
 
 (use-package autoinsert
-  :commands auto-insert-mode
+  :commands auto-insert
   :functions define-auto-insert
-  :init (add-hook 'after-init-hook #'auto-insert-mode)
+  :init (add-hook 'find-file-hook 'auto-insert)
   :config (setq auto-insert-query nil))
 
 (use-package highlight-symbol
@@ -479,6 +483,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :chords
   ("jl" . avy-goto-line)
   ("jc" . avy-goto-char-timer))
+
+(use-package ace-window
+  :ensure t
+  :chords ("jw" . ace-window))
 
 ;;; Window
 
@@ -537,14 +545,14 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq dired-isearch-filenames t)
   (setq dired-ls-F-marks-symlinks t))
 
-(use-package dired+
-  :quelpa (dired+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/dired+.el")
-  :after dired
-  :defer t)
-
 (use-package dired-x
   :commands dired-omit-mode
+  :defines dired-omit-files
   :init (add-hook 'dired-mode-hook #'dired-omit-mode))
+
+;; (use-package dired+
+;;   :quelpa (dired+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/dired+.el")
+;;   :after dired)
 
 (use-package peep-dired
   :ensure t
@@ -562,6 +570,7 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;; Tramp
 
 (use-package tramp
+  :defer t
   :config
   (setq remote-file-name-inhibit-cache nil)
   (setq tramp-verbose 1)
@@ -595,9 +604,10 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
-  (setq projectile-tags-backend 'ggtags)
+  (setq projectile-tags-backend 'xref)
   (setq projectile-mode-line "P")
-  (remove-hook 'find-file-hook #'projectile-find-file-hook-function))
+  (setq projectile-tags-file-name "")
+  (setq projectile-sort-order 'recently-active))
 
 (use-package rg
   :ensure t
@@ -720,49 +730,7 @@ Repeated invocations toggle between the two most recently open buffers."
   ;;        (:map kd/toggle-map
   ;;              ("h" . helm-resume)))
   :init
-  (defun kd/jump-to-src (&optional initial-input)
-    (interactive)
-    (helm :sources (helm-build-sync-source "Jump to repo"
-                     :candidates
-                     ;; regexp to trim: "^/Users/kane/\\(go/src/\\|\.ghq/\\|work/repos/\\)"
-                     (split-string
-                      (shell-command-to-string "ghq list -p") "\n" t)
-                     :action (lambda (d) (dired d)))))
-
-  (defun kd/jump-to-reference (&optional initial-input)
-    (interactive)
-    (helm :sources (helm-build-sync-source "Jump to reference"
-                     :candidates
-                     '("~/.ghq/git.kernel.org/pub/scm/docs/man-pages/man-pages"
-                       "~/Documents/rfc")
-                     :action (lambda (d) (dired d)))))
-
-  (defun kd/turn-on-http-proxy (&optional proxy)
-    "Turn on http PROXY."
-    (interactive)
-    (require 'url-vars)
-    (unless url-proxy-services
-      (unless proxy
-        (setq proxy "127.0.0.1:7890"))
-      (setq url-proxy-services
-            `(("no_proxy" . "^\\(localhost\\|10.*\\)")
-              ("http" . ,proxy)
-              ("https" . ,proxy)))
-      (message "Proxy turned on: %s" proxy)))
-
-  (defun kd/toggle-http-proxy ()
-    (interactive)
-    (helm :sources (helm-build-sync-source "Select proxy"
-                     :candidates
-                     `(,kd/default-local-proxy)
-                     :action (lambda (x)
-                               (if url-proxy-services
-                                   (progn
-                                     (setq url-proxy-services nil)
-                                     (message "Proxy turned off"))
-                                 (kd/turn-on-http-proxy x))))))
-
-  (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+  ;; (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
   :config
   (setq helm-idle-delay 0.0)
   (setq helm-input-idle-delay 0.01)
@@ -773,16 +741,13 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (setq helm-follow-mode-persistent t)
   (require 'helm-config)
+  (helm-flx-mode 1)
   ;; (helm-mode 1)
   )
 
-(use-package flx
-  :ensure t)
-
 (use-package helm-flx
   :ensure t
-  :after helm
-  :config (helm-flx-mode 1))
+  :commands helm-flx-mode)
 
 (use-package helm-swoop
   :ensure t
@@ -821,6 +786,7 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package helm-rg
   :ensure t
+  :commands helm-rg
   ;; :bind ("C-c a" . helm-rg)
   :config (setq helm-rg-default-directory 'git-root))
 
@@ -832,6 +798,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package helm-gtags
   :ensure t
   :diminish helm-gtags-mode
+  :commands helm-gtags-mode
   ;; :bind (("C-]" . helm-gtags-find-tag)
   ;;        ("C-}" . helm-gtags-find-rtag)
   ;;        ("C-t" . helm-gtags-pop-stack)
@@ -987,9 +954,9 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq swiper-goto-start-of-match t))
 
 
-(use-package bookmark+
-  :quelpa (bookmark+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/bookmark+.el")
-  :defer t)
+;; (use-package bookmark+
+;;   :quelpa (bookmark+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/bookmark+.el")
+;;   :defer t)
 
 (use-package isearch+
   :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
@@ -1384,7 +1351,10 @@ directory to make multiple eshell windows easier."
 
 (use-package sh-script
   :commands sh-mode
-  :config (define-auto-insert 'sh-mode '(nil "#!/bin/bash\nset -euo pipefail\nIFS=$'\\n\\t'\n")))
+  :config
+  (let ((cond '(sh-mode . "Strict bash options")))
+    (unless (assoc cond auto-insert-alist)
+      (define-auto-insert cond '(nil "#!/bin/bash\nset -euo pipefail\nIFS=$'\\n\\t'\n")))))
 
 
 ;;; Term
@@ -1671,7 +1641,9 @@ directory to make multiple eshell windows easier."
   :ensure t
   :diminish company-mode
   :commands (company-mode global-company-mode)
-  :init (add-hook 'after-init-hook #'global-company-mode)
+  :init
+  (setq company-backends '(company-capf company-dabbrev-code company-keywords))
+  (add-hook 'after-init-hook #'global-company-mode)
   :config
   (setq company-tooltip-align-annotations t)
   (setq company-minimum-prefix-length 2)
@@ -1698,7 +1670,6 @@ directory to make multiple eshell windows easier."
   :config
   (setq company-quickhelp-use-propertized-text t)
   (setq company-quickhelp-delay 1))
-
 
 (use-package company-tern
   :ensure t
@@ -1762,7 +1733,8 @@ directory to make multiple eshell windows easier."
   :mode ("Dockerfile.*\\'" . dockerfile-mode))
 
 (use-package groovy-mode
-  :ensure t)
+  :ensure t
+  :commands groovy-mode)
 
 (use-package tex-mode
   :defer t
@@ -2021,7 +1993,6 @@ directory to make multiple eshell windows easier."
   :commands python-mode
   :init
   (setenv "PYTHONIOENCODING" "UTF-8")
-
   (defun kd/python-mode-hook-function ()
     ;; jedi
     (jedi:setup)
@@ -2038,7 +2009,10 @@ directory to make multiple eshell windows easier."
     (hs-hide-level 2))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
-  :config (define-auto-insert 'python-mode '(nil "# coding: utf-8\n")))
+  :config
+  (let ((cond '(python-mode . "Python file encoding")))
+    (unless (assoc cond auto-insert-alist)
+      (define-auto-insert cond '(nil "# coding: utf-8\n")))))
 
 (use-package jedi-core
   :ensure t
@@ -2133,6 +2107,7 @@ directory to make multiple eshell windows easier."
 ;;;; Java
 
 (use-package cc-mode
+  :commands java-mode
   :init
   (defun kd/java-mode-hook-func ()
     (lsp)
