@@ -346,7 +346,6 @@ Repeated invocations toggle between the two most recently open buffers."
        ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
 
   (use-package hc-zenburn-theme
-    :disabled t
     :ensure t
     :config
     (load-theme 'hc-zenburn t))
@@ -357,6 +356,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'prez t))
 
   (use-package doom-themes
+    :disabled t
     :ensure t
     :config
     (setq doom-themes-padded-modeline t)
@@ -913,7 +913,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package gxref
   :ensure t
   :commands gxref-xref-backend
-  :config (add-to-list 'xref-backend-functions 'gxref-xref-backend))
+  :init (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package counsel-gtags
   :disabled t
