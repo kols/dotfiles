@@ -139,7 +139,7 @@ REPO's pattern: `<user>/<repo>'"
   (setq scroll-conservatively 10000)
   (setq scroll-preserve-screen-position t)
   (setq vc-follow-symlinks t)
-  (setq custom-file (kd/emacs-subdirectory "custom.el"))
+  (setq custom-file "/dev/null")
   (setq history-length 200)
 
   ;;;; Tabs
@@ -156,9 +156,6 @@ REPO's pattern: `<user>/<repo>'"
           initial-major-mode 'fundamental-mode
           initial-scratch-message nil
           ring-bell-function 'ignore))
-
-  (when (file-exists-p custom-file)
-    (load custom-file))
 
   (use-package warnings
     :config (setq warning-minimum-level :error)))
@@ -611,7 +608,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'xref)
   (setq projectile-mode-line "P")
-  (setq projectile-tags-file-name "")
+  (setq projectile-tags-file-name "/FILE_NOT_EXISTS")
   (setq projectile-sort-order 'recently-active))
 
 (use-package rg
