@@ -280,6 +280,7 @@ Repeated invocations toggle between the two most recently open buffers."
     :init
     (add-hook 'after-init-hook #'doom-modeline-mode)
     :config
+    (setq doom-modeline-height 25)
     (setq doom-modeline-buffer-file-name-style 'buffer-name)
     (setq doom-modeline-icon nil))
   )
