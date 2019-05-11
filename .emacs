@@ -1,4 +1,4 @@
-;;; .emacs --- Emacs init file
+;;; .emacs --- Emacs init file -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 ;;;   Emacs init file
@@ -186,6 +186,8 @@ REPO's pattern: `<user>/<repo>'"
   (kd/make-prefix-command (kbd "s-s") 'kd/eshell-map)
   (defvar kd/projectile-map nil)
   (kd/make-prefix-command (kbd "s-P") 'kd/projectile-map)
+  (defvar kd/tags-map nil)
+  (kd/make-prefix-command (kbd "s-T") 'kd/tags-map)
 
   (defun kd/switch-to-previous-buffer ()
     "Switch to previously open buffer.
@@ -1300,6 +1302,9 @@ Repeated invocations toggle between the two most recently open buffers."
     (smartscan-mode -1)
     (goto-address-mode 1)
     (add-to-list 'eshell-visual-commands "ssh")
+    (add-to-list 'eshell-preoutput-filter-functions #'xterm-color-filter)
+    (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+
     ;; alias
     (eshell/alias "lm" "ls -lahF")
     (eshell/alias "ff" "find-file $1")
@@ -1355,6 +1360,8 @@ directory to make multiple eshell windows easier."
     (magit-status (pop args) nil)
     (eshell/echo))
 
+  (add-hook 'eshell-before-prompt-hook (lambda ()
+                                         (setq xterm-color-preserve-properties t)))
   :config
   (setenv "PAGER" "cat")
   (setq eshell-scroll-to-bottom-on-input 'all
@@ -1362,7 +1369,22 @@ directory to make multiple eshell windows easier."
         eshell-hist-ignoredups t
         eshell-save-history-on-exit t
         eshell-prefer-lisp-functions nil
-        eshell-destroy-buffer-when-process-dies t))
+        eshell-destroy-buffer-when-process-dies t)
+
+  ;; prompt
+  (setq eshell-history-size 10000)
+  (setq eshell-prompt-regexp "^[^❯\n]*❯ ")
+  (defun kd/eshell-prompt-function ()
+    (let ((prompt-string "❯ "))
+      (concat "\n"
+              (unless (= eshell-last-command-status 0)
+                (propertize (concat (number-to-string eshell-last-command-status) " ") 'face 'error))
+              (abbreviate-file-name (eshell/pwd))
+              "\n"
+              prompt-string
+	          ;; (if (= (user-uid) 0) " # " " $ ")
+              )))
+  (setq eshell-prompt-function #'kd/eshell-prompt-function))
 
 (use-package em-smart
   :after eshell
