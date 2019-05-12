@@ -702,6 +702,7 @@ Repeated invocations toggle between the two most recently open buffers."
          the rif_l_e
          led_g_er
          _w_ork
+         _z_ettel
     "
     ("e" (find-file "~/.dotfiles/.emacs"))
     ("d" deft)
@@ -714,7 +715,8 @@ Repeated invocations toggle between the two most recently open buffers."
     ("x" (switch-to-buffer "*scratch*"))
     ("l" (hydra-helm-org-rifle/body))
     ("g" (find-file "~/Dropbox/ledger/ledger.beancount"))
-    ("w" (find-file (concat org-directory "/work.org"))))
+    ("w" (find-file (concat org-directory "/work.org")))
+    ("z" zd-new-file))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -2302,10 +2304,17 @@ directory to make multiple eshell windows easier."
   :ensure t
   :commands (deft deft-find-file)
   :config
-  (setq deft-default-extension "md")
-  (setq deft-org-mode-title-prefix t)
-  (setq deft-use-filter-string-for-filename t)
-  (setq deft-directory (expand-file-name "~/Dropbox/nvALT")))
+  (setq deft-default-extension "org")
+  (setq deft-use-filter-string-for-filename nil)
+  (setq deft-directory "~/Dropbox/nvALT")
+  (setq deft-auto-save-interval 0)
+  (setq deft-use-filename-as-title t)
+  (setq deft-org-mode-title-prefix nil)
+  (setq deft-incremental-search t)
+  (setq deft-file-limit 500))
+
+(use-package zetteldeft
+  :quelpa (zetteldeft :fetcher github :repo "EFLS/zetteldeft"))
 
 (use-package eww
   :commands eww
