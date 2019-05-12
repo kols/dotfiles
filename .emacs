@@ -188,6 +188,8 @@ REPO's pattern: `<user>/<repo>'"
   (kd/make-prefix-command (kbd "s-P") 'kd/projectile-map)
   (defvar kd/tags-map nil)
   (kd/make-prefix-command (kbd "s-T") 'kd/tags-map)
+  (defvar kd/testing-map nil)
+  (kd/make-prefix-command (kbd "s-l") 'kd/testing-map)
 
   (defun kd/switch-to-previous-buffer ()
     "Switch to previously open buffer.
@@ -466,6 +468,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :config (setq wgrep-auto-save-buffer t))
 
 (use-package autoinsert
+  :demand t
   :commands auto-insert-mode
   :functions define-auto-insert
   :init (add-hook 'after-init-hook #'auto-insert-mode)
@@ -894,14 +897,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq ivy-re-builders-alist '((t . ivy--regex-plus)))
   (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
   (global-unset-key (kbd "C-x b")))
-
-(use-package ivy-rich                   ; Too slow
-  :disabled t
-  :ensure t
-  :after ivy
-  :config
-  (ivy-rich-mode 1)
-  (setq ivy-format-function #'ivy-format-function-line))
 
 (use-package ivy-xref
   :ensure t
@@ -2062,6 +2057,8 @@ directory to make multiple eshell windows easier."
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
   :config
+  (setq python-shell-interpreter "ipython")
+  (setq python-shell-interpreter-args "--simple-prompt -i")
   (let ((cond '(python-mode . "Python file encoding")))
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil "# coding: utf-8\n")))))
@@ -2069,6 +2066,8 @@ directory to make multiple eshell windows easier."
 (use-package jedi-core
   :ensure t
   :commands jedi:setup
+  :bind (:map jedi-mode-map
+              ("<s-mouse-1>" . jedi:goto-definition))
   :config
   (setq jedi:use-shortcuts t)
   (setq jedi:tooltip-method nil)
@@ -2077,6 +2076,16 @@ directory to make multiple eshell windows easier."
 (use-package company-jedi
   :ensure t
   :commands company-jedi)
+
+(use-package python-pytest
+  :ensure t
+  :commands python-pytest-popup
+  :bind (:map kd/testing-map
+              ("p p" . python-pytest-popup)
+              ("p r" . python-pytest-repeat)
+              ("p f" . python-pytest-file)
+              ("p l" . python-pytest-last-failed)
+              ("p d" . python-pytest-function-dwim)))
 
 ;;;; Golang
 
