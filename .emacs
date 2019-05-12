@@ -287,9 +287,8 @@ Repeated invocations toggle between the two most recently open buffers."
     (add-hook 'after-init-hook #'doom-modeline-mode)
     :config
     (setq doom-modeline-height 25)
-    (setq doom-modeline-buffer-file-name-style 'buffer-name)
-    (setq doom-modeline-icon nil))
-  )
+    (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+    (setq doom-modeline-icon nil)))
 
 (use-package writeroom-mode
   :ensure t
@@ -302,6 +301,10 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq writeroom-fullscreen-effect 'maximized)
   (setq writeroom-global-effects '(writeroom-set-fullscreen
                                    writeroom-set-bottom-divider-width)))
+
+(use-package fill-column-indicator
+  :ensure t
+  :commands fci-mode)
 
 ;;;; Graphic
 
@@ -623,6 +626,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq projectile-enable-caching t)
   (setq projectile-completion-system 'ivy)
   (setq projectile-tags-backend 'xref)
+  (setq projectile-mode-line
+        '(:eval
+          (if (file-remote-p default-directory)
+              "P"
+            (format "P[%s]" (projectile-project-name)))))
   (setq projectile-mode-line "P")
   (setq projectile-tags-file-name "/FILE_NOT_EXISTS")
   (setq projectile-sort-order 'recently-active))
@@ -924,6 +932,13 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package gxref
   :ensure t
   :commands gxref-xref-backend
+  :bind ((:map kd/tags-map
+               ("c" . gxref-create-db)
+               ("u" . gxref-sigle-update-db)
+               ("U" . gxref-update-db))
+         ("C-]" . xref-find-definitions)
+         ("C-}" . xref-find-references)
+         ("C-t" . xref-pop-marker-stack))
   :init (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package counsel-gtags
@@ -959,6 +974,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :after ivy
   :commands (swiper swiper-from-isearch)
+  :bind ("C-s" . swiper-isearch)
   :config
   (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
   (setq swiper-include-line-number-in-search nil)
@@ -978,6 +994,7 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package anzu
   :ensure t
   :commands global-anzu-mode
+  :diminish anzu-mode
   :bind (:map isearch-mode-map
               ([remap isearch-query-replace] . #'anzu-query-replace)
               ([remap isearch-query-replace-regexp] . #'anzu-query-replace-regexp))
@@ -1063,10 +1080,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (goto-char (point-max))
     (forward-line -2)
     (org-end-of-line))
-
-  :functions (org-narrow-to-block
-              org-end-of-line)
-  :commands (org-mode orgtbl-mode kd/counsel-org-find-file kd/default-captured-org-note)
+  :commands (org-end-of-line org-narrow-to-block org-mode orgtbl-mode kd/counsel-org-find-file kd/default-captured-org-note)
   :defines (org-directory
             org-imenu-depth
             org-default-notes-file)
@@ -1124,6 +1138,9 @@ Repeated invocations toggle between the two most recently open buffers."
                            (lambda (id)
                              (browse-url
                               (concat "https://wiki.ele.to:8090/pages/viewpage.action?pageId=" id))))
+
+  ;; latex
+  (add-to-list 'org-latex-default-packages-alist '("" "xeCJK" t ("xelatex")))
 
   ;; babel
   (use-package ob-ipython
@@ -1509,7 +1526,8 @@ directory to make multiple eshell windows easier."
                             abbrev-mode
                             hs-minor-mode
                             flycheck-mode
-                            which-function-mode)))
+                            which-function-mode
+                            fci-mode)))
     (dolist (mode prog-minor-modes)
       (add-hook 'prog-mode-hook mode)))
 
@@ -2035,7 +2053,6 @@ directory to make multiple eshell windows easier."
 ;;;; Python
 
 (use-package python
-  :pin manual
   :quelpa (python :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/progmodes/python.el")
   :commands python-mode
   :init
@@ -2249,9 +2266,14 @@ directory to make multiple eshell windows easier."
   :preface
   (defun kd/emacs-lisp-mode-hook-func ()
     (aggressive-indent-mode 1)
-    (kd/local-push-company-backend #'company-elisp))
+    (kd/local-push-company-backend #'company-elisp)
+    )
   :init
-  (add-hook 'emacs-lisp-mode-hook #'kd/emacs-lisp-mode-hook-func))
+  (add-hook 'emacs-lisp-mode-hook #'kd/emacs-lisp-mode-hook-func)
+  :config
+  (let ((cond '(elisp-mode . "lexical binding")))
+    (unless (assoc cond auto-insert-alist)
+      (define-auto-insert cond '(nil ";;; -*- lexical-binding: t; -*-")))))
 
 (use-package elisp-slime-nav
   :ensure t
@@ -2265,6 +2287,7 @@ directory to make multiple eshell windows easier."
   :ensure t
   :mode ("\\.rs\\'" . rust-mode)
   :commands rust-mode)
+
 
 
 (use-package tldr
