@@ -302,10 +302,6 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq writeroom-global-effects '(writeroom-set-fullscreen
                                    writeroom-set-bottom-divider-width)))
 
-(use-package fill-column-indicator
-  :ensure t
-  :commands fci-mode)
-
 ;;;; Graphic
 
 (defconst IS-GUI (display-graphic-p))
@@ -1528,8 +1524,7 @@ directory to make multiple eshell windows easier."
                             abbrev-mode
                             hs-minor-mode
                             flycheck-mode
-                            which-function-mode
-                            fci-mode)))
+                            which-function-mode)))
     (dolist (mode prog-minor-modes)
       (add-hook 'prog-mode-hook mode)))
 
