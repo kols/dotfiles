@@ -567,6 +567,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :defines dired-omit-files
   :init (add-hook 'dired-mode-hook #'dired-omit-mode))
 
+(use-package dired-du
+  :commands dired-du-mode
+  :ensure t)
+
 ;; (use-package dired+
 ;;   :quelpa (dired+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/dired+.el")
 ;;   :after dired)
