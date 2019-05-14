@@ -9,13 +9,16 @@
 ;;; Speed up init.
 ;;; Temporarily reduce garbage collection during startup. Inspect `gcs-done'.
 ;; https://gitlab.com/ambrevar/dotfiles/blob/master/.emacs.d/init.el
+(setq gc-cons-threshold (* 64 1024 1024)
+      gc-cons-percentage 0.6)
 (defun ambrevar/reset-gc-cons-threshold ()
-  (setq gc-cons-threshold (car (get 'gc-cons-threshold 'standard-value))))
-(setq gc-cons-threshold (* 64 1024 1024))
+  (setq gc-cons-threshold
+        (car (get 'gc-cons-threshold 'standard-value))
+        gc-cons-percentage 0.1))
 (add-hook 'after-init-hook 'ambrevar/reset-gc-cons-threshold)
 ;;; Temporarily disable the file name handler.
-(setq default-file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
+(setq default-file-name-handler-alist file-name-handler-alist
+      setqfile-name-handler-alist nil)
 (defun ambrevar/reset-file-name-handler-alist ()
   (setq file-name-handler-alist
         (append default-file-name-handler-alist
