@@ -1110,6 +1110,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-refile-targets `((,(concat org-directory "/work.org") :maxlevel . 2)
                              (,(concat org-directory "/snippets.org") :level . 1)
                              (,(concat org-directory "/tldr.org") :level . 1)))
+  (setq org-modules nil)
 
   (defun kd/org-mode-hook-func ()
     (visual-line-mode -1))
@@ -1120,6 +1121,9 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-src-fontify-natively t)
   (setq org-src-preserve-indentation t)
   (setq org-confirm-babel-evaluate nil)
+  (setq org-cycle-separator-lines 0)
+  (setq org-list-demote-modify-bullet
+        '(("+" . "-") ("-" . "+") ("*" . "+")))
 
   ;; face
   (dolist (face org-level-faces)
@@ -1156,7 +1160,6 @@ Repeated invocations toggle between the two most recently open buffers."
   ;; babel
   (use-package ob-ipython
     :ensure t
-    :defer t
     :commands company-ob-ipython
     :init
     (defun kd/ob-ipython-hook-func ()
@@ -1323,7 +1326,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :init
   (defun kd/eshell-mode-hook-func ()
     (smartscan-mode -1)
-    (goto-address-mode 1)
+    (goto-address-prog-mode 1)
     (add-to-list 'eshell-visual-commands "ssh")
     (add-to-list 'eshell-preoutput-filter-functions #'xterm-color-filter)
     (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
@@ -2434,5 +2437,5 @@ With a prefix ARG always prompt for command to use."
 ;;; .emacs ends here
 ;;; Local Variables:
 ;;; no-byte-compile: t
-;;; eval: (hs-hide-all)
+;;; eval: (progn (hs-hide-all) (outshine-mode 1))
 ;;; End:
