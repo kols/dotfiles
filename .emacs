@@ -32,6 +32,10 @@
   "Make dir path inside Emacs user dir for D."
   (expand-file-name d user-emacs-directory))
 
+(defvar kd/cache-dir "~/.cache/emacs")
+(unless (file-directory-p kd/cache-dir)
+  (mkdir kd/cache-dir))
+
 (defvar kd/ghq-dir "~/.ghq")
 (defun kd/ghq-repo-path (domain repo)
   "Return a path of repo managed by ghq.
@@ -436,6 +440,8 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq mac-mouse-wheel-smooth-scroll nil))
 
 ;;; ---
+
+(use-package savehist)
 
 (use-package whitespace
   :diminish whitespace-mode
@@ -1425,6 +1431,14 @@ directory to make multiple eshell windows easier."
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil "#!/bin/bash\nset -euo pipefail\nIFS=$'\\n\\t'\n")))))
 
+(use-package comint
+  :preface
+  (defun kd/comint-mode-hook-func ()
+    (smartscan-mode -1))
+  :init
+  (add-hook 'comint-mode-hook #'kd/comint-mode-hook-func)
+  (add-hook 'kill-buffer-hook #'comint-write-input-ring))
+
 
 ;;; Term
 
@@ -2077,6 +2091,11 @@ directory to make multiple eshell windows easier."
     (hs-hide-level 2))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
+
+  (defun kd/inferior-python-mode-hook-func ()
+    (kd/turn-on-comint-history (expand-file-name "infpy_hist" kd/cache-dir)))
+
+  (add-hook 'inferior-python-mode-hook #'kd/inferior-python-mode-hook-func)
   :config
   (setq python-shell-interpreter "ipython")
   (setq python-shell-interpreter-args "--simple-prompt -i")
@@ -2278,6 +2297,18 @@ directory to make multiple eshell windows easier."
   (let ((cond '(elisp-mode . "lexical binding")))
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil ";;; -*- lexical-binding: t; -*-")))))
+
+(use-package ielm
+  :commands ielm
+  :preface
+  (defun kd/turn-on-comint-history (history-file)
+    (setq-local comint-input-ring-file-name history-file)
+    (comint-read-input-ring 'silent))
+  :init
+  (defun kd/ielm-mode-hook-func ()
+    (kd/turn-on-comint-history (expand-file-name "ielm_hist" kd/cache-dir)))
+  (add-hook 'ielm-mode-hook #'kd/ielm-mode-hook-func))
+
 
 (use-package elisp-slime-nav
   :ensure t
