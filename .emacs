@@ -1109,7 +1109,7 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq org-refile-targets `((,(concat org-directory "/work.org") :maxlevel . 2)
                              (,(concat org-directory "/snippets.org") :level . 1)
                              (,(concat org-directory "/tldr.org") :level . 1)))
-  (setq org-modules nil)
+  (setq org-modules '(org-drill ox-md))
 
   (defun kd/org-mode-hook-func ()
     (visual-line-mode -1))
@@ -1229,16 +1229,6 @@ Repeated invocations toggle between the two most recently open buffers."
             ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
             ("u" "url bookmark" entry (file+olp ,bookmark-file "Bookmarks") #'kd/org-bookmark-template)))))
 
-(use-package ox
-  :after org
-  :commands (org-export-dispatch))
-
-(use-package ox-md
-  :after org)
-
-(use-package ox-taskjuggler
-  :after org)
-
 (use-package htmlize
   :ensure t
   :after ox
@@ -1247,7 +1237,6 @@ Repeated invocations toggle between the two most recently open buffers."
 
 (use-package ox-reveal
   :ensure t
-  :after ox
   :commands (org-reveal-export-to-html
              org-reveal-export-to-html-and-browse
              org-reveal-export-current-subtree)
@@ -1305,6 +1294,7 @@ Repeated invocations toggle between the two most recently open buffers."
     :after org))
 
 (use-package org-annotate
+  :disabled t
   :quelpa (org-annotate :fetcher github :repo "girzel/org-annotate")
   :after org)
 
