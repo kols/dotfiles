@@ -1882,9 +1882,17 @@ directory to make multiple eshell windows easier."
 
   (defun kd/markdown-view-mode-hook-func ()
     (kd/markdown-mode-common-hook-func)
-    (setq buffer-face-mode-face '(:family "Verdana" :height 190))
+    (face-remap-add-relative 'variable-pitch
+                             '(:family "Avenir Next" :height 200 :weight regular))
+    (face-remap-add-relative 'markdown-pre-face
+                             '(:family "Input Mono Condensed" :height 180 :weight light))
     (buffer-face-mode 1)
     (markdown-toggle-markup-hiding 1))
+
+  (defun kd/read-markdown ()
+    (interactive)
+    (markdown-view-mode)
+    (writeroom-mode 1))
 
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
   (add-hook 'markdown-view-mode-hook #'kd/markdown-view-mode-hook-func)
