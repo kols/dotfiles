@@ -1184,6 +1184,13 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
+(use-package org-bullets
+  :ensure t
+  :hook (org-mode . org-bullets-mode)
+  :config
+  (setq org-bullets-bullet-list
+        '("☘" "♠" "○" "►" "◦" "⁃")))
+
 (use-package org-projectile
   :ensure t
   :bind (:map kd/projectile-map
@@ -2294,6 +2301,19 @@ directory to make multiple eshell windows easier."
     (aggressive-indent-mode 1)
     (kd/local-push-company-backend #'company-elisp)
     )
+
+  (defun kd/ielm-here ()
+    (interactive)
+    (let* ((height (/ (window-total-height) 3))
+           (ielm-buffer-window (get-buffer-window "*ielm*" 'visible)))
+      (if ielm-buffer-window
+          (delete-window ielm-buffer-window)
+        (split-window-vertically (- height))
+        (other-window 1)
+        (ielm)
+        (rename-buffer "*ielm*"))))
+  :bind (:map emacs-lisp-mode-map
+              ("C-c C-p" . kd/ielm-here))
   :init
   (add-hook 'emacs-lisp-mode-hook #'kd/emacs-lisp-mode-hook-func)
   :config
