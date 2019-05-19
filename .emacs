@@ -15,7 +15,7 @@
   (setq gc-cons-threshold
         (car (get 'gc-cons-threshold 'standard-value))
         gc-cons-percentage 0.1))
-(add-hook 'after-init-hook 'ambrevar/reset-gc-cons-threshold)
+(add-hook 'after-init-hook #'ambrevar/reset-gc-cons-threshold)
 ;;; Temporarily disable the file name handler.
 (setq default-file-name-handler-alist file-name-handler-alist
       setqfile-name-handler-alist nil)
@@ -24,7 +24,7 @@
         (append default-file-name-handler-alist
                 file-name-handler-alist))
   (cl-delete-duplicates file-name-handler-alist :test 'equal))
-(add-hook 'after-init-hook 'ambrevar/reset-file-name-handler-alist)
+(add-hook 'after-init-hook #'ambrevar/reset-file-name-handler-alist)
 
 (setq load-prefer-newer t)
 
@@ -293,8 +293,14 @@ Repeated invocations toggle between the two most recently open buffers."
     :init
     (add-hook 'after-init-hook #'doom-modeline-mode)
     :config
+    (doom-modeline-def-modeline 'kd/doom-modeline-format
+      '(bar workspace-name checker window-number modals matches buffer-info remote-host buffer-position selection-info)
+      '(misc-info github debug lsp minor-modes indent-info buffer-encoding major-mode process vcs))
+    (defun kd/setup-custom-doom-modeline ()
+      (doom-modeline-set-modeline 'kd/doom-modeline-format 'default))
+    (add-hook 'doom-modeline-mode-hook #'kd/setup-custom-doom-modeline)
     (setq doom-modeline-height 25)
-    (setq doom-modeline-buffer-file-name-style 'relative-from-project)
+    (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
     (setq doom-modeline-icon nil)))
 
 (use-package writeroom-mode
@@ -508,11 +514,6 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package ace-window
   :ensure t
   :chords ("jw" . ace-window))
-
-(use-package frog-jump-buffer
-  :quelpa (frog-jump-buffer :fetcher github :repo "waymondo/frog-jump-buffer")
-  :commands frog-jump-buffer
-  :chords ("bb" . frog-jump-buffer))
 
 ;;; Window
 
@@ -946,10 +947,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind ((:map kd/tags-map
                ("c" . gxref-create-db)
                ("u" . gxref-sigle-update-db)
-               ("U" . gxref-update-db))
-         ("C-]" . xref-find-definitions)
-         ("C-}" . xref-find-references)
-         ("C-t" . xref-pop-marker-stack))
+               ("U" . gxref-update-db)))
   :init (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package counsel-gtags
@@ -975,6 +973,7 @@ Repeated invocations toggle between the two most recently open buffers."
                ("s-p" . counsel-projectile-find-file)
                ("C-c a" . counsel-projectile-rg))
          (:map kd/projectile-map
+               ("d" . counsel-projectile-find-dir)
                ("p" . counsel-projectile-switch-project)
                ("g" . counsel-projectile-git-grep)))
   :init (add-hook 'after-init-hook #'counsel-projectile-mode))
@@ -1547,6 +1546,10 @@ directory to make multiple eshell windows easier."
 ;;; Programming
 
 (use-package prog-mode
+  :bind (:map prog-mode-map
+              ("C-]" . xref-find-definitions)
+              ("C-}" . xref-find-references)
+              ("C-t" . xref-pop-marker-stack))
   :init
   (let ((prog-minor-modes '(highlight-symbol-mode
                             turn-on-diff-hl-mode
@@ -1668,7 +1671,7 @@ directory to make multiple eshell windows easier."
 
 (use-package flycheck
   :ensure t
-  :commands (flycheck-mode counsel-flycheck)
+  :commands (flycheck-mode counsel-flycheck flycheck-add-next-checker)
   :preface
   (defvar kd/counsel-flycheck-history nil
     "History for `counsel-flycheck'")
@@ -2109,6 +2112,7 @@ directory to make multiple eshell windows easier."
   :config
   (setq python-shell-interpreter "ipython")
   (setq python-shell-interpreter-args "--simple-prompt -i")
+  (flycheck-add-next-checker 'python-flake8 '(t . python-pylint))
   (let ((cond '(python-mode . "Python file encoding")))
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil "# coding: utf-8\n")))))
