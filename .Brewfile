@@ -101,4 +101,5 @@ brew "rbenv"
 brew "shellcheck"
 brew "zplug"
 brew "zsh"
+brew "mackup"
 
