@@ -284,8 +284,8 @@ Repeated invocations toggle between the two most recently open buffers."
             ("*Help*"                      :select t                          :align right            :popup t)
             ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align 'below)
             (helpful-mode                  :select t                          :align right            :popup t)
-            (magit-status-mode             :select t                          :align right            :popup t)
-            (magit-log-mode                :select t                          :align below            :same t))))
+            (magit-status-mode             :select t                          :size 0.5 :align right  :popup t)
+            (magit-log-mode                :select t                          :size 0.5 :align below  :popup t))))
 
   (use-package doom-modeline
     :ensure t
@@ -352,6 +352,10 @@ Repeated invocations toggle between the two most recently open buffers."
      '(go-guru-hl-identifier-face
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
+  (use-package tron-theme
+    :quelpa (tron-theme :fetcher github :repo "ianpan870102/Emacs-Tron-Legacy-Theme")
+    :config (load-theme 'tron t))
+
   (use-package zenburn-theme
     :disabled t
     :ensure t
@@ -382,6 +386,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'prez t))
 
   (use-package doom-themes
+    :disabled t
     :ensure t
     :config
     (setq doom-themes-padded-modeline t)
@@ -435,11 +440,11 @@ Repeated invocations toggle between the two most recently open buffers."
   :if (and IS-MAC IS-GUI)
   :no-require t
   :config
-  (set-frame-font (font-spec :family "Input Mono Condensed" :size 18 :weight 'light) nil t)
+  (set-frame-font (font-spec :family "Hack" :size 18 :weight 'light) nil t)
   (setq default-frame-alist '((ns-transparent-titlebar . t)
                               (ns-appearance . dark)
                               (fullscreen . fit-frame-to-buffer-sizes)
-                              (font . "Input Mono Condensed-18:light")))
+                              (font . "Hack-19:regular")))
   (add-to-list 'initial-frame-alist '(fullscreen . maximized))
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
@@ -1015,6 +1020,10 @@ Repeated invocations toggle between the two most recently open buffers."
   :bind (("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)
          ("C-h k" . helpful-key)))
+
+(use-package help-fns+
+  :quelpa (help-fns+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/help-fns+.el")
+  :after help-fns)
 
 (use-package eldoc
   :defer t
@@ -2400,7 +2409,7 @@ directory to make multiple eshell windows easier."
   :ensure t
   :commands elfeed-org
   :config (elfeed-org)
-  :config (setq rmh-elfeed-org-files `(,(concat org-directory "/elfeed.org"))))
+  :config (setq rmh-elfeed-org-files `(,(expand-file-name "elfeed.org" org-directory))))
 
 ;; from: http://endlessparentheses.com/the-toggle-map-and-wizardry.html
 (defun narrow-or-widen-dwim (p)
