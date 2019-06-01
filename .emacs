@@ -142,7 +142,6 @@ REPO's pattern: `<user>/<repo>'"
   (setenv "LANG" "en_US.UTF-8")
   (setq current-language-environment "en_US.UTF-8")
   (setq confirm-kill-emacs 'y-or-n-p)
-  (setq gc-cons-threshold 50000000)
   (setq scroll-conservatively 10000)
   (setq scroll-preserve-screen-position t)
   (setq vc-follow-symlinks t)
@@ -363,11 +362,11 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (use-package zenburn-theme
     :ensure t
-    :config
-    (load-theme 'zenburn t)
-    (set-face-attribute 'highlight-symbol-face nil :foreground "#2B2B2B" :background "#8FB28F")
-    (set-face-attribute 'region nil :foreground "#DCDCCC" :background "#2B2B2B")
-    (set-face-attribute 'swiper-line-face nil :foreground "black" :background "#65A7E2"))
+    :defer 0.1
+    :hook ((after-init . (lambda ()
+                           (load-theme 'zenburn t)
+                           (set-face-attribute 'swiper-line-face nil :inherit 'swiper-match-face-3)))
+           (highlight-symbol-mode . (lambda () (set-face-attribute 'highlight-symbol-face nil :background "gray40")))))
 
   (use-package hc-zenburn-theme
     :disabled t
@@ -1024,7 +1023,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :after ivy
   :commands (swiper)
-  :bind (("C-S-s" . swiper-isearch)
+  :bind (("C-s" . swiper-isearch)
          (:map isearch-mode-map
                ("M-i" . swiper-from-isearch)))
   :config
@@ -1038,7 +1037,6 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;   :defer t)
 
 (use-package isearch
-  :bind ("C-s" . isearch-forward-regexp)
   :config
   (use-package isearch+
     :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
@@ -2397,8 +2395,7 @@ directory to make multiple eshell windows easier."
   :preface
   (defun kd/emacs-lisp-mode-hook-func ()
     (aggressive-indent-mode 1)
-    (kd/local-push-company-backend #'company-elisp)
-    )
+    (kd/local-push-company-backend #'company-elisp))
 
   (defun kd/ielm-here ()
     (interactive)
