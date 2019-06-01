@@ -326,16 +326,25 @@ Repeated invocations toggle between the two most recently open buffers."
   (horizontal-scroll-bar-mode -1)
   (scroll-bar-mode -1)
 
-  ;;;;; Mouse
+;;;;; Mouse
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1)))
   (setq mouse-wheel-progressive-speed nil)
   (setq mouse-wheel-follow-mouse 't)
 
-  ;;;;; Frame
-  (setq default-frame-alist '((fullscreen . maximized)))
-  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+;;;;; Font
+  (set-frame-font (font-spec :family "Hack"
+                             :size 19
+                             :weight 'light) nil t)
 
-  ;;;;; Theme
+;;;;; Frame
+  (setq default-frame-alist '((fullscreen . fit-frame-to-buffer-sizes)
+                              (font . "Hack-19:regular")
+                              (vertical-scroll-bars . nil)
+                              (horizontal-scroll-bars . nil)))
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (setq initial-frame-alist '((fullscreen . maximized)))
+
+;;;;; Theme
   (use-package default-black-theme
     :disabled t
     :config (load-theme 'default-black t))
@@ -352,27 +361,20 @@ Repeated invocations toggle between the two most recently open buffers."
      '(go-guru-hl-identifier-face
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
-  (use-package tron-theme
-    :quelpa (tron-theme :fetcher github :repo "ianpan870102/Emacs-Tron-Legacy-Theme")
-    :config (load-theme 'tron t))
-
   (use-package zenburn-theme
-    :disabled t
     :ensure t
     :config
     (load-theme 'zenburn t)
-    (custom-theme-set-faces
-     'zenburn
-     '(highlight-symbol-face
-       ((t (:foreground "#2B2B2B" :background "#8FB28F"))) t)
-     '(region
-       ((t (:foreground "#DCDCCC" :background "#2B2B2B"))) t)))
+    (set-face-attribute 'highlight-symbol-face nil :foreground "#2B2B2B" :background "#8FB28F")
+    (set-face-attribute 'region nil :foreground "#DCDCCC" :background "#2B2B2B")
+    (set-face-attribute 'swiper-line-face nil :foreground "black" :background "#65A7E2"))
 
   (use-package hc-zenburn-theme
     :disabled t
     :ensure t
     :config
-    (load-theme 'hc-zenburn t))
+    (load-theme 'hc-zenburn t)
+    (set-face-attribute 'swiper-line-face nil :foreground "black" :background "#65A7E2"))
 
   (use-package color-theme-sanityinc-tomorrow
     :disabled t
@@ -404,9 +406,7 @@ Repeated invocations toggle between the two most recently open buffers."
        ((t (:background ,(doom-lighten (doom-color 'base4) 0.1) :underline t)) t))))
 
   (tool-bar-mode -1)
-  (tooltip-mode -1)
-
-  )
+  (tooltip-mode -1))
 
 ;;;; macOS
 
@@ -435,22 +435,33 @@ Repeated invocations toggle between the two most recently open buffers."
         (buffer-face-mode 1))
       (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func))))
 
-;;;; macOS Graphic
+;;;; macOS
 (use-package kd-macOS-GUI
   :if (and IS-MAC IS-GUI)
   :no-require t
   :config
-  (set-frame-font (font-spec :family "Hack" :size 18 :weight 'light) nil t)
-  (setq default-frame-alist '((ns-transparent-titlebar . t)
-                              (ns-appearance . dark)
-                              (fullscreen . fit-frame-to-buffer-sizes)
-                              (font . "Hack-19:regular")))
-  (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+;;;;; Frame
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
+
+;;;;; Unicode font
+  ;;; Useful for https://github.com/dunn/company-emoji
+  ;; https://www.reddit.com/r/emacs/comments/8ph0hq/i_have_converted_from_the_mac_port_to_the_ns_port/
+  ;; not tested with emacs26 (requires a patched Emacs version for multi-color font support)
+  ;; (if (version< "27.0" emacs-version)
+  ;;     (set-fontset-font
+  ;;      "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+  ;;   (set-fontset-font
+  ;;    t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
+
   (setq mac-mouse-wheel-smooth-scroll nil))
 
 ;;; ---
+
+(use-package repeat
+  :chords ("RR" . repeat))
 
 (use-package savehist)
 
@@ -562,6 +573,15 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq eyebrowse-mode-line-style 'always)
   (setq eyebrowse-new-workspace t)
   (setq eyebrowse-wrap-around t))
+
+(use-package persp-mode
+  :disabled t
+  :ensure t
+  :init
+  (add-hook 'after-init-hook #'persp-mode)
+  :config
+  (setq wg-morph-on nil)
+  (setq persp-autokill-buffer-on-remove 'kill-weak))
 
 ;;; Dired
 
@@ -923,6 +943,21 @@ Repeated invocations toggle between the two most recently open buffers."
   (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
   (global-unset-key (kbd "C-x b")))
 
+(use-package ivy-posframe
+  :disabled t
+  :ensure t
+  :config
+  (setq ivy-display-function #'ivy-posframe-display-at-point)
+  (setq ivy-posframe-font "Input Mono")
+  (setq ivy-posframe-border-width 1)
+  (setq ivy-posframe-hide-minibuffer t)
+  (setq ivy-posframe-width 90)
+  (setq ivy-posframe-min-width 45)
+  (setq ivy-posframe-parameters '((left-fringe . 8)
+                                  (right-fringe . 8)))
+  (set-face-attribute 'ivy-posframe-border nil :background "white" :inherit nil)
+  (ivy-posframe-enable))
+
 (use-package ivy-xref
   :ensure t
   :commands ivy-xref-show-xrefs
@@ -988,8 +1023,10 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package swiper
   :ensure t
   :after ivy
-  :commands (swiper swiper-from-isearch)
-  :bind ("C-s" . swiper-isearch)
+  :commands (swiper)
+  :bind (("C-S-s" . swiper-isearch)
+         (:map isearch-mode-map
+               ("M-i" . swiper-from-isearch)))
   :config
   (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
   (setq swiper-include-line-number-in-search nil)
@@ -1000,11 +1037,12 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;   :quelpa (bookmark+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/bookmark+.el")
 ;;   :defer t)
 
-(use-package isearch+
-  :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
-  :defer 0.1
-  :bind (:map isearch-mode-map
-              ("M-i" . swiper-from-isearch)))
+(use-package isearch
+  :bind ("C-s" . isearch-forward-regexp)
+  :config
+  (use-package isearch+
+    :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
+    :defer 0.1))
 
 (use-package anzu
   :ensure t
@@ -1192,6 +1230,56 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
+(use-package ox-publish
+  :disabled t
+  :commands (org-publish org-publish-project)
+  :config
+  (setq org-publish-project-alist
+        `(
+          ("org-wiki-html"
+           :base-directory ,(expand-file-name "wiki" org-directory)
+           :base-extension "org"
+           :publishing-directory ,(expand-file-name "wiki/html" org-directory)
+           :recursive t
+           :publishing-function org-html-publish-to-html
+           :headline-levels 3
+           :auto-preamble t
+           )
+          ("org-wiki-static"
+           :base-directory ,(expand-file-name "wiki" org-directory)
+           :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
+           :publishing-directory ,(expand-file-name "wiki/html" org-directory)
+           :recursive t
+           :publishing-function org-publish-attachment
+           )
+          ("org-wiki" :components ("org-wiki-html" "org-wiki-static"))
+          )))
+
+(use-package org-wiki
+  :disabled t
+  :quelpa (org-wiki :fetcher github :repo "caiorss/org-wiki")
+  :config
+  (setq org-wiki-location-list `(,(expand-file-name "wiki" org-directory)))
+  (setq org-wiki-location (car org-wiki-location-list))
+  (setq org-wiki-server-host "127.0.0.1")
+  (setq org-wiki-server-port "8000")
+  (setq org-wiki-template
+        (string-trim
+         "
+#+TITLE: %n
+#+DESCRIPTION:
+#+KEYWORDS:
+#+STARTUP:  content
+#+DATE: %d
+#+HTML_HEAD: <link rel=\"stylesheet\" type=\"text/css\" href=\"css/org.css\"/>
+
+- [[wiki:index][Index]]
+
+- Related:
+
+* %n
+")))
+
 (use-package org-bullets
   :ensure t
   :hook (org-mode . org-bullets-mode)
@@ -1337,7 +1425,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
 
     ;; alias
-    (eshell/alias "lm" "ls -lahF")
+    (eshell/alias "lm" "ls -lahF $1")
     (eshell/alias "ff" "find-file $1")
     (eshell/alias "fo" "find-file-other-window $1")
     (eshell/alias "d" "dired $1")
@@ -1550,20 +1638,20 @@ directory to make multiple eshell windows easier."
               ("C-}" . xref-find-references)
               ("C-t" . xref-pop-marker-stack))
   :init
-  (let ((prog-minor-modes '(highlight-symbol-mode
-                            turn-on-diff-hl-mode
-                            counsel-gtags-mode
-                            goto-address-prog-mode
-                            abbrev-mode
-                            hs-minor-mode
-                            flycheck-mode
-                            which-function-mode)))
-    (dolist (mode prog-minor-modes)
-      (add-hook 'prog-mode-hook mode)))
-
   (defun kd-prog-mode-hook-func ()
     (setq-local show-trailing-whitespace t)
     (setq-local indicate-empty-lines t)
+    (let ((prog-minor-modes '(highlight-symbol-mode
+                              diff-hl-mode
+                              counsel-gtags-mode
+                              goto-address-prog-mode
+                              abbrev-mode
+                              hs-minor-mode
+                              flycheck-mode
+                              which-function-mode)))
+      (dolist (mode prog-minor-modes)
+        (apply mode '(1))))
+
     (use-package quickrun
       :ensure t))
 
@@ -2107,8 +2195,7 @@ directory to make multiple eshell windows easier."
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
     (setq-local whitespace-style '(face indentation::tab))
 
-    (subword-mode 1)
-    (hs-hide-level 2))
+    (subword-mode 1))
 
   (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
 
@@ -2468,5 +2555,5 @@ With a prefix ARG always prompt for command to use."
 ;;; .emacs ends here
 ;;; Local Variables:
 ;;; no-byte-compile: t
-;;; eval: (progn (hs-hide-all) (outshine-mode 1))
+;;; eval: (progn (outshine-mode 1))
 ;;; End:
