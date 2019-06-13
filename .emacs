@@ -36,6 +36,12 @@
 (unless (file-directory-p kd/cache-dir)
   (mkdir kd/cache-dir))
 
+(defun kd/emacs-cache-dir (f &optional dirp)
+  (let ((dir (expand-file-name f kd/cache-dir)))
+    (unless (and dirp (file-exists-p dir))
+      (mkdir dir))
+    dir))
+
 (defvar kd/ghq-dir "~/.ghq")
 (defun kd/ghq-repo-path (domain repo)
   "Return a path of repo managed by ghq.
@@ -244,10 +250,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (add-hook 'after-init-hook #'kd/server-start))
 
 (use-package desktop
-  :disabled t
-  :config
-  (setq desktop-dirname user-emacs-directory)
-  (desktop-save-mode 1))
+  :commands (desktop-save desktop-read)
+  :init
+  (let ((desktop-dir (kd/emacs-cache-dir "desktop" t)))
+    (setq desktop-dirname desktop-dir)
+    (setq desktop-path desktop-dir)))
 
 ;;; User Interface (UI)
 
@@ -288,16 +295,16 @@ Repeated invocations toggle between the two most recently open buffers."
 
   (use-package doom-modeline
     :ensure t
+    :preface
+    (defun kd/setup-custom-doom-modeline ()
+      (doom-modeline-set-modeline 'kd/doom-modeline-format 'default))
     :commands doom-modeline-mode
-    :init
-    (add-hook 'after-init-hook #'doom-modeline-mode)
+    :hook ((after-init . doom-modeline-mode)
+           (doom-modeline-mode . kd/setup-custom-doom-modeline))
     :config
     (doom-modeline-def-modeline 'kd/doom-modeline-format
       '(bar workspace-name checker window-number modals matches buffer-info remote-host buffer-position selection-info)
-      '(misc-info github debug lsp minor-modes indent-info buffer-encoding major-mode process vcs))
-    (defun kd/setup-custom-doom-modeline ()
-      (doom-modeline-set-modeline 'kd/doom-modeline-format 'default))
-    (add-hook 'doom-modeline-mode-hook #'kd/setup-custom-doom-modeline)
+      '(misc-info debug lsp minor-modes indent-info buffer-encoding major-mode process vcs))
     (setq doom-modeline-height 25)
     (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
     (setq doom-modeline-icon nil)))
@@ -414,13 +421,23 @@ Repeated invocations toggle between the two most recently open buffers."
 (use-package kd-macOS
   :if (and IS-MAC)
   :no-require t
-  :functions kd/lock-screen
+  :preface
+  (defun kd/start-screen-saver ()
+    (interactive)
+    (osx-lib-run-osascript "do shell script \"
+if [ -e /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app ]; then
+	open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app
+else
+	open -a ScreenSaverEngine
+fi
+\""))
+  :chords ("LK" . kd/start-screen-saver)
   :config
   (setq mac-option-modifier 'meta)
   (setq mac-command-modifier 'super)
 
   (use-package osx-lib
-    :defer t
+    :commands osx-lib-run-osascript
     :ensure t)
 
   (use-package osx-dictionary
@@ -434,7 +451,7 @@ Repeated invocations toggle between the two most recently open buffers."
         (buffer-face-mode 1))
       (add-hook 'osx-dictionary-mode-hook #'kd/osx-dictionary-mode-hook-func))))
 
-;;;; macOS
+;;;; macOS GUI
 (use-package kd-macOS-GUI
   :if (and IS-MAC IS-GUI)
   :no-require t
@@ -985,7 +1002,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :commands gxref-xref-backend
   :bind ((:map kd/tags-map
                ("c" . gxref-create-db)
-               ("u" . gxref-sigle-update-db)
+               ("u" . gxref-single-update-db)
                ("U" . gxref-update-db)))
   :init (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
@@ -1025,7 +1042,9 @@ Repeated invocations toggle between the two most recently open buffers."
   :commands (swiper)
   :bind (("C-s" . swiper-isearch)
          (:map isearch-mode-map
-               ("M-i" . swiper-from-isearch)))
+               ("M-i" . swiper-isearch-toggle))
+         (:map swiper-map
+               ("M-i" . swiper-isearch-toggle)))
   :config
   (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
   (setq swiper-include-line-number-in-search nil)
@@ -1690,8 +1709,29 @@ directory to make multiple eshell windows easier."
               ("<f8>" . treemacs))
   :init
   (defun kd/treemacs-mode-hook-func ()
-    (treemacs-resize-icons 15))
-  (add-hook 'treemacs-mode-hook #'kd/treemacs-mode-hook-func))
+    (treemacs-resize-icons 15)
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t))
+  (add-hook 'treemacs-mode-hook #'kd/treemacs-mode-hook-func)
+  :config
+  (setq treemacs-follow-after-init          t
+        treemacs-width                      35
+        treemacs-indentation                2
+        treemacs-git-integration            t
+        treemacs-collapse-dirs              3
+        treemacs-silent-refresh             nil
+        treemacs-change-root-without-asking nil
+        treemacs-sorting                    'alphabetic-desc
+        treemacs-show-hidden-files          t
+        treemacs-never-persist              nil
+        treemacs-is-never-other-window      nil
+        treemacs-goto-tag-strategy          'refetch-index))
+
+(use-package treemacs-projectile
+  :ensure t
+  :after treemacs
+  :config
+  (setq treemacs-header-function #'treemacs-projectile-create-header))
 
 (use-package lsp-ui
   :ensure t
@@ -2178,9 +2218,7 @@ directory to make multiple eshell windows easier."
 
 (use-package python
   :quelpa (python :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/progmodes/python.el")
-  :commands python-mode
-  :init
-  (setenv "PYTHONIOENCODING" "UTF-8")
+  :preface
   (defun kd/python-mode-hook-function ()
     ;; jedi
     (jedi:setup)
@@ -2195,12 +2233,14 @@ directory to make multiple eshell windows easier."
 
     (subword-mode 1))
 
-  (add-hook 'python-mode-hook #'kd/python-mode-hook-function)
 
   (defun kd/inferior-python-mode-hook-func ()
     (kd/turn-on-comint-history (expand-file-name "infpy_hist" kd/cache-dir)))
-
-  (add-hook 'inferior-python-mode-hook #'kd/inferior-python-mode-hook-func)
+  :commands python-mode
+  :hook ((python-mode . kd/python-mode-hook-function)
+         (inferior-python-mode . kd/inferior-python-mode-hook-func))
+  :init
+  (setenv "PYTHONIOENCODING" "UTF-8")
   :config
   (setq python-shell-interpreter "ipython")
   (setq python-shell-interpreter-args "--simple-prompt -i")
