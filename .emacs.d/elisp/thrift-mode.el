@@ -161,6 +161,8 @@
     ("struct"    "^struct \\(.*\\) ?{" 1)
     ("enum"      "^enum \\(.*\\) ?{" 1)
     ("typedef"   "^typedef \\(.*\\) ?{" 1)
+    ("const"   "^const \\(.*\\)=.*" 1)
+    ("namespace"   "^namespace \\(.*\\)" 1)
     )
   "Imenu Regexps for thrift mode")
 
