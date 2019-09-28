@@ -143,14 +143,15 @@ disable=missing-docstring,
         comprehension-escape,
         too-many-arguments,
         too-many-instance-attributes,
-        too-few-public-methods
+        too-few-public-methods,
+        invalid-name
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 enable=blacklisted-name,
-       invalid-name,
+       line-too-long,
        empty-docstring,
        unneeded-not,
        singleton-comparison,
@@ -160,7 +161,6 @@ enable=blacklisted-name,
        bad-mcs-method-argument,
        bad-mcs-classmethod-argument,
        single-string-used-for-slots,
-       line-too-long,
        too-many-lines,
        trailing-whitespace,
        missing-final-newline,
@@ -491,7 +491,7 @@ indent-after-paren=4
 indent-string='    '
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000

@@ -3,3 +3,4 @@ GRTAGS
 GTAGS
 gtags.files
 \#*#
+.python-version

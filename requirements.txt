@@ -18,3 +18,4 @@ tmuxp
 virtualenv
 wharfee
 wheel
+eg

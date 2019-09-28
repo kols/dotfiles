@@ -131,10 +131,23 @@ REPO's pattern: `<user>/<repo>'"
   :ensure t
   :config (key-chord-mode 1))
 
+(use-package use-package-ensure-system-package
+  :ensure t)
+
 (use-package auto-package-update
   :ensure t
   :commands (auto-package-update-now kd/update-git-packages)
   :config (setq auto-package-update-delete-old-versions nil))
+
+(use-package paradox
+  :ensure t
+  :config
+  (setq paradox-column-width-package 27)
+  (setq paradox-column-width-version 13)
+  (setq paradox-execute-asynchronously t)
+  (setq paradox-hide-wiki-packages t)
+  (paradox-enable)
+  (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 
 ;;; Defaults
 
@@ -184,10 +197,6 @@ REPO's pattern: `<user>/<repo>'"
     (define-prefix-command command)
     (global-set-key key command))
 
-  (defvar kd/toggle-map nil)
-  (kd/make-prefix-command (kbd "s-t") 'kd/toggle-map)
-  (defvar kd/pop-map nil)
-  (kd/make-prefix-command (kbd "s-o") 'kd/pop-map)
   (defvar kd/org-map nil)
   (kd/make-prefix-command (kbd "s-r") 'kd/org-map)
   (defvar kd/compile-map nil)
@@ -196,8 +205,6 @@ REPO's pattern: `<user>/<repo>'"
   (kd/make-prefix-command (kbd "s-e") 'kd/errors-map)
   (defvar kd/eshell-map nil)
   (kd/make-prefix-command (kbd "s-s") 'kd/eshell-map)
-  (defvar kd/projectile-map nil)
-  (kd/make-prefix-command (kbd "s-P") 'kd/projectile-map)
   (defvar kd/tags-map nil)
   (kd/make-prefix-command (kbd "s-T") 'kd/tags-map)
   (defvar kd/testing-map nil)
@@ -213,19 +220,14 @@ Repeated invocations toggle between the two most recently open buffers."
     (interactive)
     (kill-buffer nil))
 
-  :defines (kd/toggle-map
-            kd/pop-map
-            kd/org-map
+  :defines (kd/org-map
             kd/compile-map
             kd/errors-map
-            kd/eshell-map
-            kd/projectile-map)
+            kd/eshell-map)
 
   :commands kd/switch-to-previous-buffer
   :functions kd/make-prefix-command
   :chords ("JJ" . kd/switch-to-previous-buffer)
-  :bind (:map kd/toggle-map
-              ("l" . display-line-numbers-mode))
   :config (global-set-key (kbd "C-x K") #'kd/kill-buffer-no-select))
 
 
@@ -250,9 +252,9 @@ Repeated invocations toggle between the two most recently open buffers."
   (add-hook 'after-init-hook #'kd/server-start))
 
 (use-package desktop
-  :commands (desktop-save desktop-read)
+  :commands (desktop-save desktop-save-in-desktop-dir desktop-read)
   :init
-  (let ((desktop-dir (kd/emacs-cache-dir "desktop" t)))
+  (let ((desktop-dir (list (kd/emacs-cache-dir "desktop" t))))
     (setq desktop-dirname desktop-dir)
     (setq desktop-path desktop-dir)))
 
@@ -264,14 +266,18 @@ Repeated invocations toggle between the two most recently open buffers."
   (menu-bar-mode 1)
   (column-number-mode 1)
 
-  (use-package remap-face
-    :commands (buffer-face-mode text-scale-mode face-remap-add-relative))
+  (use-package face-remap
+    :commands (buffer-face-mode
+               text-scale-mode
+               face-remap-add-relative))
 
   (use-package simple
     :diminish visual-line-mode
     :commands (global-visual-line-mode turn-on-visual-line-mode)
     :init (add-hook 'after-init-hook #'global-visual-line-mode)
-    :config (setq set-mark-command-repeat-pop t))
+    :config
+    (setq set-mark-command-repeat-pop t)
+    (setq next-error-recenter '(4)))
 
   (use-package shackle
     :ensure t
@@ -280,13 +286,13 @@ Repeated invocations toggle between the two most recently open buffers."
     (setq shackle-lighter "")
     (setq shackle-select-reused-windows nil)
     (setq shackle-default-alignment 'below)
-    (setq shackle-default-size 0.35)
+    (setq shackle-default-size 0.45)
 
     ;; https://github.com/kaushalmodi/.emacs.d/blob/master/setup-files/setup-shackle.el
     (setq shackle-rules
           ;; CONDITION(:regexp)            :select     :inhibit-window-quit   :size+:align|:other     :same|:popup
           '(("*osx-dictionary*"            :select t                          :align below            :popup t)
-            ("*info*"                      :select t                          :align right            :popup t)
+            ("*info*"                      :select t                          :align right  :popup t)
             ("*Help*"                      :select t                          :align right            :popup t)
             ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align 'below)
             (helpful-mode                  :select t                          :align right            :popup t)
@@ -298,21 +304,25 @@ Repeated invocations toggle between the two most recently open buffers."
     :preface
     (defun kd/setup-custom-doom-modeline ()
       (doom-modeline-set-modeline 'kd/doom-modeline-format 'default))
-    :commands doom-modeline-mode
     :hook ((after-init . doom-modeline-mode)
            (doom-modeline-mode . kd/setup-custom-doom-modeline))
     :config
     (doom-modeline-def-modeline 'kd/doom-modeline-format
-      '(bar workspace-name checker window-number modals matches buffer-info remote-host buffer-position selection-info)
+      '(bar persp-name workspace-name checker window-number modals matches buffer-info remote-host buffer-position selection-info)
       '(misc-info debug lsp minor-modes indent-info buffer-encoding major-mode process vcs))
     (setq doom-modeline-height 25)
-    (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-    (setq doom-modeline-icon nil)))
+    (setq doom-modeline-buffer-file-name-style 'buffer-name)
+    (setq doom-modeline-icon nil)
+    (setq doom-modeline-minor-modes nil)
+    (setq doom-modeline-persp-name t)
+    (set-face-attribute 'doom-modeline-persp-name nil
+                        :inherit '(mode-line-emphasis italic))
+    (set-face-attribute 'doom-modeline-persp-buffer-not-in-persp nil
+                        :inherit '(mode-line-emphasis bold italic))))
 
 (use-package writeroom-mode
   :ensure t
-  :bind (:map kd/toggle-map
-              ("z" . writeroom-mode))
+  :commands writeroom-mode
   :config
   (setq writeroom-mode-line-toggle-position 'mode-line-format)
   (setq writeroom-mode-line t)
@@ -338,13 +348,15 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq mouse-wheel-follow-mouse 't)
 
 ;;;;; Font
-  (set-frame-font (font-spec :family "Hack"
-                             :size 19
-                             :weight 'light) nil t)
+  (set-frame-font (font-spec :family "Input Mono"
+                             :size 18
+                             :weight 'regular)
+                  nil
+                  t)
 
 ;;;;; Frame
   (setq default-frame-alist '((fullscreen . fit-frame-to-buffer-sizes)
-                              (font . "Hack-19:regular")
+                              (font . "Input Mono-18:regular")
                               (vertical-scroll-bars . nil)
                               (horizontal-scroll-bars . nil)))
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
@@ -353,7 +365,15 @@ Repeated invocations toggle between the two most recently open buffers."
 ;;;;; Theme
   (use-package default-black-theme
     :disabled t
-    :config (load-theme 'default-black t))
+    :config
+    (load-theme 'default-black t))
+
+  (use-package nord-theme
+    :disabled t
+    :ensure t
+    :config
+    (setq nord-region-highlight "frost")
+    (load-theme 'nord t))
 
   (use-package cyberpunk-theme
     :disabled t
@@ -368,19 +388,16 @@ Repeated invocations toggle between the two most recently open buffers."
        ((t (:foreground "#d3d3d3" :background "dark magenta"))) t)))
 
   (use-package zenburn-theme
-    :ensure t
-    :defer 0.1
-    :hook ((after-init . (lambda ()
-                           (load-theme 'zenburn t)
-                           (set-face-attribute 'swiper-line-face nil :inherit 'swiper-match-face-3)))
-           (highlight-symbol-mode . (lambda () (set-face-attribute 'highlight-symbol-face nil :background "gray40")))))
-
-  (use-package hc-zenburn-theme
     :disabled t
     :ensure t
+    :defer 0.1
     :config
-    (load-theme 'hc-zenburn t)
-    (set-face-attribute 'swiper-line-face nil :foreground "black" :background "#65A7E2"))
+    (load-theme 'zenburn t))
+
+  (use-package hc-zenburn-theme
+    :ensure t
+    :config
+    (load-theme 'hc-zenburn t))
 
   (use-package color-theme-sanityinc-tomorrow
     :disabled t
@@ -404,12 +421,13 @@ Repeated invocations toggle between the two most recently open buffers."
     (setq doom-opera-padded-modeline 1)
     (load-theme 'doom-opera t)
     (doom-themes-org-config)
-    (custom-theme-set-faces
-     'doom-opera
-     `(region
-       ((t (:background ,(doom-lighten (doom-color 'base4) 0.1))) t))
-     `(ivy-current-match
-       ((t (:background ,(doom-lighten (doom-color 'base4) 0.1) :underline t)) t))))
+    ;; (custom-theme-set-faces
+    ;;  'doom-opera
+    ;;  `(region
+    ;;    ((t (:background ,(doom-lighten (doom-color 'base4) 0.1))) t))
+    ;;  `(ivy-current-match
+    ;;    ((t (:background ,(doom-lighten (doom-color 'base4) 0.1) :underline t)) t)))
+    )
 
   (tool-bar-mode -1)
   (tooltip-mode -1))
@@ -419,8 +437,9 @@ Repeated invocations toggle between the two most recently open buffers."
 (defconst IS-MAC (memq window-system '(mac ns)))
 
 (use-package kd-macOS
-  :if (and IS-MAC)
+  :if IS-MAC
   :no-require t
+  :demand t
   :preface
   (defun kd/start-screen-saver ()
     (interactive)
@@ -431,7 +450,7 @@ else
 	open -a ScreenSaverEngine
 fi
 \""))
-  :chords ("LK" . kd/start-screen-saver)
+  :chords ("SS" . kd/start-screen-saver)
   :config
   (setq mac-option-modifier 'meta)
   (setq mac-command-modifier 'super)
@@ -443,7 +462,7 @@ fi
   (use-package osx-dictionary
     :ensure t
     :functions kd/osx-dictionary-mode-hook-func
-    :bind ("C-c f" . osx-dictionary-search-word-at-point)
+    :bind ("C-c f" . osx-dictionary-search-pointer)
     :init
     (when IS-GUI
       (defun kd/osx-dictionary-mode-hook-func ()
@@ -454,6 +473,7 @@ fi
 ;;;; macOS GUI
 (use-package kd-macOS-GUI
   :if (and IS-MAC IS-GUI)
+  :demand t
   :no-require t
   :config
 ;;;;; Frame
@@ -463,29 +483,55 @@ fi
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
 
 ;;;;; Unicode font
-  ;;; Useful for https://github.com/dunn/company-emoji
+  ;; Useful for https://github.com/dunn/company-emoji
   ;; https://www.reddit.com/r/emacs/comments/8ph0hq/i_have_converted_from_the_mac_port_to_the_ns_port/
   ;; not tested with emacs26 (requires a patched Emacs version for multi-color font support)
-  ;; (if (version< "27.0" emacs-version)
-  ;;     (set-fontset-font
-  ;;      "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
-  ;;   (set-fontset-font
-  ;;    t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
+  (if (version< "27.0" emacs-version)
+      (set-fontset-font
+       "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+    (set-fontset-font
+     t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend))
 
   (setq mac-mouse-wheel-smooth-scroll nil))
+
+(defun kd/suppress-messages (old-fun &rest args)
+  (cl-flet ((silence (&rest args1) (ignore)))
+    (advice-add 'message :around #'silence)
+    (unwind-protect
+        (apply old-fun args)
+      (advice-remove 'message #'silence))))
 
 ;;; ---
 
 (use-package repeat
   :chords ("RR" . repeat))
 
-(use-package savehist)
+(use-package savehist
+  :hook (after-init . savehist-mode)
+  :config
+  (setq history-delete-duplicates t)
+  (setq history-length t)
+  (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring))
+  (setq savehist-file (expand-file-name "history" kd/cache-dir))
+  (setq savehist-save-minibuffer-history t)
+  (savehist-mode 1))
+
+(use-package recentf
+  :hook (after-init . recentf-mode)
+  :config
+  (setq recentf-exclude (list "COMMIT_EDITMSG"
+                              "~$"
+                              "/scp:"
+                              "/ssh:"
+                              "/sudo:"
+                              "/tmp/"))
+  (setq recentf-max-menu-items 15)
+  (setq recentf-max-saved-items 200)
+  (setq recentf-save-file (expand-file-name "recentf" kd/cache-dir)))
 
 (use-package whitespace
   :diminish whitespace-mode
   :commands whitespace-mode
-  :bind (:map kd/toggle-map
-              ("w" . whitespace-mode))
   :config
   (setq whitespace-line-column nil)
   (setq whitespace-display-mappings '((space-mark 32 [183] [46])
@@ -494,14 +540,15 @@ fi
 
 (use-package fill
   :diminish auto-fill-mode
-  :bind (:map kd/toggle-map
-              ("f" . auto-fill-mode)))
+  :commands auto-fill-mode)
 
 (use-package visual-fill-column
   :ensure t
-  :commands visual-fill-column-mode
-  :bind (:map kd/toggle-map
-              ("v" . visual-fill-column-mode)))
+  :commands visual-fill-column-mode)
+
+(use-package which-func
+  :commands which-function-mode
+  :config (add-to-list 'which-func-non-auto-modes 'nxml-mode))
 
 (use-package which-key
   :ensure t
@@ -523,7 +570,8 @@ fi
 (use-package highlight-symbol
   :ensure t
   :commands highlight-symbol-mode
-  :diminish highlight-symbol-mode)
+  :diminish highlight-symbol-mode
+  :config (set-face-attribute 'highlight-symbol-face nil :background "gray40"))
 
 (use-package aggressive-indent
   :ensure t
@@ -546,6 +594,25 @@ fi
 (use-package ace-window
   :ensure t
   :chords ("jw" . ace-window))
+
+(use-package ace-isearch
+  :ensure t
+  :bind (:map isearch-mode-map
+              ("C-'" . ace-isearch-jump-during-isearch))
+  :hook (after-init . global-ace-isearch-mode)
+  :config
+  (setq ace-isearch-function-from-isearch #'swiper-from-isearch)
+  (setq ace-isearch-jump-delay 0.5))
+
+(use-package amx
+  :ensure t
+  :hook (after-init . amx-mode)
+  :config
+  (setq amx-save-file (expand-file-name "amx-items" kd/cache-dir)))
+
+(use-package scratch
+  :ensure t
+  :commands scratch)
 
 ;;; Window
 
@@ -573,7 +640,7 @@ fi
 
 (use-package eyebrowse
   :ensure t
-  :commands eyebrowse-mode
+  :demand t
   :bind (("C-c C--" . eyebrowse-next-window-config)
          ("C-c C-=" . eyebrowse-prev-window-config)
          ("s-w" . eyebrowse-close-window-config)
@@ -583,21 +650,85 @@ fi
          ("s-3" . eyebrowse-switch-to-window-config-3)
          ("s-4" . eyebrowse-switch-to-window-config-4)
          ("s-5" . eyebrowse-switch-to-window-config-5))
-  :init (add-hook 'after-init-hook #'eyebrowse-mode)
   :config
   (setq eyebrowse-mode-line-separator " ")
   (setq eyebrowse-mode-line-style 'always)
-  (setq eyebrowse-new-workspace t)
-  (setq eyebrowse-wrap-around t))
+  (setq eyebrowse-new-workspace nil)
+  (setq eyebrowse-wrap-around t)
+  (eyebrowse-mode 1))
 
 (use-package persp-mode
   :disabled t
   :ensure t
-  :init
-  (add-hook 'after-init-hook #'persp-mode)
+  :demand t
+  :bind (:map persp-mode-map
+              ("s-w" . persp-switch)
+              ("s-x" . persp-switch-to-buffer))
   :config
   (setq wg-morph-on nil)
-  (setq persp-autokill-buffer-on-remove 'kill-weak))
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
+  (setq persp-kill-foreign-buffer-behaviour nil)
+  (setq persp-nil-hidden t)
+  (setq persp-auto-save-opt 1)
+  (setq persp-remove-buffers-from-nil-persp-behaviour nil)
+  (setq persp-add-buffer-on-after-change-major-mode 'free)
+  (persp-mode 1))
+
+;; Perspective-local eyebrwose window config
+;; https://github.com/syl20bnr/spacemacs/pull/4068/files
+(use-package persp-mode-local-eyebrowse
+  :disabled t
+  :no-require t
+  :after (persp-mode eyebrowse)
+  :config
+  (defun kd/load-eyebrowse-for-perspective (&optional frame-or-window)
+    "Load an eyebrowse workspace according to a perspective's parameters.
+FRAME's perspective is the perspective that is considered, defaulting to
+the current frame's perspective.
+If the perspective doesn't have a workspace, create one."
+    (let* ((frame (if (eq frame-or-window 'frame)
+                      (selected-frame)
+                    nil))
+           (window (if (eq frame-or-window 'window)
+                       (selected-window)
+                     nil))
+           (persp (get-current-persp frame window))
+           (window-configs (persp-parameter 'eyebrowse-window-configs persp))
+           (current-slot (persp-parameter 'eyebrowse-current-slot persp))
+           (last-slot (persp-parameter 'eyebrowse-last-slot persp)))
+      (if window-configs
+          (progn
+            (eyebrowse--set 'window-configs window-configs frame)
+            (eyebrowse--set 'current-slot current-slot frame)
+            (eyebrowse--set 'last-slot last-slot frame)
+            (eyebrowse--load-window-config current-slot))
+        (eyebrowse--set 'window-configs nil frame)
+        (eyebrowse-init frame)
+        (kd/save-eyebrowse-for-perspective frame))))
+
+  (defun kd/update-eyebrowse-for-perspective (_new-persp-name &optional frame)
+    "Update and save current frame's eyebrowse workspace to its perspective.
+Parameter _NEW-PERSP-NAME is ignored, and exists only for compatibility with
+`persp-before-switch-functions'."
+    (eyebrowse--update-window-config-element
+     (eyebrowse--current-window-config (eyebrowse--get 'current-slot)
+                                       (eyebrowse--get 'current-tag)))
+    (kd/save-eyebrowse-for-perspective))
+
+  (defun kd/save-eyebrowse-for-perspective (&optional frame)
+    "Save FRAME's eyebrowse workspace to FRAME's perspective.
+FRAME defaults to the current frame."
+    (let ((persp (get-frame-persp frame)))
+      (set-persp-parameter
+       'eyebrowse-window-configs (eyebrowse--get 'window-configs frame) persp)
+      (set-persp-parameter
+       'eyebrowse-current-slot (eyebrowse--get 'current-slot frame) persp)
+      (set-persp-parameter
+       'eyebrowse-last-slot (eyebrowse--get 'last-slot frame) persp)))
+
+  (add-hook 'persp-before-switch-functions #'kd/update-eyebrowse-for-perspective)
+  (add-hook 'eyebrowse-post-window-switch-hook #'kd/save-eyebrowse-for-perspective)
+  (add-hook 'persp-activated-functions #'kd/load-eyebrowse-for-perspective))
 
 ;;; Dired
 
@@ -612,6 +743,13 @@ fi
   (setq dired-listing-switches "-lahF")
   (setq dired-isearch-filenames t)
   (setq dired-ls-F-marks-symlinks t))
+
+(use-package dired-single
+  :ensure t
+  :bind (:map dired-mode-map
+              ("<RET>" . dired-single-buffer)
+              ("<mouse-1>" . dired-single-buffer-mouse)
+              ("^" . dired-single-up-directory)))
 
 (use-package dired-x
   :commands dired-omit-mode
@@ -633,6 +771,7 @@ fi
                ("P" . peep-dired))))
 
 (use-package neotree
+  :disabled t
   :ensure t
   :bind (("<f8>" . neotree-toggle)
          ("<f7>" . neotree-find))
@@ -652,26 +791,26 @@ fi
 
 (use-package projectile
   :ensure t
+  :demand t
   :diminish projectile-mode
   :commands projectile-mode
-  :functions projectile-find-file-hook-function
-  :bind ((:map kd/projectile-map
-               ("a" . projectile-add-known-project)
-               ("b" . projectile-ibuffer)
-               ("i" . projectile-invalidate-cache)))
-  :init
-  (add-hook 'after-init-hook #'projectile-mode)
+  :bind ("s-x" . projectile-switch-to-buffer)
+  ;; :bind ((:map kd/projectile-map
+  ;;              ("a" . projectile-add-known-project)
+  ;;              ("b" . projectile-ibuffer)
+  ;;              ("i" . projectile-invalidate-cache)))
   :config
-  (defadvice projectile-project-root (around exlude-tramp activate)
-    "This should disable projectile when visiting a remote file"
-    (unless (--any? (and it (file-remote-p it))
-                    (list
-                     (buffer-file-name)
-                     list-buffers-directory
-                     default-directory
-                     dired-directory))
-      ad-do-it))
+  ;; (defadvice projectile-project-root (around exlude-tramp activate)
+  ;;   "This should disable projectile when visiting a remote file"
+  ;;   (unless (--any? (and it (file-remote-p it))
+  ;;                   (list
+  ;;                    (buffer-file-name)
+  ;;                    list-buffers-directory
+  ;;                    default-directory
+  ;;                    dired-directory))
+  ;;     ad-do-it))
 
+  (setq projectile-cache-file (expand-file-name "projectile.cache" kd/cache-dir))
   (setq projectile-track-known-projects-automatically nil)
   (setq projectile-generic-command "fd --type f --print0")
   (setq projectile-enable-caching t)
@@ -684,11 +823,28 @@ fi
             (format "P[%s]" (projectile-project-name)))))
   (setq projectile-mode-line "P")
   (setq projectile-tags-file-name "/FILE_NOT_EXISTS")
-  (setq projectile-sort-order 'recently-active))
+  (setq projectile-sort-order 'recently-active)
+  (projectile-mode 1))
+
+(use-package persp-mode-projectile-bridge
+  :disabled t
+  :ensure t
+  :after (persp-mode projectile)
+  :preface
+  (defun kd/persp-mode-projectile-bridge-mode-hook-func ()
+    (if persp-mode-projectile-bridge-mode
+        (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
+      (persp-mode-projectile-bridge-kill-perspectives)))
+  :hook ((persp-mode-projectile-bridge-mode . kd/persp-mode-projectile-bridge-mode-hook-func)
+         (after-init . persp-mode-projectile-bridge-mode)))
 
 (use-package rg
   :ensure t
   :bind ("C-c A" . rg-dwim))
+
+(use-package deadgrep
+  :ensure t
+  :bind ("C-c a" . deadgrep))
 
 
 ;;; Git
@@ -730,44 +886,76 @@ fi
   :init (add-hook 'after-init-hook #'global-smartscan-mode)
   :config (setq smartscan-symbol-selector "symbol"))
 
+(use-package duplicate-thing
+  :ensure t
+  :bind (:map ctl-x-map
+              ("u" . duplicate-thing)))
+
 (use-package hydra
   :ensure t
   :bind (("s-z" . hydra-goto/body)
+         ("s-t" . hydra-toggle/body)
+         ("s-o" . hydra-open/body)
          ("C-c w" . hydra-winner/body)
          ("<f2>" . hydra-zoom/body)
          ("C-M-o" . hydra-window-size/body))
   :config
-  (defhydra hydra-goto (:color blue :hint nil)
-    "
-  goto   file
-         -----------------------
-         ._e_macs
-         _d_eft
-         _c_ap.org: default note
-         o_r_g files
-         _p_rojectile
-         _s_rc
-         code snippe_t_s
-         re_f_erence
-         [_x_]*scratch*
-         the rif_l_e
-         led_g_er
-         _w_ork
-         _z_ettel
-    "
-    ("e" (find-file "~/.dotfiles/.emacs"))
-    ("d" deft)
-    ("c" kd/default-captured-org-note)
-    ("r" kd/counsel-org-find-file)
-    ("s" kd/jump-to-src)
-    ("t" (find-file "~/Dropbox/nvALT/snippets.org"))
-    ("p" (helm-projectile-switch-project t))
-    ("f" kd/jump-to-reference)
-    ("x" (switch-to-buffer "*scratch*"))
-    ("l" (hydra-helm-org-rifle/body))
-    ("g" (find-file "~/Dropbox/ledger/ledger.beancount"))
-    ("w" (find-file (concat org-directory "/work.org")))
-    ("z" zd-new-file))
+  (use-package pretty-hydra
+    :ensure t)
+
+  (pretty-hydra-define hydra-goto
+    (:hint nil :color blue :quit-key "q" :title "Goto")
+    ("Coding"
+     (("p" counsel-projectile-switch-project "Project")
+      ("s" kd/jump-to-src "Repo")
+      ("f" kd/jump-to-reference "Ref")
+      ("e" (find-file "~/.dotfiles/.emacs") ".emacs"))
+     "Org"
+     (("c" kd/default-captured-org-note "cap.org: Default note")
+      ("r" kd/counsel-org-find-file "Org files")
+      ("t" (find-file "~/Dropbox/nvALT/snippets.org") "Snippets")
+      ("w" (find-file (expand-file-name "work.org" org-directory)) "Work")
+      ("l" helm-org-rifle-org-directory "Rifle"))
+     "File"
+     (("g" (find-file "~/Dropbox/ledger/ledger.beancount") "Ledger"))
+     "Deft"
+     (("z" zd-new-file "New zettle")
+      ("d" deft "Deft"))
+     "Buffer"
+     (("x" (switch-to-buffer "*scratch*") "*scratch*"))))
+
+  (pretty-hydra-define hydra-toggle
+    (:hint nil :color blue :quit-key "q" :title "Toggle")
+    ("UI"
+     (("l" display-line-numbers-mode "Show line number" :toggle t)
+      ("w" whitespace-mode "Show white space" :toggle t)
+      ("z" writeroom-mode "Writeroom" :toggle t)
+      ("v" visual-fill-column-mode "Visual fill column mode" :toggle t)
+      ("h" hl-line-mode "Show highlight line" :toggle t)
+      ("m" markdown-toggle-markup-hiding "Hiding markdown markup")
+      ("t" toggle-truncate-lines "Truncate long lines"))
+     "Editing"
+     (("f" auto-fill-mode "Auto fill mode"))
+     "Desktop"
+     (("s" desktop-save-in-desktop-dir "Save desktop")
+      ("r" desktop-read "Read desktop"))
+     "Debugging"
+     (("de" toggle-debug-on-error "Debug on error")
+      ("dq" toggle-debug-on-quit "Debug on quit"))))
+
+  (pretty-hydra-define hydra-open
+    (:hint nil :color blue :quit-key "q" :title "Open")
+    ("Editing"
+     (("u" undo-tree-visualize "Show undo tree")
+      ("U" undo-propose "Propose undo"))
+     "Open"
+     (("b" browse-url-at-point "Browse URL at point")
+      ("r" browse-at-remote "Browse at repository")
+      ("'" imenu-list-smart-toggle "Imenu list")
+      ("e" prelude-open-with "Open externally")
+      ("x" scratch "Scratch for current major mode"))
+     "Package"
+     (("p" list-packages "List packages"))))
 
   (defhydra hydra-winner ()
     "winner mode"
@@ -779,13 +967,16 @@ fi
     ("g" text-scale-increase "in")
     ("l" text-scale-decrease "out"))
 
-  (defhydra hydra-window-size ()
-    "window size"
-    ("h" shrink-window-horizontally "shrink horizontal")
-    ("j" enlarge-window "enlarge vertical")
-    ("k" shrink-window "shrink vertical")
-    ("l" enlarge-window-horizontally "enlarge horizontal")
-    ("=" balance-windows "balance")))
+  (pretty-hydra-define hydra-window-size
+    (:hint nil :color amaranth :quit-key "q" :title "Window size")
+    ("Horizontal"
+     (("h" shrink-window-horizontally "shrink horizontal")
+      ("l" enlarge-window-horizontally "enlarge horizontal"))
+     "Vertical"
+     (("j" enlarge-window "enlarge vertical")
+      ("k" shrink-window "shrink vertical"))
+     "Balance"
+     (("=" balance-windows "balance")))))
 
 (use-package edit-indirect
   :ensure t
@@ -806,8 +997,6 @@ fi
   ;;        ("C-S-j" . helm-all-mark-rings)
   ;;        (:map isearch-mode-map
   ;;              ("M-s o" . helm-occur-from-isearch))
-  ;;        (:map kd/toggle-map
-  ;;              ("h" . helm-resume)))
   :init
   ;; (add-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
   :config
@@ -843,6 +1032,7 @@ fi
   (setq helm-swoop-use-fuzzy-match nil))
 
 (use-package helm-smex
+  :disabled t
   :ensure t
   :bind (("M-X" . helm-smex-major-mode-commands)
          ([remap execute-extended-command] . helm-smex))
@@ -924,9 +1114,9 @@ fi
   :ensure t
   :demand t
   :functions ivy-read
-  :bind ((:map ivy-mode-map
-               ("s-x" . ivy-switch-buffer)
-               ("C-c C-r" . ivy-resume)))
+  :bind (:map ivy-mode-map
+              ("s-X" . ivy-switch-buffer)
+              ("C-c C-r" . ivy-resume))
   :diminish ivy-mode
   :init
   (defun kd/jump-to-src (&optional initial-input)
@@ -959,6 +1149,19 @@ fi
   (define-key ivy-mode-map [remap ivy-switch-buffer] nil)
   (global-unset-key (kbd "C-x b")))
 
+(use-package ivy-hydra
+  :ensure t
+  :after swiper)
+
+(use-package ivy-prescient
+  :disabled t
+  :after ivy
+  :ensure t
+  :config
+  (setq ivy-prescient-enable-filtering t)
+  (setq ivy-prescient-retain-classic-highlighting t)
+  (ivy-prescient-mode 1))
+
 (use-package ivy-posframe
   :disabled t
   :ensure t
@@ -989,7 +1192,6 @@ fi
    ("M-x" . counsel-M-x)
    ("C-x C-f" . counsel-find-file)
    ("C-." . counsel-imenu)
-   ("C-c a" . counsel-rg)
    ("M-y" . counsel-yank-pop)
    ("C-h b" . counsel-descbinds)
    ("C-h y" . counsel-find-library))
@@ -1007,14 +1209,14 @@ fi
   :init (add-to-list 'xref-backend-functions 'gxref-xref-backend))
 
 (use-package counsel-gtags
-  :disabled t
   :quelpa (counsel-gtags :fetcher github :repo "kols/emacs-counsel-gtags")
-  :bind (:map counsel-gtags-mode-map
-              ("C-]" . counsel-gtags-find-definition)
-              ("C-}" . counsel-gtags-find-reference)
-              ("C-t" . counsel-gtags-go-backward))
-  :chords (("gd" . counsel-gtags-find-definition)
-           ("gr" . counsel-gtags-find-definition))
+  ;; :bind (:map counsel-gtags-mode-map
+  ;;             ("C-]" . counsel-gtags-find-definition)
+  ;;             ("C-}" . counsel-gtags-find-reference)
+  ;;             ("C-t" . counsel-gtags-go-backward))
+  ;; :chords (("gd" . counsel-gtags-find-definition)
+  ;;          ("gr" . counsel-gtags-find-definition))
+  :defer t
   :diminish counsel-gtags-mode
   :config
   (setq counsel-gtags-use-input-at-point t)
@@ -1024,15 +1226,11 @@ fi
 
 (use-package counsel-projectile
   :ensure t
+  :after projectile
   :bind ((:map projectile-mode-map
-               ("s-X" . counsel-projectile-switch-to-buffer)
-               ("s-p" . counsel-projectile-find-file)
-               ("C-c a" . counsel-projectile-rg))
-         (:map kd/projectile-map
-               ("d" . counsel-projectile-find-dir)
-               ("p" . counsel-projectile-switch-project)
-               ("g" . counsel-projectile-git-grep)))
-  :init (add-hook 'after-init-hook #'counsel-projectile-mode))
+               ("s-P" . counsel-projectile-switch-project)
+               ("s-p" . counsel-projectile-find-file)))
+  :config (counsel-projectile-mode 1))
 
 ;;;; Swiper
 
@@ -1040,15 +1238,16 @@ fi
   :ensure t
   :after ivy
   :commands (swiper)
-  :bind (("C-s" . swiper-isearch)
-         (:map isearch-mode-map
+  :bind ((:map isearch-mode-map
                ("M-i" . swiper-isearch-toggle))
          (:map swiper-map
-               ("M-i" . swiper-isearch-toggle)))
+               ("M-i" . swiper-isearch-toggle)
+               ("C-r" . ivy-previous-line)))
   :config
-  (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
+  ;; (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
   (setq swiper-include-line-number-in-search nil)
-  (setq swiper-goto-start-of-match t))
+  (setq swiper-goto-start-of-match t)
+  (set-face-attribute 'swiper-line-face nil :inherit 'swiper-match-face-3))
 
 
 ;; (use-package bookmark+
@@ -1056,6 +1255,7 @@ fi
 ;;   :defer t)
 
 (use-package isearch
+  :bind ("C-s" . isearch-forward)
   :config
   (use-package isearch+
     :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
@@ -1154,6 +1354,21 @@ fi
     (goto-char (point-max))
     (forward-line -2)
     (org-end-of-line))
+
+  ;; https://emacs.stackexchange.com/questions/2206/i-want-to-have-the-kbd-tags-for-my-blog-written-in-org-mode
+  (defun endless/insert-key (key)
+    "Ask for a key then insert its description.
+Will work on both org-mode and any mode that accepts plain html."
+    (interactive "kType key sequence: ")
+    (let* ((is-org-mode (derived-mode-p 'org-mode))
+           (tag (if is-org-mode
+                    "@@html:<kbd>%s</kbd>@@"
+                  "<kbd>%s</kbd>")))
+      (if (null (equal key "\r"))
+          (insert
+           (format tag (help-key-description key nil)))
+        (insert (format tag ""))
+        (forward-char (if is-org-mode -8 -6)))))
   :commands (org-end-of-line org-narrow-to-block org-mode orgtbl-mode kd/counsel-org-find-file kd/default-captured-org-note)
   :defines (org-directory
             org-imenu-depth
@@ -1161,7 +1376,8 @@ fi
   :bind ((:map org-mode-map
                ("C-M-<return>" . org-insert-subheading)
                ("C-c L" . org-insert-link-global)
-               ("C-c R" . org-refile))
+               ("C-c R" . org-refile)
+               ("C-c k" . endless/insert-key))
          (:map kd/org-map
                ("l" . org-store-link)))
   :init
@@ -1180,6 +1396,7 @@ fi
 
   (add-hook 'org-mode-hook #'kd/org-mode-hook-func)
   :config
+  (setq org-adapt-indentation nil)
   (setq org-imenu-depth 3)
   (setq org-src-fontify-natively t)
   (setq org-src-preserve-indentation t)
@@ -1193,7 +1410,6 @@ fi
     (custom-set-faces `(,face ((t (:height 1.0 :weight semi-bold))))))
 
   (unbind-key "C-'" org-mode-map)       ; used by `imenu-list'
-
 
   ;; link
   (org-link-set-parameters "devonthink"
@@ -1283,36 +1499,55 @@ fi
   (setq org-wiki-template
         (string-trim
          "
-#+TITLE: %n
-#+DESCRIPTION:
-#+KEYWORDS:
-#+STARTUP:  content
-#+DATE: %d
-#+HTML_HEAD: <link rel=\"stylesheet\" type=\"text/css\" href=\"css/org.css\"/>
+  #+TITLE: %n
+  #+DESCRIPTION:
+  #+KEYWORDS:
+  #+STARTUP:  content
+  #+DATE: %d
+  #+HTML_HEAD: <link rel=\"stylesheet\" type=\"text/css\" href=\"css/org.css\"/>
 
-- [[wiki:index][Index]]
+  - [[wiki:index][Index]]
 
-- Related:
+  - Related:
 
-* %n
-")))
+  * %n
+  ")))
 
 (use-package org-bullets
   :ensure t
   :hook (org-mode . org-bullets-mode)
   :config
-  (setq org-bullets-bullet-list
-        '("☘" "♠" "○" "►" "◦" "⁃")))
+  (setq org-bullets-bullet-list '("●" "►" "▸")))
+
+(use-package org-category-capture
+  :ensure t
+  :commands occ-capture-goto-marker)
 
 (use-package org-projectile
   :ensure t
-  :bind (:map kd/projectile-map
-              ("n" . org-projectile-project-todo-completing-read))
+  :demand t
+  :commands (org-projectile-project-todo-completing-read
+             org-projectile-goto-location-for-project)
+  :bind (:map projectile-mode-map
+              ("s-N" . kd/org-projectile-goto-location-for-current-project))
+  :init
+  (defun kd/org-projectile-goto-location-for-current-project ()
+    (interactive)
+    (let ((project (projectile-project-name)))
+      (if (projectile-project-p)
+          (occ-capture-goto-marker
+           (make-instance 'occ-context
+                          :category project
+                          :template org-projectile-capture-template
+                          :strategy org-projectile-strategy
+                          :options nil))
+        (error (format "%s is not a recognized projectile project."
+                       project-name)))))
   :config
+  (org-projectile-single-file)
   (setq org-projectile-projects-file
         (expand-file-name "proj_notes.org" org-directory))
-  (push (org-projectile-project-todo-entry) org-capture-templates)
-  (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files))))
+  (push (org-projectile-project-todo-entry) org-capture-templates))
 
 (use-package ox-latex
   :defer t
@@ -1338,9 +1573,9 @@ fi
     (defun kd/org-bookmark-template ()
       (concat "* " (org-mac-chrome-get-frontmost-url) "%?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i"))
     (setq org-capture-templates
-          `(("n" "note" entry (file+olp+datetree ,default-capture-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i")
-            ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
-            ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n  :LOGBOOK:\n  :CREATED: %U\n  :END:\n%i" :tree-type week)
+          `(("n" "note" entry (file+olp+datetree ,default-capture-file) "* %?\n:LOGBOOK:\n:CREATED: %U\n:END:\n%i")
+            ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n:LOGBOOK:\n:CREATED: %U\n:END:\n%i" :tree-type week)
+            ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n:LOGBOOK:\n:CREATED: %U\n:END:\n%i" :tree-type week)
             ("u" "url bookmark" entry (file+olp ,bookmark-file "Bookmarks") #'kd/org-bookmark-template)))))
 
 (use-package htmlize
@@ -1354,7 +1589,11 @@ fi
   :commands (org-reveal-export-to-html
              org-reveal-export-to-html-and-browse
              org-reveal-export-current-subtree)
-  :config (setq org-reveal-root "file://~/src/reveal.js"))
+  :config
+  (setq org-reveal-root (kd/ghq-github-repo-path "hakimel/reveal.js"))
+  (setq org-reveal-theme "white")
+  (setq org-reveal-transition "none")
+  (setq org-reveal-title-slide nil))
 
 (use-package org-noter
   :ensure t
@@ -1437,6 +1676,8 @@ fi
   (defun kd/eshell-mode-hook-func ()
     (smartscan-mode -1)
     (goto-address-prog-mode 1)
+    (toggle-truncate-lines 1)
+
     (add-to-list 'eshell-visual-commands "ssh")
     (add-to-list 'eshell-preoutput-filter-functions #'xterm-color-filter)
     (setq eshell-output-filter-functions (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
@@ -1537,8 +1778,13 @@ directory to make multiple eshell windows easier."
   :commands esh-autosuggest-mode
   :init (add-hook 'eshell-mode-hook #'esh-autosuggest-mode))
 
+(use-package vterm
+  :ensure t
+  :commands vterm)
+
 (use-package sh-script
   :commands sh-mode
+  :mode ("\\.zsh\\(env\\|rc\\)\\'" . sh-mode)
   :config
   (let ((cond '(sh-mode . "Strict bash options")))
     (unless (assoc cond auto-insert-alist)
@@ -1603,15 +1849,12 @@ directory to make multiple eshell windows easier."
 ;;; Integration
 
 (use-package browse-url
-  :commands browse-url-generic
-  :bind (:map kd/pop-map
-              ("u" . browse-url-at-point))
+  :commands browse-url-generic browse-url-at-point
   :config (setq browse-url-generic-program "open"))
 
 (use-package browse-at-remote
   :ensure t
-  :bind (:map kd/pop-map
-              ("r" . browse-at-remote))
+  :commands browse-at-remote
   :config (dolist (elt '(("gitlab.alibaba-inc.com" . "gitlab")))
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
 
@@ -1623,14 +1866,32 @@ directory to make multiple eshell windows easier."
 
 (use-package ispell
   :defer t
-  :config (setq ispell-program-name "aspell"))
+  :ensure-system-package hunspell
+  :config
+  (setq ispell-program-name "hunspell")
+  (setq ispell-really-hunspell t))
 
 (use-package flyspell
   :commands flyspell-mode
-  :init (add-hook 'org-mode-hook #'flyspell-mode)
+  :hook ((markdown-mode org-mode text-mode) . flyspell-mode)
   :config
   (define-key flyspell-mode-map [remap flyspell-auto-correct-word] nil)
   (unbind-key "C-." flyspell-mode-map))
+
+(use-package langtool
+  :ensure t
+  :ensure-system-package languagetool
+  :config
+  (setq langtool-default-language "en-US")
+  (setq langtool-disabled-rules '("COMMA_PARENTHESIS_WHITESPACE"
+                                  "COPYRIGHT"
+                                  "DASH_RULE"
+                                  "EN_QUOTES"
+                                  "EN_UNPAIRED_BRACKETS"
+                                  "UPPERCASE_SENTENCE_START"
+                                  "WHITESPACE_RULE"))
+  (setq langtool-language-tool-jar "/usr/local/opt/languagetool/libexec/languagetool-commandline.jar")
+  (setq langtool-language-tool-server-jar "/usr/local/opt/languagetool/libexec/languagetool-server.jar"))
 
 (use-package graphql-mode
   :ensure t
@@ -1638,8 +1899,15 @@ directory to make multiple eshell windows easier."
 
 (use-package plantuml-mode
   :ensure t
+  :ensure-system-package plantuml
   :commands plantuml-mode
-  :config (setq plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar"))
+  :preface
+  (defun kd/plantuml-mode-hook-func ()
+    (setq-local plantuml-exec-mode 'jar))
+  :hook (plantuml-mode . kd/plantuml-mode-hook-func)
+  :init (setq plantuml-default-exec-mode 'jar)
+  :config
+  (setq plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar"))
 
 (use-package flycheck-plantuml
   :ensure t
@@ -1667,18 +1935,27 @@ directory to make multiple eshell windows easier."
                               flycheck-mode
                               which-function-mode)))
       (dolist (mode prog-minor-modes)
-        (apply mode '(1))))
-
-    (use-package quickrun
-      :ensure t))
+        (apply mode '(1)))))
 
   (add-hook 'prog-mode-hook #'kd-prog-mode-hook-func))
 
-(use-package lsp-mode
+(use-package counsel-dash
   :ensure t
-  :commands (lsp lsp-session)
-  :bind (:map lsp-mode-map
-              ("<f8>" . treemacs))
+  :commands counsel-dash counsel-dash-install-docset)
+
+(use-package dash-at-point
+  :ensure t
+  :bind ("C-c D" . dash-at-point))
+
+(use-package format-all
+  :ensure t
+  :bind (:map ctl-x-map
+              ("m" . format-all-buffer)))
+
+(use-package lsp-mode
+  :disabled t
+  :ensure t
+  :commands (lsp lsp-deferred)
   :init
   (defun kd/lsp-mode-hook-func ()
     (require 'lsp-clients)
@@ -1702,24 +1979,41 @@ directory to make multiple eshell windows easier."
   (setq lsp-eldoc-enable-signature-help t)
   (add-to-list 'xref-prompt-for-identifier 'xref-find-references t))
 
+(use-package lsp-treemacs
+  :ensure t
+  :after (treemacs lsp-mode))
+
+(use-package dap-mode
+  :disabled t
+  :ensure t
+  :after lsp-mode
+  :config
+  (dap-mode 1)
+  (dap-ui-mode 1))
+
 (use-package treemacs
   :ensure t
   :commands treemacs
-  :bind (:map treemacs-mode-map
-              ("<f8>" . treemacs))
+  :bind ("<f8>" . treemacs)
   :init
   (defun kd/treemacs-mode-hook-func ()
     (treemacs-resize-icons 15)
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t))
+    (treemacs-follow-mode 1)
+    (treemacs-filewatch-mode 1)
+    (treemacs-fringe-indicator-mode 1)
+    (treemacs-load-theme "Default")
+    (text-scale-mode 1)
+    (text-scale-set -0.5))
   (add-hook 'treemacs-mode-hook #'kd/treemacs-mode-hook-func)
   :config
-  (setq treemacs-follow-after-init          t
-        treemacs-width                      35
+  (setq treemacs-python-executable "~/.pyenv/versions/3.7.2/bin/python3"
+        treemacs-eldoc-display nil
+        treemacs-follow-after-init          t
+        treemacs-width                      40
         treemacs-indentation                2
         treemacs-git-integration            t
-        treemacs-collapse-dirs              3
-        treemacs-silent-refresh             nil
+        treemacs-collapse-dirs              99
+        treemacs-silent-refresh             t
         treemacs-change-root-without-asking nil
         treemacs-sorting                    'alphabetic-desc
         treemacs-show-hidden-files          t
@@ -1729,15 +2023,15 @@ directory to make multiple eshell windows easier."
 
 (use-package treemacs-projectile
   :ensure t
-  :after treemacs
-  :config
-  (setq treemacs-header-function #'treemacs-projectile-create-header))
+  :after treemacs)
 
 (use-package lsp-ui
+  :disabled t
   :ensure t
   :commands (lsp-ui-mode lsp-ui-flycheck-enable)
   :config
   (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-flycheck-enable t)
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-ui-sideline-show-code-actions nil)
   (setq lsp-ui-sideline-delay 1)
@@ -1764,13 +2058,12 @@ directory to make multiple eshell windows easier."
               ("<C-s-268632093>" . sp-unwrap-sexp)
               ("C-s-]" . sp-unwrap-sexp)
               ("C-)" . sp-slurp-hybrid-sexp))
-  :init
-  (add-hook 'after-init-hook #'smartparens-global-strict-mode)
-  (add-hook 'after-init-hook #'show-smartparens-global-mode)
+  :hook (after-init . smartparens-global-strict-mode)
   :config
-  (require 'smartparens-config)
-  (use-package paren
-    :config (show-paren-mode -1)))
+  (require 'smartparens-config))
+
+(use-package paren
+  :hook (after-init . show-paren-mode))
 
 (use-package hideshow
   :commands (hs-minor-mode hs-toggle-hiding hs-hide-all kd/hs-toggle-hiding-all)
@@ -1791,6 +2084,32 @@ directory to make multiple eshell windows easier."
               ("C-\\" . hs-toggle-hiding)
               ("C-|" . kd/hs-toggle-hiding-all)
               ("M-+" . hs-show-all)))
+
+(use-package nxml-mode
+  :init
+  (defun kd/nxml-where ()
+    "Display the hierarchy of XML elements the point is on as a path."
+    (interactive)
+    (let ((path nil))
+      (save-excursion
+        (save-restriction
+          (widen)
+          (while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+                      (condition-case nil
+                          (progn
+                            (nxml-backward-up-element) ; always returns nil
+                            t)
+                        (error nil)))
+            (setq path (cons (xmltok-start-tag-local-name) path)))
+          (if (called-interactively-p t)
+              (message "/%s" (mapconcat 'identity path "/"))
+            (format "/%s" (mapconcat 'identity path "/")))))))
+
+  (defun kd/nxml-mode-hook-func ()
+    (which-function-mode 1)
+    (setq-local which-func-mode t)
+    (add-hook 'which-func-functions #'kd/nxml-where))
+  :hook (nxml-mode . kd/nxml-mode-hook-func))
 
 ;;;; Flycheck
 
@@ -1821,7 +2140,7 @@ directory to make multiple eshell windows easier."
                           (-when-let* ( (error (get-text-property 0 'tabulated-list-id s))
                                         (pos (flycheck-error-pos error)) )
                             (goto-char (flycheck-error-pos error))))
-                :history 'counsel-flycheck-history)))
+                :history 'kd/counsel-flycheck-history)))
 
   :bind (:map kd/errors-map
               ("c" . flycheck-buffer)
@@ -1850,8 +2169,7 @@ directory to make multiple eshell windows easier."
 
 (use-package imenu-list
   :ensure t
-  :bind (:map kd/pop-map
-              ("'" . imenu-list-smart-toggle))
+  :commands imenu-list-smart-toggle
   :config
   (setq idle-update-delay 1)
   (setq imenu-list-focus-after-activation t))
@@ -1875,10 +2193,16 @@ directory to make multiple eshell windows easier."
     (setq-local company-backends (add-to-list 'company-backends backend))))
 
 (use-package company-flx
+  :disabled t
   :ensure t
   :after company
   :commands company-flx-mode
   :config (company-flx-mode 1))
+
+(use-package company-prescient
+  :after company
+  :ensure t
+  :config (company-prescient-mode 1))
 
 (use-package company-quickhelp
   :disabled t
@@ -1939,11 +2263,7 @@ directory to make multiple eshell windows easier."
 
 (use-package json-mode
   :ensure t
-  :defer t)
-
-(use-package swift-mode
-  :ensure t
-  :defer t)
+  :mode ("\\.json\\'" . js2-mode))
 
 (use-package csv-mode
   :ensure t
@@ -1993,8 +2313,6 @@ directory to make multiple eshell windows easier."
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.markdown\\'" . markdown-mode)
          ("\\.md\\'" . markdown-mode))
-  :bind ((:map markdown-mode-map
-               ("s-t m" . markdown-toggle-markup-hiding)))
   :commands (markdown-mode markdown-view-mode gfm-mode)
   :init
   (defun kd/markdown-mode-common-hook-func ()
@@ -2022,7 +2340,14 @@ directory to make multiple eshell windows easier."
   (add-hook 'markdown-mode-hook #'kd/markdown-mode-hook-func)
   (add-hook 'markdown-view-mode-hook #'kd/markdown-view-mode-hook-func)
   (add-hook 'gfm-view-mode-hook #'kd/markdown-view-mode-hook-func)
-  :config (setq markdown-command "multimarkdown"))
+  :config
+  (setq markdown-command "multimarkdown")
+  (advice-add 'markdown-toggle-markup-hiding :around #'kd/suppress-messages))
+
+(use-package sql-indent
+  :ensure t
+  :commands sqlind-minor-mode
+  :hook (sql-mode . sqlind-minor-mode))
 
 (use-package conf-mode
   :mode ("rc$" . conf-mode))
@@ -2039,6 +2364,13 @@ directory to make multiple eshell windows easier."
   :ensure t
   :mode ("\\.proto\\'" . protobuf-mode))
 
+(use-package subed
+  :quelpa (subed :fetcher file :path "~/.ghq/github.com/rndusr/subed/subed")
+  :mode ("\\.srt\\'" . subed-mode)
+  :config
+  (subed-disable-sync-point-to-player))
+
+
 (use-package yasnippet
   :ensure t
   :commands (yas-global-mode yas-expand)
@@ -2052,11 +2384,9 @@ directory to make multiple eshell windows easier."
 
 (use-package undo-tree
   :quelpa (undo-tree :fetcher github :repo "emacsmirror/undo-tree")
-  :commands (global-undo-tree-mode undo-tree-mode)
-  :bind ((:map kd/toggle-map
-               ("u" . undo-tree-visualize)))
+  :commands (global-undo-tree-mode undo-tree-mode undo-tree-visualize)
   :diminish undo-tree-mode
-  :init (add-hook 'after-init-hook #'global-undo-tree-mode)
+  :hook (after-init . global-undo-tree-mode)
   :config
   (setq undo-tree-visualizer-timestamps t)
   (setq undo-tree-visualizer-diff t)
@@ -2072,7 +2402,14 @@ directory to make multiple eshell windows easier."
           (set-mark m)
           (set-marker p nil)
           (set-marker m nil))
-      ad-do-it)))
+      ad-do-it))
+  (unbind-key "C-x u" undo-tree-map))
+
+(use-package undo-propose
+  :ensure t
+  :bind (:map undo-propose-mode-map
+              ("C-/" . undo-only))
+  :commands undo-propose)
 
 (use-package abbrev
   :diminish abbrev-mode
@@ -2217,9 +2554,12 @@ directory to make multiple eshell windows easier."
 ;;;; Python
 
 (use-package python
+  :load-path "~/.emacs.d/quelpa/build/python"
   :quelpa (python :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/progmodes/python.el")
   :preface
   (defun kd/python-mode-hook-function ()
+    (pyenv-mode 1)
+
     ;; jedi
     (jedi:setup)
     (kd/local-push-company-backend #'company-jedi)
@@ -2232,7 +2572,6 @@ directory to make multiple eshell windows easier."
     (setq-local whitespace-style '(face indentation::tab))
 
     (subword-mode 1))
-
 
   (defun kd/inferior-python-mode-hook-func ()
     (kd/turn-on-comint-history (expand-file-name "infpy_hist" kd/cache-dir)))
@@ -2249,15 +2588,60 @@ directory to make multiple eshell windows easier."
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil "# coding: utf-8\n")))))
 
+(use-package pyenv-mode
+  :ensure t
+  :preface
+  (defun kd/pyenv-mode-set-auto ()
+    "Automatically activates pyenv version if .python-version file exists."
+    (f-traverse-upwards
+     (lambda (path)
+       (let ((pyenv-version-path (f-expand ".python-version" path)))
+         (if (f-exists? pyenv-version-path)
+             (progn
+               (pyenv-mode-set (car (s-lines (s-trim (f-read-text pyenv-version-path 'utf-8)))))
+               t))))))
+
+  (defun kd/pyenv-mode-set-auto-projectile ()
+    (let* ((root projectile-project-root)
+           (pyenv-version-path (f-expand ".python-version" root)))
+      (if (f-exists? pyenv-version-path)
+          (progn
+            (pyenv-mode-set (car (s-lines (s-trim (f-read-text pyenv-version-path 'utf-8)))))
+            t))))
+  :commands (pyenv-mode pyenv-mode-set pyenv-mode-unset)
+  :hook ((find-file . kd/pyenv-mode-set-auto)
+         (projectile-find-file . kd/pyenv-mode-set-auto-projectile)
+         (projectile-after-switch-project . kd/pyenv-mode-set-auto-projectile))
+  :init
+  (defun kd/post-pyenv-mode-set (orig-func version)
+    (let ((current-version (pyenv-mode-version)))
+      (apply orig-func (list version))
+      (unless (equal current-version version)
+        (let ((venv-root (pyenv-mode-full-path version)))
+          (setenv "VIRTUAL_ENV" venv-root)
+          (setq jedi:server-args `("--virtual-env" ,venv-root))
+          (setq inhibit-message t)
+          (jedi:stop-server)
+          (setq inhibit-message nil)))))
+  (advice-add 'pyenv-mode-set :around #'kd/post-pyenv-mode-set)
+  :config
+  (setq pyenv-mode-mode-line-format
+        '(:eval
+          (when
+              (pyenv-mode-version)
+            (concat "py:" (pyenv-mode-version) " ")))))
+
 (use-package jedi-core
   :ensure t
-  :commands jedi:setup
+  :commands (jedi:setup jedi:stop-server)
   :bind (:map jedi-mode-map
-              ("<s-mouse-1>" . jedi:goto-definition))
+              ("<s-mouse-1>" . jedi:goto-definition)
+              ("C-c d" . jedi:show-doc))
   :config
   (setq jedi:use-shortcuts t)
   (setq jedi:tooltip-method nil)
-  (setq jedi:complete-on-dot t))
+  (setq jedi:complete-on-dot t)
+  (setq jedi:import-python-el-settings nil))
 
 (use-package company-jedi
   :ensure t
@@ -2353,29 +2737,34 @@ directory to make multiple eshell windows easier."
 
 ;;;; Java
 
-(use-package cc-mode
-  :commands java-mode
-  :init
+(use-package java-mode
+  :no-require t
+  :ensure cc-mode
+  :preface
   (defun kd/java-mode-hook-func ()
-    (lsp)
-    (require 'lsp-java-boot)
-    (lsp-java-boot-lens-mode 1))
-  (add-hook 'java-mode-hook #'kd/java-mode-hook-func))
+    (toggle-truncate-lines 1)
+    (eglot-ensure))
+  :hook (java-mode . kd/java-mode-hook-func))
 
-(use-package eglot
+(use-package lsp-java-boot
   :disabled t
-  :ensure t)
+  :ensure lsp-java
+  :after lsp-java
+  :commands lsp-java-boot-lens-mode)
 
 (use-package lsp-java
+  :disabled t
   :ensure t
-  :defer t
+  :commands lsp
   :config
   (setq lsp-java-vmargs
         (list
          "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
          "-Declipse.application=org.eclipse.jdt.ls.core.id1"
-         "-Dosgi.bundles.defaultStartLevel=4"
+         "-Dosgi.bundles.defaultStaprtLevel=4"
          "-Declipse.product=org.eclipse.jdt.ls.core.product"
+         "-javaagent:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
+         "-Xbootclasspath/a:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
          "-Dlog.level=ALL"
          ;; "-jar ./plugins/org.eclipse.equinox.launcher_1.5.200.v20180922-1751.jar"
          "--add-modules=ALL-SYSTEM"
@@ -2385,17 +2774,43 @@ directory to make multiple eshell windows easier."
          "-Xmx1G"
          "-XX:+UseG1GC"
          "-XX:+UseStringDeduplication"))
-  (setq lsp-java-java-path
-        "/Users/kane/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/bin/java"))
+  (setq lsp-java-java-path "/Users/kane/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/bin/java")
+  (setq lsp-file-watch-ignored
+        '(".idea" ".ensime_cache" ".eunit" "node_modules" ".git" ".hg" ".fslckout" "_FOSSIL_"
+          ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "build")
+        ;; Formatter profile
+        ;; lsp-java-format-settings-url (concat "file://" jmi/java-format-settings-file)
+        lsp-enable-on-type-formatting t
+        lsp-enable-indentation t)
+  )
 
 (use-package autodisass-java-bytecode
   :ensure t
-  :mode ("\\.class\\'" . ad-javap-mode))
+  :defer t)
+
+(use-package ad-javap-mode
+  :ensure autodisass-java-bytecode
+  :mode ("\\.class\\'" . ad-javap-mode)
+  :config (require 'autodisass-java-bytecode))
 
 (use-package gradle-mode
   :ensure t
   :diminish gradle-mode
   :commands gradle-mode)
+
+(use-package javadoc-lookup
+  :after java-mode
+  :ensure t)
+
+(use-package eglot
+  :ensure t
+  :commands eglot-ensure
+  :bind (:map java-mode-map
+              ("C-c d" . eglot-help-at-point))
+  :config
+  (defconst kd/eclipse-jdt-home (expand-file-name "/Applications/jdt-language-server-latest/plugins/org.eclipse.equinox.launcher_1.5.500.v20190715-1310.jar"))
+  (let ((cp (getenv "CLASSPATH")))
+    (setenv "CLASSPATH" (concat cp ":" kd/eclipse-jdt-home))))
 
 (use-package meghanada
   :disabled t
@@ -2482,10 +2897,11 @@ directory to make multiple eshell windows easier."
   :commands rust-mode)
 
 
+;;; ---
 
-(use-package tldr
-  :ensure t
-  :commands tldr)
+(use-package eg
+  :quelpa (eg :fetcher github :repo "mnewt/eg.el")
+  :commands (eg eg-at-point))
 
 (use-package iedit
   :ensure t
@@ -2509,14 +2925,17 @@ directory to make multiple eshell windows easier."
 
 (use-package eww
   :commands eww
-  :init
+  :preface
   (defun kd/eww-mode-hook-func ()
     (setq-local shr-use-colors nil)
     (turn-on-visual-line-mode))
+  :hook (eww-mode . kd/eww-mode-hook-func))
 
-  (add-hook 'eww-mode-hook #'kd/eww-mode-hook-func))
+(use-package elpher
+  :ensure t)
 
 (use-package elfeed
+  :disabled t
   :ensure t
   :commands elfeed
   :init
@@ -2530,6 +2949,7 @@ directory to make multiple eshell windows easier."
   (add-hook 'elfeed-show-mode-hook #'kd-elfeed-show-mode-hook-func))
 
 (use-package elfeed-org
+  :disabled t
   :ensure t
   :commands elfeed-org
   :config (elfeed-org)
@@ -2561,7 +2981,7 @@ already narrowed."
          (LaTeX-narrow-to-environment))
         (t (narrow-to-defun))))
 
-(bind-key "n" #'narrow-or-widen-dwim 'kd/toggle-map)
+(bind-key "t" #'narrow-or-widen-dwim ctl-x-map)
 
 (defun prelude-open-with (arg)
   "Open visited file in default external program.
@@ -2576,8 +2996,6 @@ With a prefix ARG always prompt for command to use."
                      (t (read-shell-command "Open current file with: ")))
                     " "
                     (shell-quote-argument buffer-file-name)))))
-
-(bind-key "e" #'prelude-open-with 'kd/pop-map)
 
 ;;; beancount
 
