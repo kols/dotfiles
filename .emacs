@@ -77,6 +77,9 @@ REPO's pattern: `<user>/<repo>'"
 
 ;;; Package
 
+;;; https://emacs.stackexchange.com/questions/51721/failed-to-download-gnu-archive
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
 (with-eval-after-load 'package
   (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                            ("gnu" . "https://elpa.gnu.org/packages/")

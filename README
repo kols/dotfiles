@@ -12,3 +12,16 @@ use either one of these:
 
 - https://github.com/kols/pkgsrc/tree/develop/sysutils/stow
 - https://github.com/Homebrew/homebrew/blob/master/Library/Formula/stow.rb
+
+## emacs
+
+### clone melpa repo
+
+```sh
+mkdir -p ~/.ghq/github.com/melpa
+git clone git@github.com:melpa/melpa.git ~/.ghq/github.com/melpa
+```
+
+### install input mono fonts
+
+[Download](https://input.fontbureau.com/)
