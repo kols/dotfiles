@@ -241,7 +241,7 @@ Repeated invocations toggle between the two most recently open buffers."
   :ensure t
   :config
   (setq exec-path-from-shell-check-startup-files nil)
-  (setq exec-path-from-shell-shell-name "/usr/local/bin/zsh")
+  (setq exec-path-from-shell-shell-name (executable-find "zsh"))
   (setq exec-path-from-shell-variables '("PATH" "MANPATH" "GOPATH" "JAVA_HOME"))
   (exec-path-from-shell-initialize))
 
@@ -863,7 +863,7 @@ FRAME defaults to the current frame."
   (add-hook 'magit-process-mode-hook #'goto-address-mode)
   (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
   :config
-  (setq magit-git-executable "/usr/local/bin/git")
+  (setq magit-git-executable (executable-find "git"))
   (setq magit-status-expand-stashes nil))
 
 (use-package git-commit
