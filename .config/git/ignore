@@ -1,6 +1,13 @@
+.DS_Store
 GPATH
 GRTAGS
 GTAGS
 gtags.files
 \#*#
 .python-version
+
+# java lsp
+.classpath
+.factorypath
+.project
+.settings/
