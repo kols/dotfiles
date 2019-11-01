@@ -599,6 +599,7 @@ fi
   :chords ("jw" . ace-window))
 
 (use-package ace-isearch
+  :disabled t
   :ensure t
   :bind (:map isearch-mode-map
               ("C-'" . ace-isearch-jump-during-isearch))
@@ -1241,13 +1242,16 @@ FRAME defaults to the current frame."
   :ensure t
   :after ivy
   :commands (swiper)
-  :bind ((:map isearch-mode-map
+  :bind (("C-s" . swiper-isearch)
+         (:map isearch-mode-map
                ("M-i" . swiper-isearch-toggle))
          (:map swiper-map
                ("M-i" . swiper-isearch-toggle)
                ("C-r" . ivy-previous-line)))
   :config
   ;; (add-to-list 'ivy-re-builders-alist '(swiper . ivy--regex-plus))
+  (add-to-list 'ivy-height-alist '(swiper-isearch . 10))
+  (add-to-list 'ivy-height-alist '(swiper . 10))
   (setq swiper-include-line-number-in-search nil)
   (setq swiper-goto-start-of-match t)
   (set-face-attribute 'swiper-line-face nil :inherit 'swiper-match-face-3))
@@ -3009,6 +3013,45 @@ With a prefix ARG always prompt for command to use."
   (defun kd/beancount-mode-hook-func ()
     (add-to-list 'yas-extra-modes 'beancount-mode))
   (add-hook 'beancount-mode-hook #'kd/beancount-mode-hook-func))
+
+
+;;; aliyun log
+(use-package aliyun-log
+  :no-require t
+  :config
+  (defun kd/aliyun-query-logs (project query-string)
+    (interactive)
+    (with-current-buffer (get-buffer-create "*aliyun-query-logs*")
+      (let* ((log-buffer (current-buffer))
+             (end-time (current-time))
+             (from-time (seconds-to-time (- (time-to-seconds end-time) 604800)))
+             (req-args (json-encode-alist
+                        `(("topic" . "")
+                          ("logstore" . "zb")
+                          ("project" . ,project)
+                          ("toTime" . ,(format-time-string "%Y-%m-%d %T" end-time))
+                          ("offset" . "0")
+                          ("query" . ,query-string)
+                          ("line" . "100")
+                          ("fromTime" . ,(format-time-string "%Y-%m-%d %T" from-time))
+                          ("reverse" . "true")))))
+        (emacs-lock-mode 'kill)
+        (goto-char (point-max))
+        (insert "* Request"
+                (concat "<" (format-time-string "%Y-%m-%d %T" end-time) ">" "\n")
+                "** Args\n#+begin_src json\n"
+                req-args
+                "\n#+end_src\n** Response\n#+begin_src json\n")
+        (start-process "aliyun-query-logs"
+                       log-buffer
+                       (expand-file-name "~/.pyenv/versions/3.7.2/bin/aliyunlog")
+                       "log"
+                       "get_logs"
+                       (concat "--request=" req-args))
+        (insert "#+end_src\n")
+        (org-mode)
+        (flyspell-mode -1)
+        (switch-to-buffer log-buffer)))))
 
 ;;; .emacs ends here
 ;;; Local Variables:
