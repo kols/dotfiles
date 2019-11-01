@@ -3019,39 +3019,48 @@ With a prefix ARG always prompt for command to use."
 (use-package aliyun-log
   :no-require t
   :config
-  (defun kd/aliyun-query-logs (project query-string)
+  (setq aliyun-query-log-time-ragne 604800) ; 1 week
+  (setq aliyun-query-log-aliyunlog-executable (expand-file-name "~/.pyenv/versions/3.7.2/bin/aliyunlog"))
+
+  (defun kd/aliyun-query-log (project logstore query-string &optional limit offset)
     (interactive)
-    (with-current-buffer (get-buffer-create "*aliyun-query-logs*")
+    (require 'json)
+    (with-current-buffer (get-buffer-create "*aliyun-query-log*")
       (let* ((log-buffer (current-buffer))
              (end-time (current-time))
-             (from-time (seconds-to-time (- (time-to-seconds end-time) 604800)))
+             (from-time (seconds-to-time (- (time-to-seconds end-time) aliyun-query-log-time-ragne)))
              (req-args (json-encode-alist
                         `(("topic" . "")
-                          ("logstore" . "zb")
+                          ("logstore" . ,logstore)
                           ("project" . ,project)
                           ("toTime" . ,(format-time-string "%Y-%m-%d %T" end-time))
-                          ("offset" . "0")
+                          ("offset" . ,(number-to-string (or offset 0)))
                           ("query" . ,query-string)
-                          ("line" . "100")
+                          ("line" . ,(number-to-string (min (or limit 20) 50)))
                           ("fromTime" . ,(format-time-string "%Y-%m-%d %T" from-time))
                           ("reverse" . "true")))))
-        (emacs-lock-mode 'kill)
+        ;; (emacs-lock-mode 'kill)
         (goto-char (point-max))
-        (insert "* Request"
+        (insert "* Query_"
+                (string-join (list project logstore) "_")
                 (concat "<" (format-time-string "%Y-%m-%d %T" end-time) ">" "\n")
                 "** Args\n#+begin_src json\n"
                 req-args
                 "\n#+end_src\n** Response\n#+begin_src json\n")
-        (start-process "aliyun-query-logs"
+        (start-process "aliyun-query-log"
                        log-buffer
-                       (expand-file-name "~/.pyenv/versions/3.7.2/bin/aliyunlog")
+                       aliyun-query-log-aliyunlog-executable
                        "log"
                        "get_logs"
-                       (concat "--request=" req-args))
+                       (concat "--request=" req-args)
+                       (concat "--jmes-filter=" "join('\\n', map(&to_string(@), @))"))
         (insert "#+end_src\n")
+        (switch-to-buffer-other-window log-buffer)
         (org-mode)
-        (flyspell-mode -1)
-        (switch-to-buffer log-buffer)))))
+        (goto-char (point-max))
+        (previous-line)
+        (org-show-subtree)
+        (flyspell-mode -1)))))
 
 ;;; .emacs ends here
 ;;; Local Variables:
