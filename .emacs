@@ -152,6 +152,10 @@ REPO's pattern: `<user>/<repo>'"
   (paradox-enable)
   (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 
+(use-package rx
+  :load-path "~/.emacs.d/quelpa/build/rx"
+  :quelpa (rx :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/dbffbe08815644fd30404891ef81496277ed27da/lisp/emacs-lisp/rx.el"))
+
 ;;; Defaults
 
 (use-package kd-defaults
@@ -269,6 +273,13 @@ Repeated invocations toggle between the two most recently open buffers."
   (menu-bar-mode 1)
   (column-number-mode 1)
 
+  (defun kd/suppress-messages (old-fun &rest args)
+    (cl-flet ((silence (&rest args1) (ignore)))
+      (advice-add 'message :around #'silence)
+      (unwind-protect
+          (apply old-fun args)
+        (advice-remove 'message #'silence))))
+
   (use-package face-remap
     :commands (buffer-face-mode
                text-scale-mode
@@ -280,7 +291,8 @@ Repeated invocations toggle between the two most recently open buffers."
     :init (add-hook 'after-init-hook #'global-visual-line-mode)
     :config
     (setq set-mark-command-repeat-pop t)
-    (setq next-error-recenter '(4)))
+    (setq next-error-recenter '(4))
+    (advice-add 'toggle-truncate-lines :around #'kd/suppress-messages))
 
   (use-package shackle
     :ensure t
@@ -300,7 +312,12 @@ Repeated invocations toggle between the two most recently open buffers."
             ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align 'below)
             (helpful-mode                  :select t                          :align right            :popup t)
             (magit-status-mode             :select t                          :size 0.5 :align right  :popup t)
-            (magit-log-mode                :select t                          :size 0.5 :align below  :popup t))))
+            (magit-log-mode                :select t                          :size 0.5 :align below  :popup t)
+            ("*Flycheck errors*"           :select t                          :size 0.2 :align below  :popup t))))
+
+  (use-package all-the-icons
+    :config
+    (setq all-the-icons-color-icons nil))
 
   (use-package doom-modeline
     :ensure t
@@ -311,8 +328,8 @@ Repeated invocations toggle between the two most recently open buffers."
            (doom-modeline-mode . kd/setup-custom-doom-modeline))
     :config
     (doom-modeline-def-modeline 'kd/doom-modeline-format
-      '(bar persp-name workspace-name checker window-number modals matches buffer-info remote-host buffer-position selection-info)
-      '(misc-info debug lsp minor-modes indent-info buffer-encoding major-mode process vcs))
+      '(bar persp-name workspace-name checker window-number modals matches buffer-info remote-host buffer-position vcs selection-info)
+      '(misc-info debug lsp minor-modes indent-info buffer-encoding major-mode process))
     (setq doom-modeline-height 25)
     (setq doom-modeline-buffer-file-name-style 'buffer-name)
     (setq doom-modeline-icon nil)
@@ -372,7 +389,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'default-black t))
 
   (use-package nord-theme
-    :disabled t
+    ;; :disabled t
     :ensure t
     :config
     (setq nord-region-highlight "frost")
@@ -453,7 +470,6 @@ else
 	open -a ScreenSaverEngine
 fi
 \""))
-  :chords ("SS" . kd/start-screen-saver)
   :config
   (setq mac-option-modifier 'meta)
   (setq mac-command-modifier 'super)
@@ -484,6 +500,7 @@ fi
   (add-to-list 'default-frame-alist '(ns-appearance . dark))
   (when (fboundp 'mac-set-frame-tab-group-property)
     (mac-set-frame-tab-group-property nil :tab-bar-visible-p nil))
+  (setq mac-frame-tabbing nil)
 
 ;;;;; Unicode font
   ;; Useful for https://github.com/dunn/company-emoji
@@ -497,17 +514,7 @@ fi
 
   (setq mac-mouse-wheel-smooth-scroll nil))
 
-(defun kd/suppress-messages (old-fun &rest args)
-  (cl-flet ((silence (&rest args1) (ignore)))
-    (advice-add 'message :around #'silence)
-    (unwind-protect
-        (apply old-fun args)
-      (advice-remove 'message #'silence))))
-
 ;;; ---
-
-(use-package repeat
-  :chords ("RR" . repeat))
 
 (use-package savehist
   :hook (after-init . savehist-mode)
@@ -616,7 +623,11 @@ fi
 
 (use-package scratch
   :ensure t
-  :commands scratch)
+  :preface
+  (defun kd/scratch-create-buffer-hook-func ()
+    (emacs-lock-mode 'kill))
+  :commands scratch
+  :hook (scratch-create-buffer . kd/scratch-create-buffer-hook-func))
 
 ;;; Window
 
@@ -657,7 +668,7 @@ fi
   :config
   (setq eyebrowse-mode-line-separator " ")
   (setq eyebrowse-mode-line-style 'always)
-  (setq eyebrowse-new-workspace nil)
+  (setq eyebrowse-new-workspace t)
   (setq eyebrowse-wrap-around t)
   (eyebrowse-mode 1))
 
@@ -774,14 +785,6 @@ FRAME defaults to the current frame."
   :bind ((:map dired-mode-map
                ("P" . peep-dired))))
 
-(use-package neotree
-  :disabled t
-  :ensure t
-  :bind (("<f8>" . neotree-toggle)
-         ("<f7>" . neotree-find))
-  :config
-  (setq neo-show-hidden-files t))
-
 ;;; Tramp
 
 (use-package tramp
@@ -844,7 +847,9 @@ FRAME defaults to the current frame."
 
 (use-package rg
   :ensure t
-  :bind ("C-c A" . rg-dwim))
+  :commands rg-define-search
+  :bind ("C-c A" . rg-dwim)
+  :hook (rg-mode . wgrep-rg-setup))
 
 (use-package deadgrep
   :ensure t
@@ -859,13 +864,10 @@ FRAME defaults to the current frame."
          ("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
-  :defines magit-status-expand-stashes
-  :init
-  (add-hook 'magit-process-mode-hook #'goto-address-mode)
-  (add-hook 'magit-post-refresh-hook #'diff-hl-magit-post-refresh)
+  :hook ((magit-process-mode . goto-address-mode)
+         (magit-post-refresh . diff-hl-magit-post-refresh))
   :config
-  (setq magit-git-executable (executable-find "git"))
-  (setq magit-status-expand-stashes nil))
+  (setq magit-git-executable (executable-find "git")))
 
 (use-package git-commit
   :ensure t
@@ -901,7 +903,6 @@ FRAME defaults to the current frame."
          ("s-t" . hydra-toggle/body)
          ("s-o" . hydra-open/body)
          ("C-c w" . hydra-winner/body)
-         ("<f2>" . hydra-zoom/body)
          ("C-M-o" . hydra-window-size/body))
   :config
   (use-package pretty-hydra
@@ -944,7 +945,8 @@ FRAME defaults to the current frame."
      (("s" desktop-save-in-desktop-dir "Save desktop")
       ("r" desktop-read "Read desktop"))
      "Debugging"
-     (("de" toggle-debug-on-error "Debug on error")
+     (("D" dap-hydra)
+      ("de" toggle-debug-on-error "Debug on error")
       ("dq" toggle-debug-on-quit "Debug on quit"))))
 
   (pretty-hydra-define hydra-open
@@ -1184,7 +1186,9 @@ FRAME defaults to the current frame."
 (use-package ivy-xref
   :ensure t
   :commands ivy-xref-show-xrefs
-  :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+  :init
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
+  (setq xref-show-definitions-function #'ivy-xref-show-defs))
 
 ;;;; Counsel
 
@@ -1262,7 +1266,7 @@ FRAME defaults to the current frame."
 ;;   :defer t)
 
 (use-package isearch
-  :bind ("C-s" . isearch-forward)
+  ;; :bind ("C-s" . isearch-forward)
   :config
   (use-package isearch+
     :quelpa (isearch+ :fetcher url :url "https://raw.githubusercontent.com/emacsmirror/emacswiki.org/master/isearch+.el")
@@ -1333,6 +1337,12 @@ FRAME defaults to the current frame."
   :config
   (setq irfc-directory "~/Documents/rfc/rfc")
   (setq irfc-assoc-mode 1))
+
+(use-package logview
+  :ensure t
+  :commands logview-mode
+  :config
+  (setq datetime-timezone 'Asia/Shanghai))
 
 
 ;;; Org-mode
@@ -1462,10 +1472,12 @@ Will work on both org-mode and any mode that accepts plain html."
     :defer t)
 
   (org-babel-do-load-languages 'org-babel-load-languages
-                               '((ipython . t)
+                               '((python . t)
+                                 (ipython . t)
                                  (shell . t)
                                  (emacs-lisp . t)
-                                 (plantuml . t)))
+                                 (plantuml . t)
+                                 ))
   (setq org-plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
   (setq ob-async-no-async-languages-alist '("ipython"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
@@ -1521,6 +1533,7 @@ Will work on both org-mode and any mode that accepts plain html."
   ")))
 
 (use-package org-bullets
+  :disabled t
   :ensure t
   :hook (org-mode . org-bullets-mode)
   :config
@@ -1584,6 +1597,36 @@ Will work on both org-mode and any mode that accepts plain html."
             ("m" "meeting record" entry (file+olp+datetree ,meeting-record-file) "* %?\n:LOGBOOK:\n:CREATED: %U\n:END:\n%i" :tree-type week)
             ("t" "tldr" entry (file+olp ,tldr-file "TL;DR") "* %?\n:LOGBOOK:\n:CREATED: %U\n:END:\n%i" :tree-type week)
             ("u" "url bookmark" entry (file+olp ,bookmark-file "Bookmarks") #'kd/org-bookmark-template)))))
+
+(use-package org-clock
+  ;; See: x-devonthink-item://F2D598BA-2D9D-4B7D-925C-64EB4CC68A9F
+  :ensure org
+  :preface
+  (defun kd/org-clock-in ()
+    (interactive)
+    (org-clock-in '(4)))
+  :commands org-clock-in
+  :bind
+  (("C-c I" . kd/org-clock-in)
+   ("C-c O" . org-clock-out))
+  :hook (org-clock-out . save-buffer)
+  :config
+  (setq org-clock-persist t)
+  (setq org-clock-in-resume t)
+  (setq org-clock-persist-query-resume nil)
+  (setq org-clock-into-drawer t)
+  (setq org-clock-out-remove-zero-time-clocks t)
+  (setq org-clock-out-when-done t)
+  (setq org-clock-auto-clock-resolution 'when-no-clock-is-running)
+  (setq org-clock-report-include-clocking-task t)
+  (setq org-pretty-entities t)
+  (setq org-agenda-clockreport-parameter-plist
+        '(:link t :maxlevel 6 :fileskip0 t :compact t :narrow 60 :score 0))
+  (setq org-clock-idle-time 15)
+  (setq org-global-properties
+        '(("Effort_ALL" .
+           "0:15 0:30 1:00 2:00 4:00 6:00 8:00 16:00 24:00 32:00 40:00")))
+  (setq org-columns-default-format "%50ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM"))
 
 (use-package htmlize
   :ensure t
@@ -1650,7 +1693,7 @@ Will work on both org-mode and any mode that accepts plain html."
     (setq org-annotate-file-add-search t)
     (setq org-annotate-file-storage-file (concat org-directory "/annotation.org")))
 
-  (use-package org-git-link
+  (use-package ol-git-link
     :after org))
 
 (use-package org-annotate
@@ -1684,6 +1727,7 @@ Will work on both org-mode and any mode that accepts plain html."
     (smartscan-mode -1)
     (goto-address-prog-mode 1)
     (toggle-truncate-lines 1)
+    (text-scale-set -0.6)
 
     (add-to-list 'eshell-visual-commands "ssh")
     (add-to-list 'eshell-preoutput-filter-functions #'xterm-color-filter)
@@ -1699,7 +1743,9 @@ Will work on both org-mode and any mode that accepts plain html."
     (eshell/alias "gd" #'magit-diff-unstaged)
     (eshell/alias "gds" #'magit-diff-staged)
     ;; grep
-    (eshell/alias "hrg" "helm-rg $1"))
+    (eshell/alias "hrg" "helm-rg $1")
+    ;; projectile
+    (eshell/alias "cr" #'kd/eshell-cd-projectile-root))
   (add-hook 'eshell-mode-hook #'kd/eshell-mode-hook-func)
 
   (defun kd/eshell-new ()
@@ -1726,9 +1772,10 @@ Will work on both org-mode and any mode that accepts plain html."
 current buffer's file. The eshell is renamed to match that
 directory to make multiple eshell windows easier."
     (interactive)
-    (let* ((parent (if (buffer-file-name)
-                       (file-name-directory (buffer-file-name))
-                     default-directory))
+    (let* ((parent (or (projectile-project-root)
+                       (if (buffer-file-name)
+                           (file-name-directory (buffer-file-name))
+                         default-directory)))
            (height (/ (window-total-height) 3))
            (name   (car (last (split-string parent "/" t))))
            (eshell-buffer-name (concat "*eshell: " name "*"))
@@ -1737,16 +1784,26 @@ directory to make multiple eshell windows easier."
           (delete-window eshell-buffer-window)
         (split-window-vertically (- height))
         (other-window 1)
-        (eshell)
-        (rename-buffer eshell-buffer-name))))
+        (with-current-buffer (eshell)
+          (unless eshell-buffer-window
+            (kd/eshell-cd-projectile-root)
+            (rename-buffer eshell-buffer-name))))))
 
   (defun kd/eshell-gst (&rest args)
     (magit-status (pop args) nil)
     (eshell/echo))
 
+  (defun kd/eshell-cd-projectile-root ()
+    (let ((root (projectile-project-root)))
+      (eshell/cd root)))
+
   (add-hook 'eshell-before-prompt-hook (lambda ()
                                          (setq xterm-color-preserve-properties t)))
   :config
+  (use-package em-hist
+    :bind ((:map eshell-hist-mode-map
+                 ("C-c C-l" . counsel-esh-history))))
+
   (setenv "PAGER" "cat")
   (setq eshell-scroll-to-bottom-on-input 'all
         eshell-error-if-no-glob t
@@ -1801,16 +1858,34 @@ directory to make multiple eshell windows easier."
   :preface
   (defun kd/comint-mode-hook-func ()
     (smartscan-mode -1))
-  :init
-  (add-hook 'comint-mode-hook #'kd/comint-mode-hook-func)
-  (add-hook 'kill-buffer-hook #'comint-write-input-ring))
-
+  :bind (:map comint-mode-map
+              ("C-c C-l" . counsel-shell-history))
+  :hook
+  ((comint-mode . kd/comint-mode-hook-func)
+   (kill-buffer . comint-write-input-ring)
+   (kill-emacs . comint-write-input-ring))
+  :config
+  (setq comint-buffer-maximum-size 99999)
+  (setq comint-input-ring-size 10000)
+  (setq comint-terminfo-terminal "xterm-256color")
+  (setq comint-history-isearch 'dwim)
+  (setq comint-insert-previous-argument-from-end t)
+  (setq comint-input-autoexpand t))
 
 ;;; Term
 
 (use-package xterm-color
   :ensure t
   :commands xterm-color-filter)
+
+(use-package compile
+  :commands compilation-mode
+  :hook (compilation-mode . (lambda () (text-scale-set -0.6)))
+  :config
+  (setq compilation-environment '("TERM=xterm-256color"))
+  (defun kd/advice-compilation-filter (f proc string)
+    (funcall f proc (xterm-color-filter string)))
+  (advice-add 'compilation-filter :around #'kd/advice-compilation-filter))
 
 (use-package shell
   :commands shell
@@ -1960,22 +2035,15 @@ directory to make multiple eshell windows easier."
               ("m" . format-all-buffer)))
 
 (use-package lsp-mode
-  :disabled t
   :ensure t
   :commands (lsp lsp-deferred)
-  :init
-  (defun kd/lsp-mode-hook-func ()
-    (require 'lsp-clients)
-    (require 'lsp-ui-flycheck)
-    (lsp-ui-flycheck-enable t)
-    (kd/local-push-company-backend #'company-lsp)
-    (when (lsp--capability "documentSymbolProvider")
-      (lsp-enable-imenu))
-    (lsp-ui-mode 1)
-    (highlight-symbol-mode -1))
-  (add-hook 'lsp-mode-hook #'kd/lsp-mode-hook-func)
+  :bind ((:map lsp-mode-map
+               ("C-c d" . lsp-describe-thing-at-point)
+               ("M-RET" . lsp-execute-code-action)
+               ("M--" . lsp-find-implementation)
+               ("<f2>" . lsp-rename)))
   :config
-  (setq lsp-response-timeout 5)
+  (setq lsp-response-timeout 10)
   (setq lsp-enable-completion-at-point nil)
   (setq lsp-prefer-flymake nil)
   (setq lsp-auto-guess-root t)
@@ -1984,19 +2052,71 @@ directory to make multiple eshell windows easier."
   (setq lsp-document-highlight-delay 0.5)
   (setq lsp-eldoc-prefer-signature-help t)
   (setq lsp-eldoc-enable-signature-help t)
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-file-watchers t)
   (add-to-list 'xref-prompt-for-identifier 'xref-find-references t))
 
 (use-package lsp-treemacs
   :ensure t
-  :after (treemacs lsp-mode))
+  :bind (:map lsp-mode-map
+              ("<f7>" . lsp-treemacs-symbols)))
 
 (use-package dap-mode
-  :disabled t
   :ensure t
-  :after lsp-mode
+  :commands (dap-mode dap-register-debug-template dap-debug)
+  :hook (dap-server-log-mode . (lambda () (text-scale-set -0.6))))
+
+(use-package dap-java
+  ;; see kols/homebrew-jdt-language-server, plugins/ folder for
+  ;; installing required debugging plugins
+  :ensure dap-mode
+  :commands (dap-java-debug
+             dap-java-run-test-method
+             dap-java-run-test-class
+             dap-java-debug-test-method
+             dap-java-debug-test-class)
+  :init
+  (pretty-hydra-define kd/dap-java-hydra
+    (:hint nil :color blue :quit-key "q" :title "Dap mode (Java)")
+    ("Test"
+     (("r" dap-java-run-test-method)
+      ("R" dap-java-run-test-class)
+      ("dr" dap-java-debug-test-method)
+      ("dR" dap-java-debug-test-class))))
   :config
-  (dap-mode 1)
-  (dap-ui-mode 1))
+  (bind-key "M-S-SPC" #'kd/dap-java-hydra/body java-mode-map)
+  (dap-register-debug-template "talos.search(alta1)"
+                               (list :type "java"
+                                     :request "attach"
+                                     :hostName "alta1-talos-search-1.vm.elenet.me"
+                                     :port 4001
+                                     :name "alta1-talos-search-1.vm.elenet.me(4001)"))
+  (dap-register-debug-template "talos.core(local)"
+                               (list :type "java"
+                                     :request "launch"
+                                     :args ""
+                                     :vmArgs "-DAPPID=bpm.talos.core"
+                                     :cwd (expand-file-name "~/work/repos/gitlab.alibaba-inc.com/eleme-trade/talos-core/talos-collector")
+                                     :host "localhost"
+                                     :request "launch"
+                                     :name "talos.core(local)"
+                                     :projectName "talos-collector"
+                                     :mainClass "me.ele.talos.collector.App"))
+  (dap-register-debug-template "biz.bos_new(local)"
+                               (list :type "java"
+                                     :request "launch"
+                                     :args ""
+                                     :vmArgs "-DAPPID=biz.bos_new"
+                                     :cwd (expand-file-name "~/work/repos/gitlab.alibaba-inc.com/eleme-trade/bos/bos-biz")
+                                     :host "localhost"
+                                     :request "launch"
+                                     :name "biz.bos_new(local)"
+                                     :projectName "bos-biz"
+                                     :mainClass "me.ele.trade.bos.biz.main.BizOrderServiceApplication")))
+
+(use-package dap-hydra
+  :ensure dap-mode
+  :commands dap-hydra)
 
 (use-package treemacs
   :ensure t
@@ -2033,9 +2153,8 @@ directory to make multiple eshell windows easier."
   :after treemacs)
 
 (use-package lsp-ui
-  :disabled t
   :ensure t
-  :commands (lsp-ui-mode lsp-ui-flycheck-enable)
+  :commands (lsp-ui-mode)
   :config
   (setq lsp-ui-doc-enable nil)
   (setq lsp-ui-flycheck-enable t)
@@ -2092,6 +2211,10 @@ directory to make multiple eshell windows easier."
               ("C-|" . kd/hs-toggle-hiding-all)
               ("M-+" . hs-show-all)))
 
+(use-package emmet-mode
+  :ensure t
+  :commands emmet-mode)
+
 (use-package nxml-mode
   :init
   (defun kd/nxml-where ()
@@ -2115,8 +2238,20 @@ directory to make multiple eshell windows easier."
   (defun kd/nxml-mode-hook-func ()
     (which-function-mode 1)
     (setq-local which-func-mode t)
-    (add-hook 'which-func-functions #'kd/nxml-where))
-  :hook (nxml-mode . kd/nxml-mode-hook-func))
+    (add-hook 'which-func-functions #'kd/nxml-where)
+    (hs-minor-mode 1)
+    (emmet-mode 1)
+    (smartparens-strict-mode -1))
+  :hook (nxml-mode . kd/nxml-mode-hook-func)
+  :config
+  (setq nxml-child-indent 4)
+  (add-to-list 'hs-special-modes-alist
+               '(nxml-mode
+                 "<!--\\|<[^/>]*[^/]>" ;; regexp for start block
+                 "-->\\|</[^/>]*[^/]>" ;; regexp for end block
+                 "<!--"
+                 nxml-forward-element
+                 nil)))
 
 ;;;; Flycheck
 
@@ -2186,6 +2321,10 @@ directory to make multiple eshell windows easier."
 (use-package company
   :ensure t
   :diminish company-mode
+  :preface
+  (defun kd/local-push-company-backend (backend)
+    "Add BACKEND to a buffer-local version of `company-backends'."
+    (setq-local company-backends (add-to-list 'company-backends backend)))
   :commands (company-mode global-company-mode)
   :init
   (setq company-backends '(company-capf company-dabbrev-code company-keywords))
@@ -2195,9 +2334,7 @@ directory to make multiple eshell windows easier."
   (setq company-minimum-prefix-length 2)
   (setq tab-always-indent 'complete)
   (setq company-show-numbers t)
-  (defun kd/local-push-company-backend (backend)
-    "Add BACKEND to a buffer-local version of `company-backends'."
-    (setq-local company-backends (add-to-list 'company-backends backend))))
+  (setq company-idle-delay 0))
 
 (use-package company-flx
   :disabled t
@@ -2590,10 +2727,13 @@ directory to make multiple eshell windows easier."
   :config
   (setq python-shell-interpreter "ipython")
   (setq python-shell-interpreter-args "--simple-prompt -i")
-  (flycheck-add-next-checker 'python-flake8 '(t . python-pylint))
+  (flycheck-add-next-checker 'python-flake8 'python-pylint t)
   (let ((cond '(python-mode . "Python file encoding")))
     (unless (assoc cond auto-insert-alist)
       (define-auto-insert cond '(nil "# coding: utf-8\n")))))
+
+(use-package python-docstring
+  :ensure t)
 
 (use-package pyenv-mode
   :ensure t
@@ -2663,6 +2803,11 @@ directory to make multiple eshell windows easier."
               ("p f" . python-pytest-file)
               ("p l" . python-pytest-last-failed)
               ("p d" . python-pytest-function-dwim)))
+
+(use-package cython-mode
+  :ensure t
+  ;; https://github.com/bbatsov/prelude/issues/940
+  :hook (cython-mode . (lambda () (which-function-mode -1))))
 
 ;;;; Golang
 
@@ -2749,39 +2894,114 @@ directory to make multiple eshell windows easier."
   :ensure cc-mode
   :preface
   (defun kd/java-mode-hook-func ()
-    (toggle-truncate-lines 1)
-    (eglot-ensure))
-  :hook (java-mode . kd/java-mode-hook-func))
+    ;; (eglot-ensure)
+    (require 'lsp-java)
+    (lsp-deferred)
+    (lsp-ui-mode 1)
+    (lsp-lens-mode 1)
+    (when (lsp--capability "documentSymbolProvider")
+      (lsp-enable-imenu))
+
+    ;; flycheck
+    (lsp-ui-flycheck-enable 1)
+    (setq-local flycheck-check-syntax-automatically '(save idle-change))
+    ;; (flycheck-pmd-setup)
+    ;; (setq-local flycheck-enabled-checkers '(lsp-ui java-pmd))
+    ;; (flycheck-add-next-checker 'lsp-ui 'java-pmd)
+
+    ;; company
+    (kd/local-push-company-backend #'company-lsp)
+
+    (require 'dap-java)
+    (dap-mode 1)
+    (dap-ui-mode 1)
+    (subword-mode 1)
+
+    (visual-line-mode -1)
+    (setq truncate-lines t)
+
+    (unbind-key "{" c-mode-base-map)
+    (unbind-key "}" c-mode-base-map)
+    (unbind-key "(" c-mode-base-map)
+    (unbind-key ")" c-mode-base-map))
+  :commands java-mode
+  :hook (java-mode . kd/java-mode-hook-func)
+  :config
+  (rg-define-search kd/search-jar
+    :query ask
+    ;; :format literal
+    :files "all"
+    :dir project
+    :flags ("--text"
+            "--glob '*.jar'"
+            "--files-with-matches"
+            "--vimgrep")))
+
+(use-package lsp-ui-flycheck
+  :ensure lsp-ui
+  :commands lsp-ui-flycheck-enable
+  :config
+  (setq lsp-ui-flycheck-live-reporting nil))
+
+(use-package flycheck-pmd
+  :ensure-system-package pmd
+  :quelpa (flycheck-pmd :fetcher github :repo "kols/flycheck-pmd")
+  :commands flycheck-pmd-setup
+  :config
+  ;; ali rulesets: https://github.com/alibaba/p3c/tree/master/p3c-pmd
+  (setq flycheck-pmd-rulesets '("rulesets/java/quickstart.xml"
+                                "rulesets/java/ali-comment.xml"
+                                "rulesets/java/ali-concurrent.xml"
+                                "rulesets/java/ali-constant.xml"
+                                "rulesets/java/ali-exception.xml"
+                                "rulesets/java/ali-flowcontrol.xml"
+                                "rulesets/java/ali-naming.xml"
+                                "rulesets/java/ali-oop.xml"
+                                "rulesets/java/ali-orm.xml"
+                                "rulesets/java/ali-other.xml"
+                                "rulesets/java/ali-set.xml")))
 
 (use-package lsp-java-boot
-  :disabled t
   :ensure lsp-java
-  :after lsp-java
   :commands lsp-java-boot-lens-mode)
 
 (use-package lsp-java
-  :disabled t
   :ensure t
-  :commands lsp
+  :init
+  (defvar kd/eclipse-jdt-server-dir (expand-file-name "/usr/local/opt/jdt-language-server/libexec"))
+  (defvar kd/eclipse-jdt-home (expand-file-name "/usr/local/opt/jdt-language-server/libexec/plugins/org.eclipse.equinox.launcher_1.5.600.v20191014-2022.jar"))
   :config
+  (setq lsp-java-workspace-dir (expand-file-name "~/lsp_java_workspace/"))
+  (setq lsp-java-workspace-cache-dir (expand-file-name ".cache/" lsp-java-workspace-dir))
+  (let ((cp (getenv "CLASSPATH")))
+    (setenv "CLASSPATH" (concat cp ":" kd/eclipse-jdt-home)))
+  (setq lsp-java-server-install-dir kd/eclipse-jdt-server-dir)
+  (setq lsp-java-java-path "/usr/local/opt/jenv/versions/1.8/bin/java")
   (setq lsp-java-vmargs
         (list
-         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
-         "-Declipse.application=org.eclipse.jdt.ls.core.id1"
-         "-Dosgi.bundles.defaultStaprtLevel=4"
-         "-Declipse.product=org.eclipse.jdt.ls.core.product"
-         "-javaagent:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
-         "-Xbootclasspath/a:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
-         "-Dlog.level=ALL"
-         ;; "-jar ./plugins/org.eclipse.equinox.launcher_1.5.200.v20180922-1751.jar"
-         "--add-modules=ALL-SYSTEM"
-         ;; "--add-opens java.base/java.util=ALL-UNNAMED"
-         ;; "--add-opens java.base/java.lang=ALL-UNNAMED"
          "-noverify"
          "-Xmx1G"
          "-XX:+UseG1GC"
-         "-XX:+UseStringDeduplication"))
-  (setq lsp-java-java-path "/Users/kane/Library/Java/JavaVirtualMachines/jdk-9.0.4.jdk/Contents/Home/bin/java")
+         "-XX:+UseStringDeduplication"
+         "-javaagent:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
+         "-Xbootclasspath/a:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
+         ;; "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
+         ;; "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+         ;; "-Dosgi.bundles.defaultStaprtLevel=4"
+         ;; "-Declipse.product=org.eclipse.jdt.ls.core.product"
+         ;; "-javaagent:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
+         ;; "-Xbootclasspath/a:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
+         ;; "-Dlog.level=ALL"
+         ;; "-jar"
+         ;; kd/eclipse-jdt-home
+         ;; "--add-modules=ALL-SYSTEM"
+         ;; "--add-opens java.base/java.util=ALL-UNNAMED"
+         ;; "--add-opens java.base/java.lang=ALL-UNNAMED"
+         ;; "-noverify"
+         ;; "-Xmx1G"
+         ;; "-XX:+UseG1GC"
+         ;; "-XX:+UseStringDeduplication"
+         ))
   (setq lsp-file-watch-ignored
         '(".idea" ".ensime_cache" ".eunit" "node_modules" ".git" ".hg" ".fslckout" "_FOSSIL_"
           ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "build")
@@ -2789,7 +3009,9 @@ directory to make multiple eshell windows easier."
         ;; lsp-java-format-settings-url (concat "file://" jmi/java-format-settings-file)
         lsp-enable-on-type-formatting t
         lsp-enable-indentation t)
-  )
+  (setq lsp-java-progress-reports-enabled nil)
+  (setq lsp-java-references-code-lens-enabled nil)
+  (setq lsp-java-content-provider-preferred "fernflower"))
 
 (use-package autodisass-java-bytecode
   :ensure t
@@ -2810,14 +3032,17 @@ directory to make multiple eshell windows easier."
   :ensure t)
 
 (use-package eglot
+  :disabled t
   :ensure t
   :commands eglot-ensure
   :bind (:map java-mode-map
-              ("C-c d" . eglot-help-at-point))
+              ("C-c d" . eglot-help-at-point)
+              ("M--" . eglot-find-implementation))
   :config
-  (defconst kd/eclipse-jdt-home (expand-file-name "/Applications/jdt-language-server-latest/plugins/org.eclipse.equinox.launcher_1.5.500.v20190715-1310.jar"))
+  (defvar kd/eclipse-jdt-home (expand-file-name "/usr/local/opt/jdt-language-server/libexec/plugins/org.eclipse.equinox.launcher_1.5.600.v20191014-2022.jar"))
   (let ((cp (getenv "CLASSPATH")))
-    (setenv "CLASSPATH" (concat cp ":" kd/eclipse-jdt-home))))
+    (setenv "CLASSPATH" (concat cp ":" kd/eclipse-jdt-home)))
+  (setq eglot-autoshutdown t))
 
 (use-package meghanada
   :disabled t
@@ -2905,6 +3130,10 @@ directory to make multiple eshell windows easier."
 
 
 ;;; ---
+
+(use-package command-log-mode
+  :ensure t
+  :commands command-log-mode)
 
 (use-package eg
   :quelpa (eg :fetcher github :repo "mnewt/eg.el")
@@ -3023,8 +3252,8 @@ With a prefix ARG always prompt for command to use."
   (setq aliyun-query-log-aliyunlog-executable (expand-file-name "~/.pyenv/versions/3.7.2/bin/aliyunlog"))
 
   (defun kd/aliyun-query-log (project logstore query-string &optional limit offset)
-    (interactive)
     (require 'json)
+
     (with-current-buffer (get-buffer-create "*aliyun-query-log*")
       (let* ((log-buffer (current-buffer))
              (end-time (current-time))

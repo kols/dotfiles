@@ -11,3 +11,5 @@ gtags.files
 .factorypath
 .project
 .settings/
+
+.#*
