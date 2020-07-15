@@ -2,6 +2,7 @@
 GPATH
 GRTAGS
 GTAGS
+tags
 gtags.files
 \#*#
 .python-version

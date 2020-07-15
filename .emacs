@@ -89,25 +89,26 @@ REPO's pattern: `<user>/<repo>'"
 ;; (call-interactively 'kd/turn-on-http-proxy)
 (package-initialize)
 
-;;;; Prerequisite packages
-(let ((pre-pkgs '(auto-compile
-                  bind-key
-                  diminish
-                  use-package))
-      (refreshed nil))
-  (dolist (pkg pre-pkgs)
-    (unless (package-installed-p pkg)
-      (unless refreshed
-        (package-refresh-contents)
-        (setq refreshed t))
-      (package-install pkg))))
+(defun kd/install-pkgs (pkgs)
+  (let ((refreshed nil))
+    (dolist (pkg pkgs)
+      (unless (package-installed-p pkg)
+        (unless refreshed
+          (package-refresh-contents)
+          (setq refreshed t))
+        (package-install pkg)))))
 
 ;;;; auto-compile
+(kd/install-pkgs '(auto-compile))
 (require 'auto-compile)
 (auto-compile-on-save-mode 1)
 (auto-compile-on-load-mode 1)
 
 ;;;; use-package
+(kd/install-pkgs '(bind-key
+                   diminish
+                   use-package))
+
 (with-eval-after-load 'use-package
   (progn
     (customize-set-variable 'use-package-enable-imenu-support t)
@@ -152,9 +153,9 @@ REPO's pattern: `<user>/<repo>'"
   (paradox-enable)
   (remove-hook 'paradox-after-execute-functions #'paradox--report-buffer-print))
 
-(use-package rx
-  :load-path "~/.emacs.d/quelpa/build/rx"
-  :quelpa (rx :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/dbffbe08815644fd30404891ef81496277ed27da/lisp/emacs-lisp/rx.el"))
+;; (use-package rx
+;;   :load-path "~/.emacs.d/quelpa/build/rx"
+;;   :quelpa (rx :fetcher url :url "https://raw.githubusercontent.com/emacs-mirror/emacs/dbffbe08815644fd30404891ef81496277ed27da/lisp/emacs-lisp/rx.el"))
 
 ;;; Defaults
 
@@ -312,7 +313,7 @@ Repeated invocations toggle between the two most recently open buffers."
             ("\\`\\*[hH]elm.*?\\*\\'"      :regexp t                          :size 0.35 :align 'below)
             (helpful-mode                  :select t                          :align right            :popup t)
             (magit-status-mode             :select t                          :size 0.5 :align right  :popup t)
-            (magit-log-mode                :select t                          :size 0.5 :align below  :popup t)
+            (magit-log-mode                :select t                          :size 0.4 :align right  :popup t)
             ("*Flycheck errors*"           :select t                          :size 0.2 :align below  :popup t))))
 
   (use-package all-the-icons
@@ -368,15 +369,15 @@ Repeated invocations toggle between the two most recently open buffers."
   (setq mouse-wheel-follow-mouse 't)
 
 ;;;;; Font
-  (set-frame-font (font-spec :family "Input Mono"
-                             :size 18
+  (set-frame-font (font-spec :family "Input Mono Narrow"
+                             :size 17
                              :weight 'regular)
                   nil
                   t)
 
 ;;;;; Frame
   (setq default-frame-alist '((fullscreen . fit-frame-to-buffer-sizes)
-                              (font . "Input Mono-18:regular")
+                              (font . "Input Mono Narrow-17:regular")
                               (vertical-scroll-bars . nil)
                               (horizontal-scroll-bars . nil)))
   (setq frame-title-format '(buffer-file-name "%f" ("%b")))
@@ -389,7 +390,7 @@ Repeated invocations toggle between the two most recently open buffers."
     (load-theme 'default-black t))
 
   (use-package nord-theme
-    ;; :disabled t
+    :disabled t
     :ensure t
     :config
     (setq nord-region-highlight "frost")
@@ -410,11 +411,11 @@ Repeated invocations toggle between the two most recently open buffers."
   (use-package zenburn-theme
     :disabled t
     :ensure t
-    :defer 0.1
     :config
     (load-theme 'zenburn t))
 
   (use-package hc-zenburn-theme
+    ;; :disabled t
     :ensure t
     :config
     (load-theme 'hc-zenburn t))
@@ -449,6 +450,15 @@ Repeated invocations toggle between the two most recently open buffers."
     ;;    ((t (:background ,(doom-lighten (doom-color 'base4) 0.1) :underline t)) t)))
     )
 
+  (use-package tron-legacy-theme
+    :disabled t
+    :quelpa (tron-legacy-theme :fetcher github :repo "ianpan870102/tron-legacy-emacs-theme")
+    :config
+    ;; (add-to-list 'custom-theme-load-path
+    ;;              "/Users/kane/.emacs.d/elpa/tron-legacy-theme-20200521.1649"
+    ;;              )
+    (load-theme 'tron-legacy t))
+
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
@@ -464,12 +474,12 @@ Repeated invocations toggle between the two most recently open buffers."
   (defun kd/start-screen-saver ()
     (interactive)
     (osx-lib-run-osascript "do shell script \"
-if [ -e /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app ]; then
-	open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app
-else
-	open -a ScreenSaverEngine
-fi
-\""))
+                 if [ -e /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app ]; then
+	             open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app
+                 else
+	             open -a ScreenSaverEngine
+                 fi
+                 \""))
   :config
   (setq mac-option-modifier 'meta)
   (setq mac-command-modifier 'super)
@@ -628,6 +638,15 @@ fi
     (emacs-lock-mode 'kill))
   :commands scratch
   :hook (scratch-create-buffer . kd/scratch-create-buffer-hook-func))
+
+(use-package so-long
+  :commands global-so-long-mode
+  :hook (after-init . global-so-long-mode))
+
+(use-package multiple-cursors
+  :ensure t
+  :config
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines))
 
 ;;; Window
 
@@ -924,7 +943,9 @@ FRAME defaults to the current frame."
      "File"
      (("g" (find-file "~/Dropbox/ledger/ledger.beancount") "Ledger"))
      "Deft"
-     (("z" zd-new-file "New zettle")
+     (("zz" zetteldeft-new-file "New zettle")
+      ("zf" zetteldeft-follow-link "Follow zettle link")
+      ("zi" zetteldeft-find-file-full-title-insert "Insert zettle link")
       ("d" deft "Deft"))
      "Buffer"
      (("x" (switch-to-buffer "*scratch*") "*scratch*"))))
@@ -1202,7 +1223,9 @@ FRAME defaults to the current frame."
    ("C-." . counsel-imenu)
    ("M-y" . counsel-yank-pop)
    ("C-h b" . counsel-descbinds)
-   ("C-h y" . counsel-find-library))
+   ("C-h y" . counsel-find-library)
+   ("s-j" . counsel-mark-ring))
+  :commands counsel-esh-history
   :config
   (add-to-list 'ivy-initial-inputs-alist '(counsel-rg . ivy-thing-at-point)))
 
@@ -1218,6 +1241,10 @@ FRAME defaults to the current frame."
 
 (use-package counsel-gtags
   :quelpa (counsel-gtags :fetcher github :repo "kols/emacs-counsel-gtags")
+  :bind (("C-]" . counsel-gtags-find-definition)
+         ("C-}" . counsel-gtags-find-reference)
+         ("C-t" . counsel-gtags-go-backward)
+         ("C-S-t" . counsel-gtags-go-forward))
   ;; :bind (:map counsel-gtags-mode-map
   ;;             ("C-]" . counsel-gtags-find-definition)
   ;;             ("C-}" . counsel-gtags-find-reference)
@@ -1227,10 +1254,12 @@ FRAME defaults to the current frame."
   :defer t
   :diminish counsel-gtags-mode
   :config
+  (setq counsel-gtags-ignore-case t)
   (setq counsel-gtags-use-input-at-point t)
   (setq counsel-gtags-auto-select-only-candidate t)
-  (add-to-list 'ivy-more-chars-alist '(counsel-gtags--read-tag . 0))
-  (unbind-key "C-]" global-map))
+  (setq counsel-gtags-auto-update t)
+  (setq counsel-gtags-path-style 'root)
+  (add-to-list 'ivy-more-chars-alist '(counsel-gtags--read-tag . 0)))
 
 (use-package counsel-projectile
   :ensure t
@@ -1394,7 +1423,8 @@ Will work on both org-mode and any mode that accepts plain html."
                ("C-M-<return>" . org-insert-subheading)
                ("C-c L" . org-insert-link-global)
                ("C-c R" . org-refile)
-               ("C-c k" . endless/insert-key))
+               ("C-c k" . endless/insert-key)
+               ("C-t" . org-mark-ring-goto))
          (:map kd/org-map
                ("l" . org-store-link)))
   :init
@@ -1406,7 +1436,7 @@ Will work on both org-mode and any mode that accepts plain html."
   (setq org-refile-targets `((,(concat org-directory "/work.org") :maxlevel . 2)
                              (,(concat org-directory "/snippets.org") :level . 1)
                              (,(concat org-directory "/tldr.org") :level . 1)))
-  (setq org-modules '(org-drill ox-md))
+  (setq org-modules '(ox-md))
 
   (defun kd/org-mode-hook-func ()
     (visual-line-mode -1))
@@ -1421,6 +1451,8 @@ Will work on both org-mode and any mode that accepts plain html."
   (setq org-cycle-separator-lines 0)
   (setq org-list-demote-modify-bullet
         '(("+" . "-") ("-" . "+") ("*" . "+")))
+  (setq org-use-sub-superscripts nil)
+  (setq org-image-actual-width nil)
 
   ;; face
   (dolist (face org-level-faces)
@@ -1430,6 +1462,10 @@ Will work on both org-mode and any mode that accepts plain html."
 
   ;; link
   (org-link-set-parameters "devonthink"
+                           :follow
+                           (lambda (id)
+                             (osx-open-url-at-point (concat "x-devonthink-item://" id))))
+  (org-link-set-parameters "x-devonthink-item"
                            :follow
                            (lambda (id)
                              (osx-open-url-at-point (concat "x-devonthink-item://" id))))
@@ -1471,15 +1507,19 @@ Will work on both org-mode and any mode that accepts plain html."
     :ensure t
     :defer t)
 
+  (use-package ob-restclient
+    :ensure t
+    :defer t)
+
   (org-babel-do-load-languages 'org-babel-load-languages
                                '((python . t)
-                                 (ipython . t)
                                  (shell . t)
                                  (emacs-lisp . t)
                                  (plantuml . t)
                                  ))
   (setq org-plantuml-jar-path "/usr/local/opt/plantuml/libexec/plantuml.jar")
-  (setq ob-async-no-async-languages-alist '("ipython"))
+  (setq ob-async-no-async-languages-alist '("ipython"
+                                            "restclient"))
   (add-hook 'org-babel-after-execute-hook #'org-display-inline-images 'append))
 
 (use-package ox-publish
@@ -1801,8 +1841,9 @@ directory to make multiple eshell windows easier."
                                          (setq xterm-color-preserve-properties t)))
   :config
   (use-package em-hist
-    :bind ((:map eshell-hist-mode-map
-                 ("C-c C-l" . counsel-esh-history))))
+    :ensure eshell
+    :config
+    (bind-key "C-c C-l" #'counsel-esh-history eshell-hist-mode-map))
 
   (setenv "PAGER" "cat")
   (setq eshell-scroll-to-bottom-on-input 'all
@@ -1842,10 +1883,6 @@ directory to make multiple eshell windows easier."
   :commands esh-autosuggest-mode
   :init (add-hook 'eshell-mode-hook #'esh-autosuggest-mode))
 
-(use-package vterm
-  :ensure t
-  :commands vterm)
-
 (use-package sh-script
   :commands sh-mode
   :mode ("\\.zsh\\(env\\|rc\\)\\'" . sh-mode)
@@ -1873,6 +1910,10 @@ directory to make multiple eshell windows easier."
   (setq comint-input-autoexpand t))
 
 ;;; Term
+
+(use-package vterm
+  :ensure t
+  :commands vterm)
 
 (use-package xterm-color
   :ensure t
@@ -1937,7 +1978,8 @@ directory to make multiple eshell windows easier."
 (use-package browse-at-remote
   :ensure t
   :commands browse-at-remote
-  :config (dolist (elt '(("gitlab.alibaba-inc.com" . "gitlab")))
+  :config (dolist (elt '(("gitlab.alibaba-inc.com" . "gitlab")
+                         ("gitlab.alipay-inc.com" . "gitlab")))
             (add-to-list 'browse-at-remote-remote-type-domains elt)))
 
 (use-package goto-addr
@@ -2000,10 +2042,10 @@ directory to make multiple eshell windows easier."
 ;;; Programming
 
 (use-package prog-mode
-  :bind (:map prog-mode-map
-              ("C-]" . xref-find-definitions)
-              ("C-}" . xref-find-references)
-              ("C-t" . xref-pop-marker-stack))
+  ;; :bind (:map prog-mode-map
+  ;;             ("C-]" . xref-find-definitions)
+  ;;             ("C-}" . xref-find-references)
+  ;;             ("C-t" . xref-pop-marker-stack))
   :init
   (defun kd-prog-mode-hook-func ()
     (setq-local show-trailing-whitespace t)
@@ -2036,11 +2078,13 @@ directory to make multiple eshell windows easier."
 
 (use-package lsp-mode
   :ensure t
-  :commands (lsp lsp-deferred)
+  :commands (lsp lsp-deferred lsp-flycheck-add-mode)
   :bind ((:map lsp-mode-map
                ("C-c d" . lsp-describe-thing-at-point)
                ("M-RET" . lsp-execute-code-action)
-               ("M--" . lsp-find-implementation)
+               ;; ("M--" . lsp-find-implementation)
+               ("M--" . lsp-treemacs-implementations)
+               ("M-?" . lsp-treemacs-references)
                ("<f2>" . lsp-rename)))
   :config
   (setq lsp-response-timeout 10)
@@ -2053,18 +2097,41 @@ directory to make multiple eshell windows easier."
   (setq lsp-eldoc-prefer-signature-help t)
   (setq lsp-eldoc-enable-signature-help t)
   (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-completion-at-point t)
   (setq lsp-enable-file-watchers t)
-  (add-to-list 'xref-prompt-for-identifier 'xref-find-references t))
+  (setq lsp-enable-imenu t)
+  (setq lsp-enable-xref t)
+  (setq lsp-enable-indentation t)
+  (setq lsp-diagnostic-package :auto)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-headerline-breadcrumb-enable t)
+  (add-to-list 'xref-prompt-for-identifier 'xref-find-references t)
+  (lsp-flycheck-add-mode 'java-mode)
+  ;; (setf (lsp-session-folders-blacklist (lsp-session)) `(,(expand-file-name "~")))
 
-(use-package lsp-treemacs
+  (use-package lsp-treemacs
+    :ensure t
+    :commands (lsp-treemacs-implementations lsp-treemacs-references)
+    :bind (:map lsp-mode-map
+                ("<f7>" . lsp-treemacs-symbols))))
+
+(use-package lsp-ivy
   :ensure t
-  :bind (:map lsp-mode-map
-              ("<f7>" . lsp-treemacs-symbols)))
+  :preface
+  (defun kd/lsp-ivy-workspace-symbol-at-point (arg)
+    (interactive "P")
+    (lsp-ivy--workspace-symbol (lsp-workspaces)
+                               "Symbol: "
+                               (thing-at-point 'symbol)))
+  :commands lsp-ivy--workspace-symbol
+  :bind ("s-l g s" . kd/lsp-ivy-workspace-symbol-at-point))
 
 (use-package dap-mode
   :ensure t
   :commands (dap-mode dap-register-debug-template dap-debug)
-  :hook (dap-server-log-mode . (lambda () (text-scale-set -0.6))))
+  :hook (dap-server-log-mode . (lambda () (text-scale-set -0.6)))
+  :config
+  (remove-hook 'dap-session-created-hook 'doom-modeline--debug-visual))
 
 (use-package dap-java
   ;; see kols/homebrew-jdt-language-server, plugins/ folder for
@@ -2081,8 +2148,8 @@ directory to make multiple eshell windows easier."
     ("Test"
      (("r" dap-java-run-test-method)
       ("R" dap-java-run-test-class)
-      ("dr" dap-java-debug-test-method)
-      ("dR" dap-java-debug-test-class))))
+      ("dr" (dap-java-debug-test-method 50001))
+      ("dR" (dap-java-debug-test-class 50001)))))
   :config
   (bind-key "M-S-SPC" #'kd/dap-java-hydra/body java-mode-map)
   (dap-register-debug-template "talos.search(alta1)"
@@ -2120,33 +2187,31 @@ directory to make multiple eshell windows easier."
 
 (use-package treemacs
   :ensure t
-  :commands treemacs
-  :bind ("<f8>" . treemacs)
-  :init
+  :preface
   (defun kd/treemacs-mode-hook-func ()
     (treemacs-resize-icons 15)
-    (treemacs-follow-mode 1)
+    (treemacs-tag-follow-mode 0)
     (treemacs-filewatch-mode 1)
+    (treemacs-git-mode 'deferred)
     (treemacs-fringe-indicator-mode 1)
-    (treemacs-load-theme "Default")
+    ;; (treemacs-load-theme "Default")
     (text-scale-mode 1)
     (text-scale-set -0.5))
-  (add-hook 'treemacs-mode-hook #'kd/treemacs-mode-hook-func)
+  :commands treemacs
+  :bind ("<f8>" . treemacs)
+  :hook (treemacs-mode . kd/treemacs-mode-hook-func)
   :config
-  (setq treemacs-python-executable "~/.pyenv/versions/3.7.2/bin/python3"
+  (setq treemacs-python-executable (string-trim (shell-command-to-string "PYENV_VERSION='3.7.2' pyenv which python"))
         treemacs-eldoc-display nil
         treemacs-follow-after-init          t
         treemacs-width                      40
         treemacs-indentation                2
-        treemacs-git-integration            t
         treemacs-collapse-dirs              99
         treemacs-silent-refresh             t
-        treemacs-change-root-without-asking nil
-        treemacs-sorting                    'alphabetic-desc
+        treemacs-sorting                    'alphabetic-case-insensitive-asc
         treemacs-show-hidden-files          t
-        treemacs-never-persist              nil
         treemacs-is-never-other-window      nil
-        treemacs-goto-tag-strategy          'refetch-index))
+        treemacs-goto-tag-strategy          'call-xref))
 
 (use-package treemacs-projectile
   :ensure t
@@ -2157,7 +2222,6 @@ directory to make multiple eshell windows easier."
   :commands (lsp-ui-mode)
   :config
   (setq lsp-ui-doc-enable nil)
-  (setq lsp-ui-flycheck-enable t)
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-ui-sideline-show-code-actions nil)
   (setq lsp-ui-sideline-delay 1)
@@ -2165,8 +2229,11 @@ directory to make multiple eshell windows easier."
   (setq lsp-ui-sideline-show-symbol nil))
 
 (use-package company-lsp
+  :disabled t
   :ensure t
-  :commands company-lsp)
+  :commands company-lsp
+  :hook (java-mode . (lambda ()
+                       (kd/local-push-company-backend #'company-lsp))))
 
 (use-package realgud
   :ensure t
@@ -2334,7 +2401,8 @@ directory to make multiple eshell windows easier."
   (setq company-minimum-prefix-length 2)
   (setq tab-always-indent 'complete)
   (setq company-show-numbers t)
-  (setq company-idle-delay 0))
+  (setq company-idle-delay 0)
+  (setq company-echo-truncate-lines nil))
 
 (use-package company-flx
   :disabled t
@@ -2349,7 +2417,7 @@ directory to make multiple eshell windows easier."
   :config (company-prescient-mode 1))
 
 (use-package company-quickhelp
-  :disabled t
+  :if (and IS-GUI (not IS-MAC))
   :ensure t
   :after company
   :commands company-quickhelp-mode
@@ -2357,12 +2425,8 @@ directory to make multiple eshell windows easier."
               ("M-d" . company-quickhelp-manual-begin))
   :init (add-hook 'company-mode-hook #'company-quickhelp-mode)
   :config
-  (setq company-quickhelp-use-propertized-text t)
+  (setq company-quickhelp-use-propertized-text nil)
   (setq company-quickhelp-delay 1))
-
-(use-package company-tern
-  :ensure t
-  :commands company-tern)
 
 (use-package js2-refactor
   :ensure t
@@ -2373,11 +2437,6 @@ directory to make multiple eshell windows easier."
   :commands indium-interaction-mode
   :config
   (setq indium-chrome-executable "/Applications/Chromium.app/Contents/MacOS/Chromium"))
-
-(use-package tern
-  :ensure t
-  :commands tern-mode
-  :config (unbind-key "M-." tern-mode-keymap))
 
 (use-package xref-js2
   :ensure t
@@ -2598,6 +2657,14 @@ directory to make multiple eshell windows easier."
   (setq-default pdf-view-display-size 'fit-width)
   (setq pdf-view-resize-factor 1.1))
 
+(use-package vlf
+  :ensure t
+  :commands vlf
+  :config
+  (use-package vlf-setup
+    :ensure vlf
+    :hook (after-init . vlf-setup)))
+
 
 ;;;; C/C++
 
@@ -2715,7 +2782,10 @@ directory to make multiple eshell windows easier."
     (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
     (setq-local whitespace-style '(face indentation::tab))
 
-    (subword-mode 1))
+    (subword-mode 1)
+
+    (which-function-mode -1)
+    (setq-local flycheck-checker 'python-flake8))
 
   (defun kd/inferior-python-mode-hook-func ()
     (kd/turn-on-comint-history (expand-file-name "infpy_hist" kd/cache-dir)))
@@ -2727,6 +2797,8 @@ directory to make multiple eshell windows easier."
   :config
   (setq python-shell-interpreter "ipython")
   (setq python-shell-interpreter-args "--simple-prompt -i")
+  (setq flycheck-python-flake8-executable "flake8")
+  (setq flycheck-python-pylint-executable "pylint")
   (flycheck-add-next-checker 'python-flake8 'python-pylint t)
   (let ((cond '(python-mode . "Python file encoding")))
     (unless (assoc cond auto-insert-alist)
@@ -2774,8 +2846,8 @@ directory to make multiple eshell windows easier."
   :config
   (setq pyenv-mode-mode-line-format
         '(:eval
-          (when
-              (pyenv-mode-version)
+          (when (and (derived-mode-p 'python-mode)
+                     (pyenv-mode-version))
             (concat "py:" (pyenv-mode-version) " ")))))
 
 (use-package jedi-core
@@ -2894,54 +2966,47 @@ directory to make multiple eshell windows easier."
   :ensure cc-mode
   :preface
   (defun kd/java-mode-hook-func ()
-    ;; (eglot-ensure)
     (require 'lsp-java)
     (lsp-deferred)
     (lsp-ui-mode 1)
     (lsp-lens-mode 1)
-    (when (lsp--capability "documentSymbolProvider")
-      (lsp-enable-imenu))
+    (lsp-enable-which-key-integration)
+
+    ;; company
+    ;; (kd/local-push-company-backend #'company-lsp)
 
     ;; flycheck
-    (lsp-ui-flycheck-enable 1)
+    (setq-local flycheck-checker 'lsp)
     (setq-local flycheck-check-syntax-automatically '(save idle-change))
     ;; (flycheck-pmd-setup)
     ;; (setq-local flycheck-enabled-checkers '(lsp-ui java-pmd))
     ;; (flycheck-add-next-checker 'lsp-ui 'java-pmd)
 
-    ;; company
-    (kd/local-push-company-backend #'company-lsp)
-
     (require 'dap-java)
     (dap-mode 1)
-    (dap-ui-mode 1)
+    ;; (dap-ui-mode 1)
     (subword-mode 1)
 
     (visual-line-mode -1)
     (setq truncate-lines t)
+    (which-func-mode -1)                ; use `lsp-headerline-breadcrumb-mode' instead
 
     (unbind-key "{" c-mode-base-map)
     (unbind-key "}" c-mode-base-map)
     (unbind-key "(" c-mode-base-map)
     (unbind-key ")" c-mode-base-map))
   :commands java-mode
+  :bind ("<f5>" . dap-debug)
   :hook (java-mode . kd/java-mode-hook-func)
   :config
   (rg-define-search kd/search-jar
+    ;; grep --binary-files=binary -r --include="*.jar" "org.springframework.transaction.annotation" .
     :query ask
-    ;; :format literal
     :files "all"
-    :dir project
-    :flags ("--text"
-            "--glob '*.jar'"
-            "--files-with-matches"
-            "--vimgrep")))
-
-(use-package lsp-ui-flycheck
-  :ensure lsp-ui
-  :commands lsp-ui-flycheck-enable
-  :config
-  (setq lsp-ui-flycheck-live-reporting nil))
+    :dir current
+    :flags ("--binary"
+            "--glob '**/*.jar'"
+            "--files-with-matches")))
 
 (use-package flycheck-pmd
   :ensure-system-package pmd
@@ -2980,7 +3045,7 @@ directory to make multiple eshell windows easier."
   (setq lsp-java-vmargs
         (list
          "-noverify"
-         "-Xmx1G"
+         "-Xmx2G"
          "-XX:+UseG1GC"
          "-XX:+UseStringDeduplication"
          "-javaagent:/Users/kane/.m2/repository/org/projectlombok/lombok/1.16.20/lombok-1.16.20.jar"
@@ -3157,7 +3222,7 @@ directory to make multiple eshell windows easier."
   (setq deft-file-limit 500))
 
 (use-package zetteldeft
-  :quelpa (zetteldeft :fetcher github :repo "EFLS/zetteldeft"))
+  :ensure t)
 
 (use-package eww
   :commands eww
