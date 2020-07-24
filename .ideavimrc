@@ -1,0 +1,36 @@
+let mapleader = ","
+
+map <Space> [Space]
+
+noremap [Space] <Nop>
+nnoremap <silent> [Space]bq :bdelete<Return>
+
+inoremap jj <Esc>
+
+" window {{{2
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+"}}}
+
+set surround
+set multiple-cursors
+set commentary
+set argtextobj
+set easymotion
+set textobj-entire
+set ReplaceWithRegister
+
+set ideajoin
+set ideastatusicon=gray
+set idearefactormode=keep
+
+nnoremap gd :action GotoDeclaration<Return>
+nnoremap g- :action GotoImplementation<Return>
+nnoremap g? :action FindUsages<Return>
+nnoremap <C-p> :action GotoFile<Return>
+nnoremap [Space]bb :action RecentFiles<Return>
+nnoremap <leader>a :action FindInPath<Return>
+nnoremap <leader>f :action FileStructurePopup<Return>
+nnoremap [Space]q :close<Return>
