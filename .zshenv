@@ -15,7 +15,8 @@ export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen
 export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
 # zplug
-export ZPLUG_HOME=/usr/local/opt/zplug
+export ZPLUG_HOME="$HOME/.zplug"
+export ZPLUG_LOADFILE="$HOME/packages.zsh"
 
 # jenv
 export JENV_ROOT=/usr/local/opt/jenv
