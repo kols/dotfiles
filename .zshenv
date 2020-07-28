@@ -32,6 +32,8 @@ export PATH="${PATH}:$HOME/.cargo/bin"
 
 # brew
 export HOMEBREW_AUTO_UPDATE_SECS=86400
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+export HOMEBREW_CLEANUP_MAX_AGE_DAYS=99999
 
 # xapian cjk tokenizer
 export XAPIAN_CJK_NGRAM=1
