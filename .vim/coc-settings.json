@@ -1,0 +1,15 @@
+{
+    "diagnostic.displayByAle": true,
+    "python.jediEnabled": false,
+    "suggest.noselect": false,
+    "suggest.floatEnable": false,
+    "python.venvPath": "~/.pyenv",
+    "python.analysis.diagnosticEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.flake8Enabled": true,
+    "diagnostic.refreshAfterSave": true,
+    "suggest.echodocSupport": true,
+    "suggest.autoTrigger": "always",
+    "suggest.enablePreselect": true
+}

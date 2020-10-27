@@ -3,7 +3,6 @@ let mapleader = ","
 map <Space> [Space]
 
 noremap [Space] <Nop>
-nnoremap <silent> [Space]bq :bdelete<Return>
 
 inoremap jj <Esc>
 
@@ -26,11 +25,36 @@ set ideajoin
 set ideastatusicon=gray
 set idearefactormode=keep
 
-nnoremap gd :action GotoDeclaration<Return>
-nnoremap g- :action GotoImplementation<Return>
-nnoremap g? :action FindUsages<Return>
+set ignorecase
+set smartcase
+
 nnoremap <C-p> :action GotoFile<Return>
+nnoremap <C-S-p> :action GotoAction<Return>
+nnoremap <C-t> :action Back<Return>
+
+nnoremap [Space]g- :action GotoDeclaration<Return>
+nnoremap [Space]gd :action GotoImplementation<Return>
+
+nnoremap [Space]gr :action FindUsages<Return>
 nnoremap [Space]bb :action RecentFiles<Return>
-nnoremap <leader>a :action FindInPath<Return>
-nnoremap <leader>f :action FileStructurePopup<Return>
-nnoremap [Space]q :close<Return>
+nnoremap [Space]a :action FindInPath<Return>
+nnoremap [Space]f :action FileStructurePopup<Return>
+nnoremap [Space]d :action QuickJavaDoc<Return>
+nnoremap [Space]D :action QuickTypeDefinition<Return>
+nnoremap [Space]e :action ShowErrorDescription<Return>
+nnoremap [Space]E :action ActivateProblemsViewToolWindow<Return>
+nnoremap [Space]/ :noh<Return>
+
+nnoremap <leader>q :close<Return>
+nnoremap <leader>Q :action CloseProject<Return>
+nnoremap <leader>rn :action RenameElement<Return>
+
+" VCS
+nnoremap [Space]vv :action Vcs.Operations.Popup<Return>
+nnoremap [Space]vl :action Vcs.Show.Log<Return>
+nnoremap [Space]vs :action Vcs.Show.Local.Changes<Return>
+nnoremap [Space]vb :action Annotate<Return>
+nnoremap [Space]vd :action Vcs.Show.Local.Changes<Return>
+
+"
+nnoremap [Space]zp :action ManageRecentProjects<Return>

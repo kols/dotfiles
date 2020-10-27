@@ -1,5 +1,55 @@
-source ~/.vim/bundle.vim
+" packages{{{1
+packadd minpac
 
+call minpac#init()
+call minpac#add('k-takata/minpac', {'type': 'opt'})
+
+call minpac#add('jnurmine/Zenburn')
+call minpac#add('dense-analysis/ale')
+call minpac#add('mhinz/vim-grepper')
+call minpac#add('ctrlpvim/ctrlp.vim')
+call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
+call minpac#add('itchyny/lightline.vim')
+call minpac#add('maximbaz/lightline-ale')
+call minpac#add('mengelbrecht/lightline-bufferline')
+call minpac#add('mhinz/vim-startify')
+call minpac#add('tpope/vim-fugitive')
+call minpac#add('tpope/vim-obsession')
+call minpac#add('airblade/vim-rooter')
+call minpac#add('nathanaelkane/vim-indent-guides')
+call minpac#add('vim-scripts/peaksea')
+
+call minpac#add('tomtom/tcomment_vim')
+call minpac#add('tpope/vim-surround')
+call minpac#add('tpope/vim-repeat')
+call minpac#add('chrisbra/NrrwRgn')
+call minpac#add('easymotion/vim-easymotion')
+call minpac#add('Raimondi/delimitMate')
+call minpac#add('ervandew/supertab')
+call minpac#add('majutsushi/tagbar')
+
+call minpac#add('goerz/jupytext.vim')
+call minpac#add('hkupty/iron.nvim', { 'branch': 'direct-invoke' })
+call minpac#add('kana/vim-textobj-user')
+call minpac#add('GCBallesteros/vim-textobj-hydrogen')
+call minpac#add('wellle/targets.vim')
+call minpac#add('simeji/winresizer')
+call minpac#add('Vimjas/vim-python-pep8-indent')
+call minpac#add('pacha/vem-tabline')
+
+call minpac#add('christoomey/vim-tmux-navigator')
+call minpac#add('Shougo/echodoc.vim')
+
+call minpac#add('airblade/vim-rooter')
+call minpac#add('jeetsukumaran/vim-filebeagle')
+
+call minpac#add('osyo-manga/vim-over')
+
+" call minpac#update('', {'do': 'call minpac#status()'})
+packloadall!
+"}}}
+
+" editing {{{1
 " keymapping {{{1
 
 let mapleader = ","
@@ -21,10 +71,10 @@ nnoremap <silent> <leader>q :bp\|bd #<Return>
 "}}}
 
 " window {{{2
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" nnoremap <C-h> <C-w>h
+" nnoremap <C-j> <C-w>j
+" nnoremap <C-k> <C-w>k
+" nnoremap <C-l> <C-w>l
 "}}}
 
 " tab {{{2
@@ -66,7 +116,6 @@ nmap <silent> [Space]P :set nopaste<Return>
 " terminal (neovim) {{{2
 if has("nvim")
   tnoremap <Esc> <C-\><C-n>
-  tnoremap jj <C-\><C-n>
 endif
 "}}}
 "}}}
@@ -78,6 +127,8 @@ syntax on
 if &shell =~# 'fish$'
 set shell=sh
 endif
+
+set updatetime=700
 
 " encoding {{{2
 set encoding=utf-8
@@ -142,8 +193,8 @@ endif
 set noequalalways
 set ruler
 set laststatus=2
-set showtabline=1
-set number
+set showtabline=2
+set nonumber
 set showbreak=↳
 set showcmd
 set mouse&
@@ -164,7 +215,7 @@ if (1 < &t_Co || has('gui')) && has('syntax')
   if !exists('g:colors_name')
     set background=dark
     let g:zenburn_transparent = 0
-    let g:zenburn_high_Contrast = 1
+    let g:zenburn_high_Contrast = 0
     let g:zenburn_alternate_Visual = 0
     let g:zenburn_unified_CursorColumn = 1
     let g:zenburn_old_Visual = 0
@@ -172,14 +223,14 @@ if (1 < &t_Co || has('gui')) && has('syntax')
 
     let g:seoul256_background = 235
 
-    colorscheme zenburn
+    colorscheme peaksea
   endif
 endif
 "}}}
 
 " font {{{2
 if exists('+guifont')
-  set guifont=hack:h16pt antialias
+  set guifont=hack:h16pt
 endif
 "}}}
 "}}}
@@ -195,15 +246,35 @@ augroup END
 augroup python
   autocmd!
   autocmd FileType python
-        \ setlocal colorcolumn=+1,80 |
+        \ setlocal colorcolumn=80 |
         \ setlocal iskeyword& |
         \ setlocal tabstop=4 expandtab softtabstop=4 shiftround shiftwidth=4 |
         \ setlocal smartindent cinwords=if,elseif,else,for,while,class |
         \ setlocal wildignore+=*.py[co] |
         \ setlocal foldmethod=indent |
         \ setlocal formatoptions=cq textwidth=72 foldignore=
+
+  autocmd FileType python nmap <silent> <buffer> [Space]gd <Plug>(coc-definition)
+  autocmd FileType python nmap <silent> <buffer> [Space]gr <Plug>(coc-references)
+  autocmd FileType python nmap <silent> <buffer> [Space]d :call CocActionAsync('doHover')<Return>
+  autocmd FileType python nmap <silent> <buffer> <leader>rn <Plug>(coc-rename)
+  autocmd FileType python nmap <silent> <buffer> <leader>A <Plug>(coc-codeaction)
+  autocmd FileType python nmap <silent> <buffer> <leader>a <Plug>(coc-codeaction-line)
+        " \ nmap <silent> <buffer> <M-CR> <Plug>(coc-codeaction-line) |
+        " \ nmap <silent> <buffer> <M-S-CR> <Plug>(coc-codeaction)
+  autocmd FileType python nmap <silent> <buffer> [Space]ec :CocCommand python.runLinting<Return>
 augroup END
 "}}}
+
+" vimscript {{{2
+augroup vim
+  autocmd!
+  autocmd FileType vim nmap <silent> <buffer> [Space]gd <Plug>(coc-definition)
+  autocmd FileType vim nmap <silent> <buffer> [Space]gr <Plug>(coc-references)
+  autocmd FileType vim nmap <silent> <buffer> [Space]d :call CocActionAsync('doHover')<Return>
+  autocmd FileType vim nmap <silent> <buffer> <leader>rn <Plug>(coc-rename)
+augroup END
+" }}}
 
 " go {{{2
 augroup go
@@ -339,6 +410,7 @@ nnoremap [Space]u :UndotreeToggle<Return>
 "}}}
 
 " w0rp/ale {{{2
+let g:ale_disable_lsp = 1
 let g:ale_go_gometalinter_args = get(g:, 'ale_go_gometalinter_args',
 \   '--fast --disable=golint --disable=govet')
 
@@ -353,7 +425,7 @@ call ale#linter#Define('go', {
 \})
 
 let g:ale_linters = {
-\   'python': ['flake8'],
+\   'python': ['flake8', 'pylint'],
 \   'go': ['gometalinter'],
 \}
 let g:ale_linter_aliases = {
@@ -363,12 +435,21 @@ let g:ale_sign_column_always = 1
 let g:ale_lint_on_enter = 0
 let g:ale_lint_on_text_changed = 1
 let g:ale_lint_on_save = 1
-nnoremap <silent> [Space]ec :call ale#Queue(0)<Return>
+
+" python
+let g:ale_python_flake8_use_global = 1
+let g:ale_python_pyline_use_global = 1
+let g:ale_virtualenv_dir_names = []
+map <silent> [Space]ec :call ale#Queue(0)<Return>
+nnoremap <silent> [Space]eo :lopen<Return>
 "}}}
 
 " tagbar {{{2
-nnoremap <silent> [Space]tg :Tagbar<Return>
+nnoremap <silent> [Space]' :TagbarToggle<Return>
+let g:tagbar_autofocus = 1
+let g:tagbar_sort = 0
 let g:tagbar_compact=1
+let g:tagbar_autoshowtag = 1
 let g:tagbar_type_go = {
 	\ 'ctagstype' : 'go',
 	\ 'kinds'     : [
@@ -422,12 +503,14 @@ let g:tagbar_type_thrift = {
 let g:grepper = {
     \ 'tools': ['rg', 'ag'],
     \ }
-nnoremap <silent> <leader>a :Grepper -highlight -noprompt -cword<Return>
-nnoremap <leader>A :Grepper<Return>
+nnoremap <silent> [Space]a :Grepper -highlight -noprompt -cword<Return>
+nnoremap [Space]A :Grepper<Return>
 "}}}
 
 " ctrl-p {{{2
-let g:ctrlp_match_window = 'top,order:ttb,min:1,max:15,results:12'
+let g:ctrlp_map = '<C-p>'
+let g:ctrlp_cmd = 'CtrlP'
+let g:ctrlp_match_window = 'bottom,top,order:ttb,min:1,max:15,results:12'
 let g:ctrlp_working_path_mode = 'ra'
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
 let g:ctrlp_custom_ignore = {
@@ -444,9 +527,11 @@ augroup go
   autocmd FileType go let b:ctrlp_buftag_ctags_bin="gotags"
 augroup END
 
-nnoremap <silent> <C-p> :CtrlP<Return>
+" nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> [Space]f :CtrlPBufTag<Return>
 nnoremap <silent> [Space]t :CtrlPTag<Return>
+nnoremap <silent> [Space]zr :CtrlPMRU<Return>
+nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
 "}}}
 
 " maralla/completor.vim {{{2
@@ -459,15 +544,15 @@ let g:pyenv#auto_activate = 1
 "}}}
 
 " davidhalter/jedi-vim {{{2
-let g:jedi#auto_initialization = 0
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#completions_enabled = 0
-let g:jedi#show_call_signatures = "2"
-augroup python
-  autocmd FileType python
-        \ nnoremap <silent> <buffer> [Space]gg :call jedi#goto()<Return> |
-        \ nnoremap <silent> <buffer> [Space]gd :call jedi#goto_assignments()<Return>
-augroup END
+" let g:jedi#auto_initialization = 0
+" let g:jedi#auto_vim_configuration = 0
+" let g:jedi#completions_enabled = 0
+" let g:jedi#show_call_signatures = "2"
+" augroup python
+"   autocmd FileType python
+"         \ nnoremap <silent> <buffer> [Space]gg :call jedi#goto()<Return> |
+"         \ nnoremap <silent> <buffer> [Space]gd :call jedi#goto_assignments()<Return>
+" augroup END
 "}}}
 
 " ultisnips {{{2
@@ -494,43 +579,58 @@ nmap <silent> <leader>tl :TestLast<Return>
 nmap <silent> <leader>tg :TestVisit<Return>
 "}}}
 
-" lightline {{{2
+" itchyny/lightline.vim {{{2
 let g:lightline = {
+      \ 'colorscheme': 'jellybeans',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'session', 'repo', 'filename', 'modified', 'fugitive', "ale" ] ],
-      \   'right': [ [ 'time' ],
-      \              [ 'lineinfo' ],
+      \             [ 'readonly', 'session', 'repo', 'filename', 'modified', 'fugitive' ],
+      \             [ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_infos', 'linter_ok' ] ],
+      \   'right': [ [ 'lineinfo' ],
       \              [ 'percent' ],
-      \              [ 'fileformat', 'fileencoding', 'filetype' ] ],
-      \ },
-      \ 'tab': {
-      \   'active': [ 'tabnum', 'filename', 'modified' ],
-      \   'inactive': [ 'tabnum', 'filename', 'modified' ],
+      \              [ 'fileformat', 'fileencoding', 'filetype' ],
+      \              [ 'coc' ] ],
       \ },
       \ 'component': {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"%%":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"**":&modifiable?"":"--"}',
       \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
-      \   'ale': '%{(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())?ALEGetStatusLine():""}',
-      \   'pyenv': '%{exists("*pyenv#info#preset")?"py:" . pyenv#info#preset("long"):""}',
       \   'time': '%{strftime("%H:%M")}',
       \   'repo': '%{exists("*FindRootDirectory")?fnamemodify(FindRootDirectory(), ":t:."):""}',
       \   'session': '%{exists("*ObsessionStatus")&&""!=ObsessionStatus()?ObsessionStatus("~", "-"):"-"}',
+      \   'coc': 'coc#status',
+      \ },
+      \ 'component_function': {
+      \   'coc': 'coc#status',
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
       \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())',
-      \   'ale': '(exists("*ALEGetStatusLine") && "OK"!=ALEGetStatusLine())',
-      \   'pyenv': '(exists("*pyenv#pyenv#is_activated") && pyenv#pyenv#is_activated())',
       \   'repo': '(exists("*FindRootDirectory") && ""!=FindRootDirectory())',
       \   'session': '(exists("*ObsessionStatus"))',
       \ },
+      \ 'component_expand': {
+      \   'linter_checking': 'lightline#ale#checking',
+      \   'linter_infos': 'lightline#ale#infos',
+      \   'linter_warnings': 'lightline#ale#warnings',
+      \   'linter_errors': 'lightline#ale#errors',
+      \   'linter_ok': 'lightline#ale#ok',
+      \ },
       \ 'component_type': {
+      \   'linter_checking': 'right',
+      \   'linter_infos': 'right',
+      \   'linter_warnings': 'warning',
+      \   'linter_errors': 'error',
+      \   'linter_ok': 'right',
       \   'ale': 'error',
       \ },
       \ }
-" }}}
+let g:lightline.enable = {
+    \ 'statusline': 1,
+    \ 'tabline': 0
+    \ }
+call lightline#init() | call lightline#update()
+"}}} 
 
 " vim-go {{{2
 let g:go_list_type = "quickfix"
@@ -548,19 +648,10 @@ let g:rooter_silent_chdir = 1
 let g:rooter_resolve_links = 1
 "}}}
 
-" bufexplorer {{{2
-let g:bufExplorerDisableDefaultKeyMapping=1
-let g:bufExplorerFindActive=0
-let g:bufExplorerShowRelativePath=1
-let g:bufExplorerShowTabBuffer=1
-nnoremap <silent> [Space]bb :BufExplorer<Return>
-nnoremap <silent> [Space]bs :BufExplorerHorizontalSplit<Return>
-nnoremap <silent> [Space]bv :BufExplorerVerticalSplit<Return>
-"}}}
-
 " filebeagle {{{2
-let g:filebeagle_suppress_keymaps=1
-let g:filebeagle_check_gitignore=1
+let g:filebeagle_check_gitignore = 1
+let g:filebeagle_show_hidden = 1
+let g:filebeagle_show_line_numbers = 1
 map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 "}}}
 
@@ -568,6 +659,44 @@ map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
 let g:rustfmt_autosave = 1
 "}}}
 
+" vimagit {{{2
+" nnoremap [Space]vs :Magit<Return>
+"}}}
+
+" tpope/fugitive {{{2
+nnoremap [Space]vs :Git<Return>
+nnoremap [Space]vb :Git blame<Return>
+"}}}
+
+" easymotion/vim-easymotion {{{2
+let g:EasyMotion_do_mapping = 1
+"}}}
+
+" coc.nvim {{{2
+autocmd CursorHold * silent call CocActionAsync('highlight')
+autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+"}}}
+
+" hkupty/iron.nvim {{{2
+luafile $HOME/.config/nvim/plugins.lua
+"}}}
+
+
+" goerz/jupytext.vim {{{2
+let g:jupytext_fmt = 'py:percent'
+"}}}
+
+" pacha/vem-tabline {{{2 
+let g:vem_tabline_show = 2
+"}}}
+
+" simeji/winresizer {{{2
+let g:winresizer_vert_resize=6
+"}}}
+
+" hkupty/iron.nvim {{{2
+map <leader>sb ctrah
+imap <leader>sb <Esc>ctrah
 "}}}
 
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
