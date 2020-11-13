@@ -1,4 +1,4 @@
-" packages{{{1
+" packages {{{1
 packadd minpac
 
 call minpac#init()
@@ -11,7 +11,6 @@ call minpac#add('ctrlpvim/ctrlp.vim')
 call minpac#add('neoclide/coc.nvim', {'branch': 'release'})
 call minpac#add('itchyny/lightline.vim')
 call minpac#add('maximbaz/lightline-ale')
-call minpac#add('mengelbrecht/lightline-bufferline')
 call minpac#add('mhinz/vim-startify')
 call minpac#add('tpope/vim-fugitive')
 call minpac#add('tpope/vim-obsession')
@@ -29,7 +28,7 @@ call minpac#add('ervandew/supertab')
 call minpac#add('majutsushi/tagbar')
 
 call minpac#add('goerz/jupytext.vim')
-call minpac#add('hkupty/iron.nvim', { 'branch': 'direct-invoke' })
+call minpac#add('hkupty/iron.nvim')
 call minpac#add('kana/vim-textobj-user')
 call minpac#add('GCBallesteros/vim-textobj-hydrogen')
 call minpac#add('wellle/targets.vim')
@@ -44,9 +43,27 @@ call minpac#add('airblade/vim-rooter')
 call minpac#add('jeetsukumaran/vim-filebeagle')
 
 call minpac#add('osyo-manga/vim-over')
+call minpac#add('vim-scripts/YankRing.vim')
+call minpac#add('pechorin/any-jump.vim')
+if !has("nvim")
+  call minpac#add('bfrg/vim-jqplay')
+endif
 
-" call minpac#update('', {'do': 'call minpac#status()'})
+call minpac#add('Shougo/denite.nvim')
+call minpac#add('Shougo/neomru.vim')
+call minpac#add('liuchengxu/vim-clap')
+
+
+call minpac#add('godlygeek/tabular')
+call minpac#add('plasticboy/vim-markdown')
+
+call minpac#add('skywind3000/asyncrun.vim')
+
 packloadall!
+
+function s:update_packages()
+  call minpac#update('', {'do': 'call minpac#status()'})
+endfunction
 "}}}
 
 " editing {{{1
@@ -65,19 +82,13 @@ nnoremap [Space]so yy:execute @@<Return>:echo 'line evaluated'<Return>
 "}}}
 
 " buffer {{{2
-nnoremap <silent> [Space]bq :bdelete<Return>
-nnoremap <silent> [Space]bh :hide<Return>
-nnoremap <silent> <leader>q :bp\|bd #<Return>
+nnoremap <silent> [Space]bh :b #\|:hide #<Return>
+nnoremap <silent> <leader>q :b #\|bd #<Return>
+nnoremap <silent> <leader>Q :b #\|bd! #<Return>
+nnoremap <silent> <leader>c :close<Return>
 "}}}
 
-" window {{{2
-" nnoremap <C-h> <C-w>h
-" nnoremap <C-j> <C-w>j
-" nnoremap <C-k> <C-w>k
-" nnoremap <C-l> <C-w>l
-"}}}
-
-" tab {{{2
+" tab {{{
 nnoremap <C-t> <Nop>
 
 nmap <silent> <C-t>n :tabnew \| tabmove<Return>
@@ -87,7 +98,7 @@ nmap <silent> <C-t>o :tabonly<Return>
 nmap <silent> <C-t>i :tabs<Return>
 
 nmap <C-t><C-n> <C-t>n
-nmap <C-t><C-c> <C-t>c
+nnoremap <C-t><C-c> <C-t>c
 nmap <C-t><C-o> <C-t>o
 nmap <C-t><C-i> <C-t>i
 
@@ -108,9 +119,12 @@ nnoremap <silent> [l :lprevious<Return>
 "}}}
 
 " editing {{{2
+nnoremap <silent> j gj
+nnoremap <silent> k gk
 inoremap jj <Esc>
 nmap <silent> [Space]p :set paste<Return>
 nmap <silent> [Space]P :set nopaste<Return>
+nnoremap <C-w>V :vne<Return>
 "}}}
 
 " terminal (neovim) {{{2
@@ -130,6 +144,13 @@ endif
 
 set updatetime=700
 
+if has("nvim")
+  let g:python3_host_prog = '~/.pyenv/versions/3.8.5/bin/python'
+  let g:python_host_prog  = '~/.pyenv/versions/2.7.15/bin/python'
+endif
+
+set switchbuf = "usetab,useopen,uselast"
+
 " encoding {{{2
 set encoding=utf-8
 set fileencodings=utf-8,chinese,latin-1
@@ -140,7 +161,7 @@ set fileencodings=utf-8,chinese,latin-1
 autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") |
       \ exe "normal! g'\"" |
       \ endif
-set wrap
+set nowrap
 set textwidth=79
 set colorcolumn=80
 set backspace=indent,eol,start
@@ -162,7 +183,7 @@ set hlsearch
 "}}}
 
 " convenience {{{2
-set autochdir
+set noautochdir
 set showmatch
 set autoread
 set wildmenu
@@ -223,9 +244,25 @@ if (1 < &t_Co || has('gui')) && has('syntax')
 
     let g:seoul256_background = 235
 
-    colorscheme peaksea
+    colorscheme zenburn
   endif
 endif
+
+" terminal {{{3
+if has("nvim")
+  augroup term
+    autocmd!
+    autocmd TermOpen * setlocal bufhidden=hide | setlocal buflisted
+  augroup END
+endif
+"}}}
+
+" buffer {{{3
+augroup help
+  autocmd!
+  autocmd FileType help setlocal bufhidden=hide | setlocal buflisted
+augroup END
+"}}}
 "}}}
 
 " font {{{2
@@ -239,6 +276,11 @@ endif
 " java {{{2
 augroup java
   autocmd!
+  autocmd FileType java call s:java_settings()
+  function! s:java_settings() abort
+    nnoremap <silent> <buffer> [Space]gd :AnyJump<Return>
+    xnoremap <silent> <buffer> [Space]gd :AnyJumpVisual<Return>
+  endfunction
 augroup END
 "}}}
 
@@ -327,11 +369,14 @@ augroup END
 " markdown {{{2
 augroup markdown
   autocmd!
-  autocmd FileType markdown
-        \ setlocal textwidth=79 |
-        \ setlocal conceallevel=2
-  autocmd FileType markdown nnoremap <silent> <buffer> [Space]o :AsyncRun open -a Marked\ 2 %<Return>
-  autocmd FileType markdown nnoremap <silent> <buffer> <leader>e :AsyncRun open -a Ulysses %<Return>
+  function! s:markdown_settings() abort
+    setlocal textwidth=79
+    setlocal conceallevel=2
+    setlocal wrap
+    nnoremap <silent> <buffer> [Space]o :AsyncRun open -a Marked\ 2 %<Return>
+    nnoremap <silent> <buffer> gO :Toch<Return>
+  endfunction
+  autocmd FileType markdown call s:markdown_settings()
 augroup END
 "}}}
 
@@ -345,13 +390,49 @@ augroup END
 "}}}
 
 " plugin/script {{{1
-" eclim {{{2
-let g:EclimCompletionMethod = 'omnifunc'
-augroup java
-  autocmd FileType java nnoremap <silent> <buffer> [Space]r :Java %<Return>
-  autocmd FileType java nnoremap <silent> <buffer> <leader>i :JavaImportOrganize<Return>
+nnoremap <leader>pu :call <SID>update_packages()<Return>
+
+" Shougo/denite.nvim {{{2
+nnoremap <silent> [Space]bb :Denite -start-filter -auto-resize -winheight=12 buffer<Return>
+nnoremap <silent> <C-p> :Denite -start-filter -auto-resize -winheight=12 file/rec<Return>
+nnoremap <silent> [Space]zr :Denite -start-filter -auto-resize -winheight=12 file/old<Return>
+nnoremap <silent> [Space]/ :Denite -start-filter line<Return>
+
+call denite#custom#option('_', 'prompt', '> ')
+call denite#custom#option('_', 'statusline', v:false)
+call denite#custom#filter('matcher/clap', 'clap_path', expand('~/.vim/pack/minpac/start/vim-clap'))
+for src in ['file/old', 'file/rec', 'file_mru', 'buffer', 'line']
+  call denite#custom#source(src, 'matchers', ['matcher/clap'])
+endfor
+
+augroup denite_settings
+  autocmd!
+  autocmd FileType denite call s:denite_my_settings()
+  function! s:denite_my_settings() abort
+    nnoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+    nnoremap <silent><buffer><expr> d denite#do_map('do_action', 'delete')
+    nnoremap <silent><buffer><expr> p denite#do_map('do_action', 'preview')
+    nnoremap <silent><buffer><expr> q denite#do_map('quit')
+    nnoremap <silent><buffer><expr> i denite#do_map('open_filter_buffer')
+    nnoremap <silent><buffer><expr> g denite#do_map('quick_move')
+    nnoremap <silent><buffer><expr> <Space> denite#do_map('toggle_select').'j'
+  endfunction
+
+  autocmd FileType denite-filter call s:denite_filter_settings()
+  function! s:denite_filter_settings() abort
+    inoremap <silent><buffer><expr> <C-j> denite#increment_parent_cursor(1)
+    inoremap <silent><buffer><expr> <C-k> denite#increment_parent_cursor(-1)
+    nnoremap <silent><buffer><expr> <C-j> denite#increment_parent_cursor(1)
+    nnoremap <silent><buffer><expr> <C-k> denite#increment_parent_cursor(-1)
+    inoremap <silent><buffer><expr> <CR> denite#do_map('do_action')
+    nnoremap <silent><buffer><expr> <C-c> denite#do_map('quit')
+    inoremap <silent><buffer><expr> <C-c> denite#do_map('quit')
+    inoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+    nnoremap <silent><buffer><expr> <Esc> denite#do_map('quit')
+  endfunction
 augroup END
 "}}}
+
 " benmills/vimux {{{2
 nnoremap [Space]vp :VimuxPromptCommand<Return>
 nnoremap [Space]vl :VimuxRunLastCommand<Return>
@@ -377,9 +458,6 @@ augroup END
 " ervandew/supertab {{{2
 let g:SuperTabDefaultCompletionType = "<c-n>"
 let g:SuperTabLongestEnhanced = 1
-augroup java
-  autocmd FileType java call SuperTabSetDefaultCompletionType("<c-x><c-o>")
-augroup END
 "}}}
 
 " netrw {{{2
@@ -411,23 +489,7 @@ nnoremap [Space]u :UndotreeToggle<Return>
 
 " w0rp/ale {{{2
 let g:ale_disable_lsp = 1
-let g:ale_go_gometalinter_args = get(g:, 'ale_go_gometalinter_args',
-\   '--fast --disable=golint --disable=govet')
-
 let s:format = '--format="{{.Path}}:{{.Line}}:{{if .Col}}{{.Col}}{{end}}: {{.Severity}}: {{.Message}} ({{.Linter}})"'
-
-call ale#linter#Define('go', {
-\   'name': 'gometalinter',
-\   'output_stream': 'stdout',
-\   'executable': 'gometalinter',
-\   'command': 'gometalinter ' . s:format . ' ' . g:ale_go_gometalinter_args,
-\   'callback': 'ale#handlers#HandleGCCFormat',
-\})
-
-let g:ale_linters = {
-\   'python': ['flake8', 'pylint'],
-\   'go': ['gometalinter'],
-\}
 let g:ale_linter_aliases = {
 \   'sls': 'yaml',
 \}
@@ -437,8 +499,6 @@ let g:ale_lint_on_text_changed = 1
 let g:ale_lint_on_save = 1
 
 " python
-let g:ale_python_flake8_use_global = 1
-let g:ale_python_pyline_use_global = 1
 let g:ale_virtualenv_dir_names = []
 map <silent> [Space]ec :call ale#Queue(0)<Return>
 nnoremap <silent> [Space]eo :lopen<Return>
@@ -507,11 +567,12 @@ nnoremap <silent> [Space]a :Grepper -highlight -noprompt -cword<Return>
 nnoremap [Space]A :Grepper<Return>
 "}}}
 
-" ctrl-p {{{2
-let g:ctrlp_map = '<C-p>'
-let g:ctrlp_cmd = 'CtrlP'
+" ctrlpvim/ctrlp.vim {{{2
+" let g:ctrlp_map = '<C-p>'
+" let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_match_window = 'bottom,top,order:ttb,min:1,max:15,results:12'
 let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_switch_buffer = 0
 set wildignore+=*/.git/*,*/.hg/*,*/.svn/*
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\v[\/](node_modules|bower_components)$',
@@ -530,8 +591,8 @@ augroup END
 " nnoremap <silent> <C-p> :CtrlP<Return>
 nnoremap <silent> [Space]f :CtrlPBufTag<Return>
 nnoremap <silent> [Space]t :CtrlPTag<Return>
-nnoremap <silent> [Space]zr :CtrlPMRU<Return>
-nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
+" nnoremap <silent> [Space]zr :CtrlPMRU<Return>
+" nnoremap <silent> [Space]bb :CtrlPBuffer<Return>
 "}}}
 
 " maralla/completor.vim {{{2
@@ -666,6 +727,10 @@ let g:rustfmt_autosave = 1
 " tpope/fugitive {{{2
 nnoremap [Space]vs :Git<Return>
 nnoremap [Space]vb :Git blame<Return>
+nnoremap [Space]vr :on \| :Gvdiffsplit!<Return>
+nnoremap <leader>vra :diffoff! \| :on \| :w \| :Git<Return>
+nnoremap [Space]doa :diffget //2<Return>
+nnoremap [Space]dob :diffget //3<Return>
 "}}}
 
 " easymotion/vim-easymotion {{{2
@@ -681,13 +746,15 @@ autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 luafile $HOME/.config/nvim/plugins.lua
 "}}}
 
-
 " goerz/jupytext.vim {{{2
 let g:jupytext_fmt = 'py:percent'
 "}}}
 
 " pacha/vem-tabline {{{2 
 let g:vem_tabline_show = 2
+let g:vem_unnamed_buffer_label = "~"
+let g:vem_tabline_show_number = "none"
+let g:vem_tabline_multiwindow_mode = 1
 "}}}
 
 " simeji/winresizer {{{2
@@ -699,4 +766,7 @@ map <leader>sb ctrah
 imap <leader>sb <Esc>ctrah
 "}}}
 
+" {{{2
+let g:yankring_replace_n_pkey = '<c-y>'
+"}}}
 " vim:fdm=marker:ts=2:sts=2:sw=2:fdl=0
