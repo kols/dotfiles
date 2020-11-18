@@ -14,7 +14,6 @@ call minpac#add('maximbaz/lightline-ale')
 call minpac#add('mhinz/vim-startify')
 call minpac#add('tpope/vim-fugitive')
 call minpac#add('tpope/vim-obsession')
-call minpac#add('airblade/vim-rooter')
 call minpac#add('nathanaelkane/vim-indent-guides')
 call minpac#add('vim-scripts/peaksea')
 
@@ -560,9 +559,7 @@ let g:tagbar_type_thrift = {
 "}}}
 
 " mhinz/vim-grepper {{{2
-let g:grepper = {
-    \ 'tools': ['rg', 'ag'],
-    \ }
+runtime plugin/grepper.vim
 nnoremap <silent> [Space]a :Grepper -highlight -noprompt -cword<Return>
 nnoremap [Space]A :Grepper<Return>
 "}}}
@@ -707,6 +704,7 @@ augroup END
 let g:rooter_change_directory_for_non_project_files = 1
 let g:rooter_silent_chdir = 1
 let g:rooter_resolve_links = 1
+let g:rooter_cd_cmd = 'lcd'
 "}}}
 
 " filebeagle {{{2
