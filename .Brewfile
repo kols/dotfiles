@@ -1,105 +1,162 @@
 cask_args appdir: "/Applications"
-cask "clashx"
-brew "mas"
 
-# Taps
-
-tap "homebrew/bundle"
-tap "homebrew/core"
-tap "homebrew/cask"
-tap "homebrew/cask-versions"
-tap "homebrew/services"
 tap "d12frosted/emacs-plus"
-
-# Packages
-
-## Apps
-
-brew "d12frosted/emacs-plus/emacs-plus", args: ["HEAD", "without-spacemacs-icon"]
-brew "emacs"
-brew "vim"
-brew "aspell"
+tap "homebrew/bundle"
+tap "homebrew/cask"
+tap "homebrew/cask-fonts"
+tap "homebrew/cask-versions"
+tap "homebrew/core"
+tap "homebrew/services"
+# tap "kols/jdt-language-server"
+tap "railwaycat/emacsmacport"
 brew "aria2"
-brew "ffmpeg"
-brew "ghq"
-brew "gnupg"
-brew "graphviz"
-brew "mosh"
-brew "mtr"
-brew "ncdu"
-cask "java"
-brew "plantuml"
-brew "ripgrep"
-brew "stow"
-brew "telnet"
-brew "tmux"
-brew "tree"
-brew "wget"
-brew "youtube-dl"
-brew "multimarkdown"
-
-# Casks
-
-cask "anki"
-cask "bartender"
-cask "nvalt"
-cask "devonthink-pro"
-cask "iina"
-cask "iterm2"
-cask "spotify"
-cask "xiami"
-cask "spectacle"
-cask "mailmate"
-cask "dropbox"
-cask "launchbar"
-cask "skim"
-cask "lyricsx"
-
-# Mac Apple Store
-
-mas "1Password", id: 443987910
-mas "Xcode", id: 497799835
-mas "2Do", id: 477670270
-mas "Reeder", id: 880001334
-mas "Clearview", id: 557090104
-mas "Lighten", id: 1206278328
-mas "WeChat", id: 836500024
-mas "Tweetbot", id: 557168941
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
-mas "Keynote", id: 409183694
-mas "Marked 2", id: 890031187
-mas "NepTunes", id: 1006739057
-
-# Devel
-
-brew "openssl"
+brew "aspell"
 brew "autoconf"
 brew "automake"
-brew "readline"
 brew "bash"
+brew "readline"
+brew "xz"
+brew "python@3.9"
+brew "glib"
+brew "python@3.8"
+brew "clang-format"
 brew "cloc"
 brew "cmake"
 brew "coreutils"
 brew "cppcheck"
-brew "gawk"
-brew "gnu-sed"
-brew "grep"
-# brew "ctags", args: ["HEAD"]
-brew "dep"
+brew "ctags"
+brew "cython"
 brew "diff-so-fancy"
+brew "pkg-config"
+brew "gnutls"
+brew "emacs", link: false
+# brew "fastjar"
 brew "fd"
+brew "gobject-introspection"
+brew "harfbuzz"
+brew "libass"
+brew "ffmpeg"
 brew "fzy"
+brew "gawk"
+brew "geos"
+brew "ghq"
 brew "git"
 brew "git-extras"
-brew "global", args: ["with-ctags", "with-pygments"]
+brew "global"
+brew "gnu-sed"
+brew "gnupg"
+brew "go"
+brew "godep"
 brew "goenv"
-brew "hadolint"
-brew "jsonlint"
-brew "pyenv"
-brew "rbenv"
-brew "shellcheck"
-brew "zplug"
-brew "zsh"
+brew "graphviz"
+brew "grep"
+brew "htop"
+brew "hub"
+brew "hunspell"
+brew "shared-mime-info"
+brew "libheif"
+brew "imagemagick"
+brew "imagemagick@6"
+brew "jenv"
+# brew "jing-trang"
+brew "jq"
+# brew "k9s"
+# brew "kubernetes-cli"
+brew "languagetool"
+brew "librsvg"
+brew "libxml2"
+brew "luarocks"
+brew "lynx"
 brew "mackup"
-
+brew "mas"
+brew "maven"
+brew "mitmproxy"
+brew "mosh"
+brew "mtr"
+brew "multimarkdown"
+# brew "mysql@5.6"
+brew "ncdu"
+brew "neovim", args: ["HEAD"]
+# brew "openjdk"
+brew "pandoc"
+brew "pipenv"
+brew "plantuml"
+# brew "pmd"
+brew "poppler"
+brew "prettier"
+brew "privoxy", restart_service: true
+brew "pyenv"
+brew "pyenv-virtualenv"
+# brew "ranger"
+# brew "ruby-build"
+# brew "rbenv"
+brew "ripgrep"
+brew "rust"
+brew "shellcheck"
+# brew "skaffold"
+brew "sops"
+brew "sphinx-doc"
+brew "stow"
+brew "telnet"
+brew "the_silver_searcher"
+brew "tmux"
+brew "tree"
+brew "unrar"
+brew "vim"
+brew "wget"
+brew "youtube-dl"
+brew "zlib"
+brew "zsh"
+brew "d12frosted/emacs-plus/emacs-plus@27"
+# brew "kols/jdt-language-server/jdt-language-server"
+brew "railwaycat/emacsmacport/emacs-mac", args: ["with-imagemagick", "with-modern-icon", "with-natural-title-bar", "with-rsvg"], link: false
+cask "anki"
+cask "appcleaner"
+cask "bartender"
+cask "dash"
+cask "devonthink"
+cask "docker"
+cask "dropbox"
+cask "flux"
+cask "font-anonymous-pro"
+cask "font-cascadia"
+cask "font-fira-code"
+cask "font-hack"
+cask "font-input"
+cask "font-monoid"
+cask "font-monoisome"
+cask "font-source-code-pro"
+cask "font-space-mono"
+cask "font-victor-mono"
+cask "iina"
+cask "intellij-idea-ce"
+cask "iterm2"
+cask "java"
+cask "java8"
+# cask "jd-gui"
+cask "launchbar"
+# cask "mactex"
+cask "mailmate"
+# cask "mat"
+cask "nvalt"
+cask "qbittorrent"
+cask "spectacle"
+cask "spotify"
+# cask "springtoolsuite"
+cask "visual-studio-code"
+cask "wechat"
+cask "skim"
+cask "lyricsx"
+mas "1Password", id: 443987910
+mas "2Do", id: 477670270
+mas "Clearview", id: 557090104
+mas "Craft", id: 1487937127
+mas "Keynote", id: 409183694
+mas "Lighten", id: 1206278328
+mas "Marked 2", id: 890031187
+mas "NepTunes", id: 1006739057
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Reeder", id: 1449412482
+mas "Things", id: 904280696
+mas "Twitter", id: 1482454543
