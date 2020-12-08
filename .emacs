@@ -883,8 +883,13 @@ FRAME defaults to the current frame."
          ("s-g s" . magit-status)
          ("s-g l" . magit-log-current)
          ("s-g b" . magit-blame))
+  :preface
+  (defun kd/magit-revision-mode-hook-func ()
+    (text-scale-mode 1)
+    (text-scale-set -0.3))
   :hook ((magit-process-mode . goto-address-mode)
-         (magit-post-refresh . diff-hl-magit-post-refresh))
+         (magit-post-refresh . diff-hl-magit-post-refresh)
+         (magit-revision-mode . kd/magit-revision-mode-hook-func))
   :config
   (setq magit-git-executable (executable-find "git")))
 
@@ -2077,6 +2082,7 @@ directory to make multiple eshell windows easier."
               ("m" . format-all-buffer)))
 
 (use-package lsp-mode
+  :disabled t
   :ensure t
   :commands (lsp lsp-deferred lsp-flycheck-add-mode)
   :bind ((:map lsp-mode-map
@@ -2962,6 +2968,7 @@ directory to make multiple eshell windows easier."
 ;;;; Java
 
 (use-package java-mode
+  :disabled t
   :no-require t
   :ensure cc-mode
   :preface

@@ -86,7 +86,7 @@ zstyle ':completion:*:approximate:*' max-errors 1 numeric
 
 # random hash
 function random_short_hash {
-    python -c 'import os, hashlib; print hashlib.sha256(os.urandom(2048)).hexdigest()[:7]'
+    /usr/local/bin/python2 -c 'import os, hashlib; print hashlib.sha256(os.urandom(2048)).hexdigest()[:7]'
 }
 
 # bc - An arbitrary precision calculator language
