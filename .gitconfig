@@ -89,9 +89,9 @@
 [github]
     user = kols
 [ghq]
-    root = ~/.ghq
     root = ~/go/src
     root = ~/work/repos
+    root = ~/.ghq
 [status]
     showUntrackedFiles = all
 [transfer]
