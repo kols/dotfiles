@@ -35,15 +35,36 @@ bindkey -e
 # plugin
 ##
 
-# zplug
-source $ZPLUG_HOME/init.zsh
-if ! zplug check --verbose; then
-    printf "install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-zplug load # --verbose
+# zplugin
+source ~/.zinit/bin/zinit.zsh
+
+zinit load "zinit-zsh/z-a-bin-gem-node"
+
+zinit load "zsh-users/zsh-completions"
+zinit load "zsh-users/zsh-history-substring-search"
+zinit load "zsh-users/zsh-syntax-highlighting"
+zinit load "zsh-users/zsh-autosuggestions"
+
+zinit ice pick"z.sh"
+zinit load "rupa/z"
+
+zinit ice from"gh-r" fbin"fzf"
+zinit load junegunn/fzf
+
+zinit ice from"gh-r" fbin"usr/bin/fzy -> fzy"
+zinit load "jhawthorn/fzy"
+
+zinit ice from"gh-r" fbin"jq-linux64 -> jq"
+zinit load "stedolan/jq"
+
+zinit ice from"gh-r" fbin"ghq_linux_amd64/ghq -> ghq"
+zinit load "x-motemen/ghq"
+
+zinit ice as"program" pick"git-icdiff"
+zinit load "jeffkaufman/icdiff"
+
+zinit ice from"gh-r" fbin"usr/local/bin/sops -> sops"
+zinit load "mozilla/sops"
 
 ##
 # key binding
