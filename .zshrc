@@ -179,6 +179,11 @@ alias rupdate="rsync -avzu --progress -h"
 alias rsync-synchronize="rsync -avzu --delete --progress -h"
 alias gg='__gg () { open "https://www.google.com/search?q=$*" }; __gg'
 alias wghq='GHQ_ROOT=~/work/repos ghq'
+## nvim alias
+if command -v nvim &>/dev/null; then
+    alias vim=nvim
+    alias vi=nvim
+fi
 
 # Improve terminal title
 case "${TERM}" in
@@ -264,20 +269,31 @@ function install_gopkg {
 }
 
 # pyenv
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
 
 # rbenv
-eval "$(rbenv init -)"
+if command -v rbenv &>/dev/null; then
+    eval "$(rbenv init -)"
+fi
 
 # jenv
-eval "$(jenv init -)"
+if command -v jenv &>/dev/null; then
+    eval "$(jenv init -)"
+fi
 
 # goenv
-eval "$(goenv init -)"
+if command -v goenv &>/dev/null; then
+    eval "$(goenv init -)"
+fi
 
 # sdkman
 export SDKMAN_DIR="/Users/kane/.sdkman"
 [[ -s "/Users/kane/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/kane/.sdkman/bin/sdkman-init.sh"
+
+# starship
+eval "$(starship init zsh)"
 
 # vim:ft=zsh
