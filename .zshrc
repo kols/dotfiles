@@ -35,15 +35,36 @@ bindkey -e
 # plugin
 ##
 
-# zplug
-source $ZPLUG_HOME/init.zsh
-if ! zplug check --verbose; then
-    printf "install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-zplug load # --verbose
+# zplugin
+source ~/.zinit/bin/zinit.zsh
+
+zinit load "zinit-zsh/z-a-bin-gem-node"
+
+zinit load "zsh-users/zsh-completions"
+zinit load "zsh-users/zsh-history-substring-search"
+zinit load "zsh-users/zsh-syntax-highlighting"
+zinit load "zsh-users/zsh-autosuggestions"
+
+zinit ice pick"z.sh"
+zinit load "rupa/z"
+
+zinit ice from"gh-r" fbin"fzf"
+zinit load junegunn/fzf
+
+zinit ice from"gh-r" fbin"usr/bin/fzy -> fzy"
+zinit load "jhawthorn/fzy"
+
+zinit ice from"gh-r" fbin"jq-linux64 -> jq"
+zinit load "stedolan/jq"
+
+zinit ice from"gh-r" fbin"ghq_linux_amd64/ghq -> ghq"
+zinit load "x-motemen/ghq"
+
+zinit ice as"program" pick"git-icdiff"
+zinit load "jeffkaufman/icdiff"
+
+zinit ice from"gh-r" fbin"usr/local/bin/sops -> sops"
+zinit load "mozilla/sops"
 
 ##
 # key binding
@@ -179,6 +200,11 @@ alias rupdate="rsync -avzu --progress -h"
 alias rsync-synchronize="rsync -avzu --delete --progress -h"
 alias gg='__gg () { open "https://www.google.com/search?q=$*" }; __gg'
 alias wghq='GHQ_ROOT=~/work/repos ghq'
+## nvim alias
+if command -v nvim &>/dev/null; then
+    alias vim=nvim
+    alias vi=nvim
+fi
 
 # Improve terminal title
 case "${TERM}" in
@@ -264,20 +290,31 @@ function install_gopkg {
 }
 
 # pyenv
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
+if command -v pyenv &>/dev/null; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
 
 # rbenv
-eval "$(rbenv init -)"
+if command -v rbenv &>/dev/null; then
+    eval "$(rbenv init -)"
+fi
 
 # jenv
-eval "$(jenv init -)"
+if command -v jenv &>/dev/null; then
+    eval "$(jenv init -)"
+fi
 
 # goenv
-eval "$(goenv init -)"
+if command -v goenv &>/dev/null; then
+    eval "$(goenv init -)"
+fi
 
 # sdkman
 export SDKMAN_DIR="/Users/kane/.sdkman"
 [[ -s "/Users/kane/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/kane/.sdkman/bin/sdkman-init.sh"
+
+# starship
+eval "$(starship init zsh)"
 
 # vim:ft=zsh

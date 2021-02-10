@@ -1,1 +1,1 @@
-/Users/kane/.vimrc
+../.vimrc

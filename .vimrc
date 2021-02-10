@@ -144,8 +144,8 @@ endif
 set updatetime=700
 
 if has("nvim")
-  let g:python3_host_prog = '~/.pyenv/versions/3.8.5/bin/python'
-  let g:python_host_prog  = '~/.pyenv/versions/2.7.15/bin/python'
+  let g:python3_host_prog = '~/.pyenv/versions/3.9.1/bin/python'
+  let g:python_host_prog  = '~/.pyenv/versions/2.7.18/bin/python'
 endif
 
 set switchbuf = "usetab,useopen,uselast"

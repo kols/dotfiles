@@ -14,18 +14,18 @@ export LESS='--tabs=4 --no-init --LONG-PROMPT --ignore-case --quit-if-one-screen
 # icloud drive
 export icloud=~/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
-# zplug
-export ZPLUG_HOME="$HOME/.zplug"
-export ZPLUG_LOADFILE="$HOME/packages.zsh"
-
 # jenv
-export JENV_ROOT=/usr/local/opt/jenv
+if command -v jenv &> /dev/null; then
+    export JENV_ROOT=/usr/local/opt/jenv
+fi
 
 # go
-export GOENV_ROOT=/usr/local/opt/goenv
-export GOROOT=/usr/local/opt/go/libexec
-export GOPATH="$HOME/go"
-export PATH="${PATH}:$HOME/go/bin:$GOROOT/bin"
+if command -v goenv &> /dev/null; then
+    export GOENV_ROOT=/usr/local/opt/goenv
+    export GOROOT=/usr/local/opt/go/libexec
+    export GOPATH="$HOME/go"
+    export PATH="${PATH}:$HOME/go/bin:$GOROOT/bin"
+fi
 
 # rust
 export PATH="${PATH}:$HOME/.cargo/bin"
@@ -34,6 +34,11 @@ export PATH="${PATH}:$HOME/.cargo/bin"
 export HOMEBREW_AUTO_UPDATE_SECS=86400
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 export HOMEBREW_CLEANUP_MAX_AGE_DAYS=99999
+
+## linuxbrew
+if [[ $OSTYPE == "linux-gnu" ]]; then
+    eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+fi
 
 # xapian cjk tokenizer
 export XAPIAN_CJK_NGRAM=1
