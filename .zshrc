@@ -51,19 +51,33 @@ zinit load "rupa/z"
 zinit ice from"gh-r" fbin"fzf"
 zinit load junegunn/fzf
 
-zinit ice from"gh-r" fbin"usr/bin/fzy -> fzy"
-zinit load "jhawthorn/fzy"
+if [[ $OSTYPE == "gnu-linux"* ]]; then
+   zinit ice from"gh-r" fbin"usr/bin/fzy -> fzy"
+   zinit load "jhawthorn/fzy"
+fi
 
-zinit ice from"gh-r" fbin"jq-linux64 -> jq"
+if [[ $OSTYPE == "darwin"* ]]; then
+   zinit ice from"gh-r" fbin"jq-osx-amd64 -> jq"
+elif [[ $OSTYPE == "gnu-linux"* ]]; then
+   zinit ice from"gh-r" fbin"jq-linux64 -> jq"
+fi
 zinit load "stedolan/jq"
 
-zinit ice from"gh-r" fbin"ghq_linux_amd64/ghq -> ghq"
+if [[ $OSTYPE == "darwin"* ]]; then
+   zinit ice from"gh-r" fbin"ghq_darwin_amd64/ghq -> ghq"
+elif [[ $OSTYPE == "gnu-linux"* ]]; then
+   zinit ice from"gh-r" fbin"ghq_linux_amd64/ghq -> ghq"
+fi
 zinit load "x-motemen/ghq"
 
 zinit ice as"program" pick"git-icdiff"
 zinit load "jeffkaufman/icdiff"
 
-zinit ice from"gh-r" fbin"usr/local/bin/sops -> sops"
+if [[ $OSTYPE == "darwin"* ]]; then
+   zinit ice from"gh-r" bpick"*darwin*" fbin"sops-v3.6.1.darwin -> sops"
+elif [[ $OSTYPE == "gnu-linux"* ]]; then
+   zinit ice from"gh-r" bpick"*linux*" fbin"sops-v3.6.1.linux -> sops"
+fi
 zinit load "mozilla/sops"
 
 ##
