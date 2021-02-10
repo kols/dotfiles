@@ -58,7 +58,7 @@ REPO's pattern: `<user>/<repo>'"
   "Turn on http PROXY.  FORCE to turn on even no proxy process detected."
   (interactive "P")
   ;; Tor / Proxy: set up before package initialization.
-  (when (or (member "ClashX"
+  (when (or (member "ClashX Pro"
                     (mapcar (lambda (p) (alist-get 'comm (process-attributes p)))
                             (list-system-processes)))
             (eq force '(4)))
