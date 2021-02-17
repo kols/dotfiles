@@ -45,9 +45,6 @@ zinit load "zsh-users/zsh-history-substring-search"
 zinit load "zsh-users/zsh-syntax-highlighting"
 zinit load "zsh-users/zsh-autosuggestions"
 
-zinit ice pick"z.sh"
-zinit load "rupa/z"
-
 zinit ice from"gh-r" fbin"fzf"
 zinit load junegunn/fzf
 
@@ -79,6 +76,9 @@ elif [[ $OSTYPE == "gnu-linux"* ]]; then
    zinit ice from"gh-r" bpick"*linux*" fbin"sops-v3.6.1.linux -> sops"
 fi
 zinit load "mozilla/sops"
+
+zinit ice from"gh-r" bpick"*darwin*" fbin"zoxide-x86_64-apple-darwin -> zoxide"
+zinit load "ajeetdsouza/zoxide"
 
 ##
 # key binding
@@ -330,5 +330,8 @@ export SDKMAN_DIR="/Users/kane/.sdkman"
 
 # starship
 eval "$(starship init zsh)"
+
+# zoxide
+eval "$(zoxide init zsh)"
 
 # vim:ft=zsh
