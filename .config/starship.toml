@@ -1,0 +1,5 @@
+[python]
+symbol = "\\[p\\] "
+
+[ruby]
+disabled = true
