@@ -7,3 +7,4 @@ work
 \#.*\#
 \.ssh/id_rsa.pub
 \.projectile
+\.vim/pack

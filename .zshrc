@@ -1,6 +1,6 @@
 HISTFILE=~/.histfile
-HISTSIZE=10000
-SAVEHIST=50000
+HISTSIZE=100000
+SAVEHIST=500000
 WORDCHARS='*?_.[]~&;!#$%^(){}<>'
 
 setopt auto_resume
@@ -38,47 +38,40 @@ bindkey -e
 # zplugin
 source ~/.zinit/bin/zinit.zsh
 
-zinit load "zinit-zsh/z-a-bin-gem-node"
+# zinit load "zinit-zsh/z-a-bin-gem-node"
 
 zinit load "zsh-users/zsh-completions"
 zinit load "zsh-users/zsh-history-substring-search"
 zinit load "zsh-users/zsh-syntax-highlighting"
 zinit load "zsh-users/zsh-autosuggestions"
 
-zinit ice from"gh-r" fbin"fzf"
-zinit load junegunn/fzf
+zinit ice as"program" from"gh-r"
+zinit load "junegunn/fzf"
 
-if [[ $OSTYPE == "gnu-linux"* ]]; then
-   zinit ice from"gh-r" fbin"usr/bin/fzy -> fzy"
-   zinit load "jhawthorn/fzy"
-fi
-
-if [[ $OSTYPE == "darwin"* ]]; then
-   zinit ice from"gh-r" fbin"jq-osx-amd64 -> jq"
-elif [[ $OSTYPE == "gnu-linux"* ]]; then
-   zinit ice from"gh-r" fbin"jq-linux64 -> jq"
-fi
+zinit ice as"program" from"gh-r" mv"jq* -> jq"
 zinit load "stedolan/jq"
 
-if [[ $OSTYPE == "darwin"* ]]; then
-   zinit ice from"gh-r" fbin"ghq_darwin_amd64/ghq -> ghq"
-elif [[ $OSTYPE == "gnu-linux"* ]]; then
-   zinit ice from"gh-r" fbin"ghq_linux_amd64/ghq -> ghq"
-fi
+zinit ice as"program" from"gh-r" pick"ghq_*/ghq"
 zinit load "x-motemen/ghq"
 
 zinit ice as"program" pick"git-icdiff"
 zinit load "jeffkaufman/icdiff"
 
-if [[ $OSTYPE == "darwin"* ]]; then
-   zinit ice from"gh-r" bpick"*darwin*" fbin"sops-v3.6.1.darwin -> sops"
-elif [[ $OSTYPE == "gnu-linux"* ]]; then
-   zinit ice from"gh-r" bpick"*linux*" fbin"sops-v3.6.1.linux -> sops"
-fi
+zinit ice as"program" from"gh-r" mv"sops* -> sops" bpick"*darwin*"
 zinit load "mozilla/sops"
 
-zinit ice from"gh-r" bpick"*darwin*" fbin"zoxide-x86_64-apple-darwin -> zoxide"
+zinit ice from"gh-r" as"program" pick"zoxide-*-x86_64-apple-darwin/zoxide"
 zinit load "ajeetdsouza/zoxide"
+
+zinit ice from"gh-r" as"program" pick"bin/exa"
+zinit load "ogham/exa"
+
+zinit ice from"gh-r" as"program"
+zinit load "zigtools/zls"
+
+HISTDB_TABULATE_CMD=(sed -e $'s/\x1f/\t/g')
+zinit ice depth"1" # git clone depth
+zinit load "larkery/zsh-histdb"
 
 ##
 # key binding
@@ -188,6 +181,7 @@ function _mvim_open_in_tab {
 # alias
 ##
 alias c=clear
+alias ls=exa
 alias vi=vim
 alias mvim='_mvim_open_in_tab'
 alias j="z"
@@ -196,7 +190,7 @@ alias hd="head"
 alias l="less"
 alias lm="ls -lahF"
 alias km="k -ah"
-alias l1="ls -A1"
+alias l1="ls -1"
 alias findn="find . -name"
 alias tmux="tmux -2 -u"
 alias ta="tmux attach"
@@ -237,6 +231,28 @@ function js {
 		return
 	fi
     pushd "$srcpath"
+}
+
+# jog
+function jog() {
+    sqlite3 $HOME/.histdb/zsh-history.db "
+SELECT
+    replace(commands.argv, '
+', '
+')
+FROM commands
+JOIN history ON history.command_id = commands.id
+JOIN places ON history.place_id = places.id
+WHERE history.exit_status = 0
+AND dir = '${PWD}'
+AND places.host = '${HOST}'
+AND commands.argv != 'jog'
+AND commands.argv NOT LIKE 'z %'
+AND commands.argv NOT LIKE 'cd %'
+AND commands.argv != '..'
+ORDER BY start_time DESC
+LIMIT 10
+"
 }
 
 # ssh interactively select host
@@ -303,35 +319,13 @@ function install_gopkg {
     done
 }
 
-# pyenv
-if command -v pyenv &>/dev/null; then
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-
-# rbenv
-if command -v rbenv &>/dev/null; then
-    eval "$(rbenv init -)"
-fi
-
-# jenv
-if command -v jenv &>/dev/null; then
-    eval "$(jenv init -)"
-fi
-
-# goenv
-if command -v goenv &>/dev/null; then
-    eval "$(goenv init -)"
-fi
-
-# sdkman
-export SDKMAN_DIR="/Users/kane/.sdkman"
-[[ -s "/Users/kane/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/kane/.sdkman/bin/sdkman-init.sh"
-
-# starship
-eval "$(starship init zsh)"
+# python
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 # zoxide
 eval "$(zoxide init zsh)"
+
+# starship
+eval "$(starship init zsh)"
 
 # vim:ft=zsh

@@ -1,5 +1,25 @@
+# format = """\
+# $all\
+# $directory$character"""
+
+[zig]
+symbol = "\\[zig\\] "
+
 [python]
-symbol = "\\[p\\] "
+symbol = "\\[py\\] "
+
+[golang]
+symbol = "\\[go\\] "
 
 [ruby]
 disabled = true
+
+[lua]
+disabled = true
+
+[rust]
+disabled = true
+
+[package]
+disabled = true
+

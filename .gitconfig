@@ -1,7 +1,7 @@
 [core]
     editor = nvim
-    pager = nvim -R
-    # pager = diff-so-fancy | less --tabs=4 -RFX
+    # pager = nvim -R
+    pager = diff-so-fancy | less --tabs=4 -RFX
     eol = lf
 [user]
     name = Kane Dou
@@ -75,11 +75,6 @@
     uc = reset --soft HEAD^
 [push]
     default = current
-[diff]
-    tool = icdiff
-[difftool "icdiff"]
-    cmd = icdiff --line-numbers $LOCAL $REMOTE
-    prompt = false
 [merge]
     tool = vimdiff
     defaultToUpstream = true
@@ -98,3 +93,7 @@
     fsckObjects = true
 [credential]
 	helper = osxkeychain
+[icdiff]
+	options = --highlight --line-numbers
+[interactive]
+	diffFilter = diff-so-fancy --patch
