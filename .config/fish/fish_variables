@@ -1,6 +1,7 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
 SETUVAR --export BAT_THEME:1337
+SETUVAR --export SHELL:/usr/local/bin/fish
 SETUVAR ZO_CMD:zo
 SETUVAR Z_CMD:z
 SETUVAR Z_DATA:/Users/kane/\x2elocal/share/z/data
@@ -14,13 +15,11 @@ SETUVAR _fisher_oh_2D_my_2D_fish_2F_plugin_2D_foreign_2D_env_files:/Users/kane/\
 SETUVAR _fisher_plugins:jorgebucaran/fisher\x1ejethrokuan/z\x1eoh\x2dmy\x2dfish/plugin\x2dforeign\x2denv\x1ePatrickF1/fzf\x2efish
 SETUVAR fish_color_autosuggestion:4c566a
 SETUVAR fish_color_cancel:\x2dr
-# SETUVAR fish_color_command:81a1c1
 SETUVAR fish_color_command:green
 SETUVAR fish_color_comment:434c5e
 SETUVAR fish_color_cwd:green
 SETUVAR fish_color_cwd_root:red
 SETUVAR fish_color_end:88c0d0
-# SETUVAR fish_color_error:ebcb8b
 SETUVAR fish_color_error:red
 SETUVAR fish_color_escape:00a6b2
 SETUVAR fish_color_history_current:\x2d\x2dbold

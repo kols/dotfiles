@@ -1,3 +1,7 @@
 *.sw[op]
 .vim/pack/
 .ssh/
+.config/fish/functions/*
+!.config/fish/functions/upgrade_everything.fish
+.config/fish/completions/*
+.config/fish/conf.d/*

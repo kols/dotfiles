@@ -4,6 +4,9 @@ fenv "source /etc/profile"
 fenv "source ~/.zprofile"
 status --is-interactive; fenv "source ~/.zshrc 2>/dev/null"
 
+# make sure envvar SHELL is the right one after loading zsh files above
+set -gx SHELL /usr/local/bin/fish
+
 alias j=z
 alias vi=nvim
 alias vim=nvim
