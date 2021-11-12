@@ -1,0 +1,91 @@
+#!/bin/sh
+
+# scripting-addition {{{1
+# the scripting-addition must be loaded manually if
+# you are running yabai on macOS Big Sur. Uncomment
+# the following line to have the injection performed
+# when the config is executed during startup.
+#
+# for this to work you must configure sudo such that
+# it will be able to run the command without password
+
+sudo yabai --load-sa
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+
+# }}}
+
+# layout {{{1
+# Layout defines whether windows are tiled ("managed", "bsp") by yabai or left
+# alone ("float"). This setting can be defined on a per–space basis.
+yabai -m config layout bsp
+
+# Override default layout for space 2 only
+# yabai -m config --space 2 layout float
+# }}}
+
+# bar {{{1
+yabai -m config external_bar all:24:0
+# }}}
+
+# window {{{1
+# New window spawns to the left if vertical split, or top if horizontal split
+yabai -m config window_placement first_child
+# New window spawns to the right if vertical split, or bottom if horizontal split
+# yabai -m config window_placement second_child
+
+# Set padding and gaps
+yabai -m config top_padding    0
+yabai -m config bottom_padding 0
+yabai -m config left_padding   0
+yabai -m config right_padding  0
+yabai -m config window_gap     0
+
+# Auto balance makes it so all windows always occupy the same space,
+# independent of how deeply nested they are in the window tree. When a new
+# window is inserted or a window is removed, the split ratios will be
+# automatically adjusted.
+# on or off (default: off)
+yabai -m config auto_balance off
+
+# Floating point value between 0 and 1 (default: 0.5)
+yabai -m config split_ratio 0.58
+
+# modify window shadows (default: on, options: on, off, float)
+# example: show shadows only for floating windows
+yabai -m config window_shadow float
+# }}}
+
+# mouse {{{1
+# set mouse interaction modifier key (default: fn)
+yabai -m config mouse_modifier fn
+
+# set modifier + left-click drag to resize window (default: move)
+yabai -m config mouse_action1 move
+
+# set modifier + right-click drag to resize window (default: resize)
+yabai -m config mouse_action2 resize
+
+# set focus follows mouse mode (default: off, options: off, autoraise, autofocus)
+yabai -m config focus_follows_mouse off
+# }}}
+
+# rules {{{1
+# apps not managed {{{2
+yabai -m rule --add app='Lazy Mac Pack' manage=off
+yabai -m rule --add app='dwarfort.exe' manage=off
+yabai -m rule --add app='SoundSense-RS' manage=off
+yabai -m rule --add app='Streaks' manage=off
+yabai -m rule --add app='Spotify' manage=off
+yabai -m rule --add app='Terminal' title='.*dfhack.*' manage=off
+yabai -m rule --add app='Font Book' manage=off
+yabai -m rule --add app='IINA' manage=off
+yabai -m rule --add app='WeChat' manage=off
+#}}}
+
+# apps sticky {{{2
+yabai -m rule --add app='Timer' sticky=on
+yabai -m rule --add app='Things' sticky=on
+#}}}
+#}}}
+
+# vi:ft=sh:fdm=marker:fdl=0:
