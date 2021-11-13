@@ -80,6 +80,7 @@ yabai -m rule --add app='Terminal' title='.*dfhack.*' manage=off
 yabai -m rule --add app='Font Book' manage=off
 yabai -m rule --add app='IINA' manage=off
 yabai -m rule --add app='WeChat' manage=off
+yabai -m rule --add app='eqMac' manage=off
 #}}}
 
 # apps sticky {{{2

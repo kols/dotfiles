@@ -4,6 +4,14 @@ export PATH="/usr/local/sbin:/usr/local/bin:$HOME/Library/Python/2.7/bin:${PATH}
 export EDITOR=/usr/local/bin/nvim
 export VISUAL=$EDITOR
 
+if [[ ${INSIDE_EMACS:-no_emacs_here} != 'no_emacs_here' ]]; then
+    export EDITOR=emacsclient
+    export VISUAL=emacsclient
+    export PAGER=less
+    # alias magit="emacsclient -ne '(magit-status)'"
+    # function man() { emacsclient -ne "(man \"$1\")"; }
+fi
+
 # color
 export CLICOLOR=1
 export LSCOLORS='exfxcxdxbxGxDxabagacad'
