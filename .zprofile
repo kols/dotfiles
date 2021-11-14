@@ -12,6 +12,8 @@ if [[ ${INSIDE_EMACS:-no_emacs_here} != 'no_emacs_here' ]]; then
     # function man() { emacsclient -ne "(man \"$1\")"; }
 fi
 
+export GPG_TTY=$(tty)
+
 # color
 export CLICOLOR=1
 export LSCOLORS='exfxcxdxbxGxDxabagacad'

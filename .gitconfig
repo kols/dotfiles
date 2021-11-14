@@ -6,6 +6,7 @@
 [user]
     name = Kane Dou
     email = douqilong@gmail.com
+	signingkey = FA3F3CFD
 [color]
 	ui = true
     pager = no
@@ -97,3 +98,7 @@
 	options = --highlight --line-numbers
 [interactive]
 	diffFilter = diff-so-fancy --patch
+[commit]
+	gpgsign = true
+[tag]
+	gpgSign = true
