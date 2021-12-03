@@ -180,6 +180,7 @@ function _mvim_open_in_tab {
 ##
 # alias
 ##
+alias b=brew
 alias c=clear
 alias ls=exa
 alias vi=vim

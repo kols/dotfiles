@@ -8,6 +8,7 @@ status --is-interactive; fenv "source ~/.zshrc 2>/dev/null"
 set -gx SHELL /usr/local/bin/fish
 
 alias j=z
+alias b=brew
 alias vi=nvim
 alias vim=nvim
 alias tl="tail"

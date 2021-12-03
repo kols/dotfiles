@@ -3,7 +3,7 @@
 spacebar -m config position                    top
 spacebar -m config display                     all
 spacebar -m config height                      24
-spacebar -m config title                       off
+spacebar -m config title                       on
 spacebar -m config spaces                      on
 spacebar -m config clock                       on
 spacebar -m config power                       on
@@ -29,7 +29,7 @@ spacebar -m config spaces_for_all_displays     off
 spacebar -m config clock_icon                  
 spacebar -m config dnd_icon                    
 spacebar -m config clock_format                "%Y/%m/%d  %I:%M %p"
-spacebar -m config right_shell                 on
+spacebar -m config right_shell                 off
 spacebar -m config right_shell_icon            
 spacebar -m config right_shell_command         "whoami"
 
